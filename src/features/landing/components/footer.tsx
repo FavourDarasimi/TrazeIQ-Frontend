@@ -1,4 +1,4 @@
-import { Container } from "./shared";
+import { Container } from "@/components/ui/shared";
 import { Logo } from "./navbar";
 
 const columns = [

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { Reveal } from "./motion";
+import { Reveal } from "@/components/ui/motion";
 
 export function Container({
   children,

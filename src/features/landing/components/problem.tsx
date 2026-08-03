@@ -1,8 +1,8 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import { WifiOffIcon, Search01Icon, InvoiceIcon } from "@hugeicons/core-free-icons";
 
-import { Container, Eyebrow, Window } from "./shared";
-import { Reveal } from "./motion";
+import { Container, Eyebrow, Window } from "@/components/ui/shared";
+import { Reveal } from "@/components/ui/motion";
 
 const noiseLines = [
   { time: "09:12:08", text: "payments-api  DatabaseError: connection refused" },

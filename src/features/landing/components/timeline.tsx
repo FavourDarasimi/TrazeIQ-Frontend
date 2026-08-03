@@ -7,8 +7,8 @@ import {
   CheckmarkCircleIcon,
 } from "@hugeicons/core-free-icons";
 
-import { Container, SectionHeader } from "./shared";
-import { Reveal } from "./motion";
+import { Container, SectionHeader } from "@/components/ui/shared";
+import { Reveal } from "@/components/ui/motion";
 
 const entries = [
   {

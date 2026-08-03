@@ -8,8 +8,8 @@ import {
   AiSearchIcon,
 } from "@hugeicons/core-free-icons";
 
-import { Container, Eyebrow } from "./shared";
-import { Reveal, Stagger, StaggerItem } from "./motion";
+import { Container, Eyebrow } from "@/components/ui/shared";
+import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 
 const stack = [
   {

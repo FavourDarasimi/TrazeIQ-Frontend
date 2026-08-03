@@ -5,8 +5,8 @@ import {
   Notification03Icon,
 } from "@hugeicons/core-free-icons";
 
-import { Container, SectionHeader } from "./shared";
-import { Stagger, StaggerItem } from "./motion";
+import { Container, SectionHeader } from "@/components/ui/shared";
+import { Stagger, StaggerItem } from "@/components/ui/motion";
 
 export function HowItWorks() {
   return (

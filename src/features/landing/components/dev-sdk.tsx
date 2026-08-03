@@ -1,8 +1,8 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import { CheckmarkCircleIcon, TerminalIcon } from "@hugeicons/core-free-icons";
 
-import { Container, Eyebrow, GhostButton, Window } from "./shared";
-import { Reveal } from "./motion";
+import { Container, Eyebrow, GhostButton, Window } from "@/components/ui/shared";
+import { Reveal } from "@/components/ui/motion";
 
 export function DevSdk() {
   return (

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import "./globals.css";
+import "@/styles/globals.css";
+import { siteConfig } from "@/config/site";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -15,9 +16,8 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TrazeIQ — Detect. Understand. Fix.",
-  description:
-    "TrazeIQ watches your production errors, groups the noise into one incident, and hands your team an AI-written root cause before the first customer complains.",
+  title: `${siteConfig.name} — ${siteConfig.tagline}`,
+  description: siteConfig.description,
 };
 
 export default function RootLayout({

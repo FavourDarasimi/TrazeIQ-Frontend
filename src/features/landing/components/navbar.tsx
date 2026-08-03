@@ -4,7 +4,7 @@ import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon, Menu01Icon } from "@hugeicons/core-free-icons";
 
-import { Container } from "./shared";
+import { Container } from "@/components/ui/shared";
 
 const links = [
   { label: "Product", href: "#features" },

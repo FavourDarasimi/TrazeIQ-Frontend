@@ -1,8 +1,8 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 
-import { Container, GhostButton, PrimaryButton } from "./shared";
-import { Reveal } from "./motion";
+import { Container, GhostButton, PrimaryButton } from "@/components/ui/shared";
+import { Reveal } from "@/components/ui/motion";
 
 export function Cta() {
   return (

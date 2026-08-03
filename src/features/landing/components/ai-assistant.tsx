@@ -1,8 +1,8 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import { AiSearchIcon, CheckmarkCircleIcon } from "@hugeicons/core-free-icons";
 
-import { Container, Eyebrow, Window } from "./shared";
-import { Reveal } from "./motion";
+import { Container, Eyebrow, Window } from "@/components/ui/shared";
+import { Reveal } from "@/components/ui/motion";
 
 const checks = [
   "One analysis per new pattern — cached per fingerprint",

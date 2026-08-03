@@ -9,8 +9,8 @@ import {
   Search01Icon,
 } from "@hugeicons/core-free-icons";
 
-import { Container, SectionHeader, Window } from "./shared";
-import { Reveal } from "./motion";
+import { Container, SectionHeader, Window } from "@/components/ui/shared";
+import { Reveal } from "@/components/ui/motion";
 
 const nav = [
   { label: "Overview", Icon: Home01Icon, active: false },
