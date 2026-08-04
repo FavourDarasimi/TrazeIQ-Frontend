@@ -314,13 +314,13 @@ export function OnboardingFlow() {
           </div>
 
           <Link
-            href="/"
+            href={ROUTES.dashboard}
             className="inline-flex h-11 items-center justify-center rounded-lg bg-accent px-4 text-sm font-medium text-ink shadow-[0_0_24px_rgba(79,70,229,0.35)] transition-colors hover:bg-[#5b52ea]"
           >
             Continue to dashboard
           </Link>
           <p className="text-center text-xs text-muted">
-            The dashboard shell lands in the next build phase.
+            Incidents will appear here as your apps send them to /api/v1/events/.
           </p>
         </div>
       ) : null}

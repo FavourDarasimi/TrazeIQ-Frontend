@@ -10,10 +10,21 @@ export const API_ROUTES = {
   me: "/auth/me/",
   organizations: "/organizations/",
   projects: "/projects/",
+  incidents: "/incidents/",
 } as const;
 
 export const ROUTES = {
   login: "/login",
   register: "/register",
   onboarding: "/onboarding",
+  dashboard: "/dashboard",
+  incidents: "/incidents",
+  logs: "/logs",
+  services: "/services",
+  aiAssistant: "/ai-assistant",
+  settings: "/settings",
 } as const;
+
+export function incidentDetailUrl(id: number | string): string {
+  return `${ROUTES.incidents}/${id}`;
+}

@@ -33,6 +33,57 @@ export type CreatedProject = {
   integration_snippet: string;
 };
 
+export type IncidentSeverity = "critical" | "high" | "medium" | "low";
+
+export type IncidentStatus = "open" | "investigating" | "resolved" | "ignored";
+
+export type ProjectSummary = {
+  id: number;
+  name: string;
+  environment: string;
+};
+
+export type ErrorGroupSummary = {
+  id: number;
+  fingerprint: string;
+  title: string;
+  count: number;
+  first_seen: string;
+  last_seen: string;
+};
+
+export type EventSummary = {
+  id: number;
+  message: string;
+  stacktrace: string;
+  level: string;
+  environment: string;
+  service: string;
+  endpoint: string;
+  created_at: string;
+};
+
+export type Incident = {
+  id: number;
+  project: ProjectSummary;
+  error_group: ErrorGroupSummary;
+  severity: IncidentSeverity;
+  status: IncidentStatus;
+  created_at: string;
+  resolved_at: string | null;
+  latest_event: EventSummary | null;
+};
+
+export type IncidentTimelineEntry = {
+  id: number;
+  kind: "event";
+  level: string;
+  message: string;
+  environment: string;
+  service: string;
+  created_at: string;
+};
+
 export type ErrorCode =
   | "EMAIL_TAKEN"
   | "INVALID_CREDENTIALS"
