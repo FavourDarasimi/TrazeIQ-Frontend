@@ -11,6 +11,28 @@ export type AuthSession = {
   user: AuthUser;
 };
 
+export type Organization = {
+  id: number;
+  name: string;
+  owner: number;
+  created_at: string;
+};
+
+export type Project = {
+  id: number;
+  organization: number;
+  name: string;
+  api_key_prefix: string;
+  environment: string;
+  created_at: string;
+};
+
+export type CreatedProject = {
+  project: Project;
+  api_key: string;
+  sdk_snippet: string;
+};
+
 export type ErrorCode =
   | "EMAIL_TAKEN"
   | "INVALID_CREDENTIALS"
@@ -21,6 +43,8 @@ export type ErrorCode =
   | "OTP_USED"
   | "OTP_TOO_MANY_ATTEMPTS"
   | "OTP_MISSING"
+  | "REGISTRATION_TOKEN_INVALID"
+  | "REGISTRATION_TOKEN_EXPIRED"
   | "REFRESH_TOKEN_INVALID"
   | "GOOGLE_AUTH_FAILED"
   | "VALIDATION_FAILED"
