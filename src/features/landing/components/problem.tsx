@@ -33,7 +33,7 @@ export function Problem() {
   return (
     <section id="problem" className="scroll-mt-20">
       <Container className="grid items-start gap-12 py-14 sm:py-28 lg:grid-cols-2">
-        <Reveal className="flex flex-col gap-6">
+        <Reveal className="min-w-0 flex flex-col gap-6">
           <Eyebrow>The problem</Eyebrow>
           <h2 className="text-balance text-3xl font-semibold leading-tight tracking-tight text-ink sm:text-4xl">
             Your users are your monitoring tool.
@@ -65,7 +65,7 @@ export function Problem() {
           </div>
         </Reveal>
 
-        <Reveal className="lg:pl-6" delay={0.1}>
+        <Reveal className="min-w-0 lg:pl-6" delay={0.1}>
           <Window
             title="production.log"
             bodyClassName="bg-bg font-mono text-[13px] leading-relaxed"
@@ -75,13 +75,13 @@ export function Problem() {
                 <div key={i} className="flex items-center gap-3">
                   <span className="w-24 shrink-0 text-muted">{line.time}</span>
                   <span className="shrink-0 text-sev-critical">ERROR</span>
-                  <span className="truncate text-ink/70">{line.text}</span>
+                  <span className="min-w-0 truncate text-ink/70">{line.text}</span>
                 </div>
               ))}
               <div className="flex items-center gap-3 pb-1 pt-2">
                 <span className="w-24 shrink-0 text-muted">09:12:31</span>
                 <span className="shrink-0 text-sev-critical">ERROR</span>
-                <span className="truncate text-ink/70">
+                <span className="min-w-0 truncate text-ink/70">
                   payments-api <span className="text-muted">…</span>
                 </span>
               </div>
@@ -94,7 +94,7 @@ export function Problem() {
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted">
               Costs of the status quo
             </p>
-            <div className="mt-4 grid grid-cols-3 gap-4 text-center">
+            <div className="mt-4 grid grid-cols-1 gap-4 text-center sm:grid-cols-3">
               <div>
                 <p className="font-mono text-2xl text-ink">4,000+</p>
                 <p className="mt-1 text-[11px] text-muted">

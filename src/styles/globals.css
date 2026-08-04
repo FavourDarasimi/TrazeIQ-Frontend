@@ -27,11 +27,13 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
   background: var(--color-bg);
   color: var(--color-ink);
+  overflow-x: clip;
 }
 
 ::selection {

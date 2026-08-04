@@ -84,7 +84,7 @@ export function Hero() {
           </p>
         </Reveal>
 
-        <Reveal delay={0.45} className="mt-14 w-full max-w-3xl">
+        <Reveal delay={0.45} className="min-w-0 mt-14 w-full max-w-3xl">
           <Window
             title="trazeiq · live feed"
             bodyClassName="font-mono text-[12px] sm:text-[13px] leading-relaxed"

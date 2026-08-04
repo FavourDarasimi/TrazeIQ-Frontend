@@ -18,7 +18,7 @@ export function AIAssistant() {
       className="scroll-mt-20 border-y border-line bg-bg-panel"
     >
       <Container className="grid items-center gap-12 py-14 sm:py-28 lg:grid-cols-2">
-        <Reveal className="flex flex-col gap-6">
+        <Reveal className="min-w-0 flex flex-col gap-6">
           <Eyebrow>AI Incident Copilot</Eyebrow>
           <h2 className="text-balance text-2xl font-semibold leading-tight tracking-tight text-ink sm:text-3xl lg:text-4xl">
             Not just {"\u201Csomething went wrong\u201D"} — the diagnosis
@@ -46,7 +46,7 @@ export function AIAssistant() {
           </ul>
         </Reveal>
 
-        <Reveal className="lg:pl-6" delay={0.1}>
+        <Reveal className="min-w-0 lg:pl-6" delay={0.1}>
           <Window
             title="incident #1281 · AI analysis"
             bodyClassName="bg-bg p-6"

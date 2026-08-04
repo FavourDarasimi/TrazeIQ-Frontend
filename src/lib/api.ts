@@ -1,14 +1,17 @@
 import { API_BASE } from "@/constants";
+import type { ApiFailure, ApiSuccess } from "@/types";
 
 export class ApiError extends Error {
   readonly status: number;
-  readonly detail?: string;
+  readonly code?: string;
+  readonly fields?: Record<string, string[]>;
 
-  constructor(status: number, message: string, detail?: string) {
+  constructor(status: number, message: string, code?: string, fields?: Record<string, string[]>) {
     super(message);
     this.name = "ApiError";
     this.status = status;
-    this.detail = detail;
+    this.code = code;
+    this.fields = fields;
   }
 }
 
@@ -23,6 +26,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 /**
  * Cookie-ready API client. Uses `credentials: "include"` so the httpOnly
  * auth cookies (`trazeiq_access` / `trazeiq_refresh`) are sent and stored.
+ * Unwraps the `{success, message, data}` envelope; throws `ApiError` with
+ * `code`/`fields` for `{success: false}` bodies.
  * Components must never call this directly — go through a `services/` layer.
  */
 export async function api<T>(
@@ -38,18 +43,20 @@ export async function api<T>(
   });
 
   if (!response.ok) {
-    let detail: string | undefined;
     try {
-      const payload = (await response.json()) as { detail?: string };
-      detail = payload.detail;
-    } catch {
-      // Non-JSON error body.
+      const payload = (await response.json()) as ApiFailure;
+      if (payload && payload.success === false && payload.error) {
+        throw new ApiError(response.status, payload.message, payload.error.code, payload.error.fields);
+      }
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
     }
-    throw new ApiError(response.status, response.statusText, detail);
+    throw new ApiError(response.status, response.statusText);
   }
 
   if (response.status === 204) {
     return undefined as T;
   }
-  return (await response.json()) as T;
+  const payload = (await response.json()) as ApiSuccess<T>;
+  return payload.data;
 }

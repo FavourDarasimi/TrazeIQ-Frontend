@@ -63,7 +63,7 @@ export function Timeline() {
     <section id="timeline" className="scroll-mt-20">
       <Container className="py-14 sm:py-28">
         <div className="grid items-start gap-12 lg:grid-cols-[1fr_1.3fr]">
-          <Reveal className="flex flex-col gap-6 lg:sticky lg:top-28">
+          <Reveal className="min-w-0 flex flex-col gap-6 lg:sticky lg:top-28">
             <SectionHeader
               align="left"
               eyebrow="Incident timeline"
@@ -75,7 +75,7 @@ export function Timeline() {
             </p>
           </Reveal>
 
-          <Reveal delay={0.1}>
+          <Reveal className="min-w-0" delay={0.1}>
             <ol className="relative space-y-10 border-l border-line pb-2 pl-8">
             {entries.map(({ time, Icon, color, ring, kind, title, body }) => (
               <li key={title} className="relative">

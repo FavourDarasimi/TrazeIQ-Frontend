@@ -11,7 +11,7 @@ export function DevSdk() {
       className="scroll-mt-20 border-y border-line bg-bg-panel"
     >
       <Container className="grid items-center gap-12 py-14 sm:py-28 lg:grid-cols-2">
-        <Reveal className="flex flex-col gap-6">
+        <Reveal className="min-w-0 flex flex-col gap-6">
           <Eyebrow>Developer SDK</Eyebrow>
           <h2 className="text-balance text-2xl font-semibold leading-tight tracking-tight text-ink sm:text-3xl lg:text-4xl">
             Two minutes to integrate. Drop in the snippet.
@@ -60,12 +60,12 @@ export function DevSdk() {
           </p>
         </Reveal>
 
-        <Reveal className="lg:pl-6" delay={0.1}>
+        <Reveal className="min-w-0 lg:pl-6" delay={0.1}>
           <Window
             title="error-handler.js · add this to your app"
             bodyClassName="bg-bg p-5 sm:p-6"
           >
-            <pre className="overflow-x-auto font-mono text-[12.5px] leading-[1.7] text-ink/85">
+            <pre className="whitespace-pre-wrap break-words font-mono text-[12.5px] leading-[1.7] text-ink/85">
               <code>
                 <div>
                   <span className="text-muted">

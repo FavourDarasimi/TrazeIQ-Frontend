@@ -51,7 +51,7 @@ export function Security() {
       className="scroll-mt-20 border-y border-line bg-bg-panel"
     >
       <Container className="grid items-start gap-12 py-14 sm:py-28 lg:grid-cols-2">
-        <Reveal className="flex flex-col gap-6">
+        <Reveal className="min-w-0 flex flex-col gap-6">
           <Eyebrow>Security</Eyebrow>
           <h2 className="text-balance text-3xl font-semibold leading-tight tracking-tight text-ink sm:text-4xl">
             A monitoring tool that can&apos;t leak
@@ -76,7 +76,7 @@ export function Security() {
           </div>
         </Reveal>
 
-        <Stagger className="grid gap-4 sm:grid-cols-2">
+        <Stagger className="min-w-0 grid gap-4 sm:grid-cols-2">
           {items.map(({ title, body, Icon }) => (
             <StaggerItem
               key={title}

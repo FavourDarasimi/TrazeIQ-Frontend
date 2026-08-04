@@ -77,7 +77,7 @@ export function DashboardPreview() {
           sub="Status, severity, and history on one screen. Everything below is the real product — sample data."
         />
 
-        <Reveal className="mt-14">
+        <Reveal className="min-w-0 mt-14">
           <Window
             title="trazeiq · command center"
             right={
