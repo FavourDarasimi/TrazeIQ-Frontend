@@ -14,7 +14,7 @@ const faqs = [
     a: "The analysis runs on OpenRouter's free-tier models. Because analysis is cached per fingerprint and re-run only when stale (default 6 hours), one incident costs one call — not one per event. A crash loop that writes 10,000 events still triggers a single analysis.",
   },
   {
-    q: "Will the SDK slow down my app?",
+    q: "Will error reporting slow down my app?",
     a: "No. The ingestion endpoint responds in milliseconds and does everything synchronously only up to persistence. AI calls and alert dispatch run on background workers, so a slow or rate-limited model never blocks your request path.",
   },
   {
@@ -27,7 +27,7 @@ const faqs = [
   },
   {
     q: "Do I have to host anything?",
-    a: "No. TrazeIQ is a hosted platform — you just add the SDK to your app. If you'd rather self-host, the backend (Django + PostgreSQL + Celery) is designed to be runnable on a single small box.",
+    a: "No. TrazeIQ is a hosted platform — you just POST errors from your error handler to the ingestion endpoint. If you'd rather self-host, the backend (Django + PostgreSQL + Celery) is designed to be runnable on a single small box.",
   },
 ];
 

@@ -4,15 +4,15 @@ import { CheckmarkCircleIcon, TerminalIcon } from "@hugeicons/core-free-icons";
 import { Container, Eyebrow, GhostButton, Window } from "@/components/ui/shared";
 import { Reveal } from "@/components/ui/motion";
 
-export function DevSdk() {
+export function DevIntegration() {
   return (
     <section
-      id="developer-sdk"
+      id="developer-integration"
       className="scroll-mt-20 border-y border-line bg-bg-panel"
     >
       <Container className="grid items-center gap-12 py-14 sm:py-28 lg:grid-cols-2">
         <Reveal className="min-w-0 flex flex-col gap-6">
-          <Eyebrow>Developer SDK</Eyebrow>
+          <Eyebrow>Direct HTTP integration</Eyebrow>
           <h2 className="text-balance text-2xl font-semibold leading-tight tracking-tight text-ink sm:text-3xl lg:text-4xl">
             Two minutes to integrate. Drop in the snippet.
           </h2>
@@ -56,7 +56,7 @@ export function DevSdk() {
             </div>
           </div>
           <p className="font-mono text-[11px] text-muted">
-            packaged SDKs on the roadmap — the HTTP contract works today
+            no agent to install — your error handler POSTs directly
           </p>
         </Reveal>
 

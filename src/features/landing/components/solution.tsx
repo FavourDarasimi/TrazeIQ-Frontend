@@ -8,7 +8,7 @@ const steps = [
   {
     Icon: TerminalIcon,
     title: "Ingest",
-    body: "Errors hit the SDK and are fingerprinted on arrival — redacted, deduplicated, persisted in milliseconds.",
+    body: "Errors hit the ingestion endpoint and are fingerprinted on arrival — redacted, deduplicated, persisted in milliseconds.",
   },
   {
     Icon: AiSearchIcon,

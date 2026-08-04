@@ -30,7 +30,7 @@ export type Project = {
 export type CreatedProject = {
   project: Project;
   api_key: string;
-  sdk_snippet: string;
+  integration_snippet: string;
 };
 
 export type ErrorCode =

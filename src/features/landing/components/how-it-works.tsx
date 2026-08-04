@@ -34,7 +34,7 @@ export function HowItWorks() {
               </span>
               <span className="font-mono text-xs text-muted">step 01</span>
             </div>
-            <h3 className="mt-6 font-semibold text-ink">SDK sends errors</h3>
+            <h3 className="mt-6 font-semibold text-ink">Your app sends the error</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted">
               Drop the snippet into your error handler. TrazeIQ captures the
               stack trace, redacts secrets, and returns before your app

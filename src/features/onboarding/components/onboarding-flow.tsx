@@ -278,7 +278,7 @@ export function OnboardingFlow() {
           </div>
 
           <CodeBlock title="X-API-Key" code={created.api_key} />
-          <CodeBlock title="Send your first event" code={created.sdk_snippet} />
+          <CodeBlock title="Send your first event" code={created.integration_snippet} />
 
           <SubmitButton onClick={finishReveal}>I saved my key — continue</SubmitButton>
         </div>

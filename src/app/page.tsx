@@ -8,7 +8,7 @@ import { HowItWorks } from "@/features/landing/components/how-it-works";
 import { DashboardPreview } from "@/features/landing/components/dashboard-preview";
 import { AIAssistant } from "@/features/landing/components/ai-assistant";
 import { Timeline } from "@/features/landing/components/timeline";
-import { DevSdk } from "@/features/landing/components/dev-sdk";
+import { DevIntegration } from "@/features/landing/components/dev-integration";
 import { BuiltForScale } from "@/features/landing/components/built-for-scale";
 import { Security } from "@/features/landing/components/security";
 import { Faq } from "@/features/landing/components/faq";
@@ -28,7 +28,7 @@ export default function Home() {
       <DashboardPreview />
       <AIAssistant />
       <Timeline />
-      <DevSdk />
+      <DevIntegration />
       <BuiltForScale />
       <Security />
       <Faq />
