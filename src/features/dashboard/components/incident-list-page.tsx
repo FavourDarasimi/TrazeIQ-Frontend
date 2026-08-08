@@ -10,6 +10,7 @@ import { InlineError } from "@/components/ui/form";
 import { SeverityBadge, StatusBadge } from "@/components/ui/incident-badges";
 import { incidentDetailUrl } from "@/constants";
 import { useProjectContext } from "@/features/dashboard/components/project-context";
+import { useRealtimeEvents } from "@/providers/realtime-provider";
 import { listIncidents } from "@/services/incidents";
 import type { Incident, IncidentSeverity, IncidentStatus } from "@/types";
 import { apiErrorMessage } from "@/utils/errors";
@@ -60,6 +61,28 @@ export function IncidentListPage() {
       });
     return () => controller.abort();
   }, [filters.status, filters.severity, selectedProjectId, attempt]);
+
+  // Phase 3B: live patch on Pusher events instead of refetching. The channel
+  // is scoped to the selected project, and the provider re-checks the
+  // selection before emitting, so no cross-project rows can land here.
+  useRealtimeEvents(
+    (event) => {
+      if (event.type === "ai_analysis.ready") return;
+      setIncidents((current) => {
+        if (current === null) return current;
+        if (event.type === "incident.created") {
+          if (current.some((incident) => incident.id === event.incident.id)) {
+            return current;
+          }
+          return [event.incident, ...current];
+        }
+        return current.map((incident) =>
+          incident.id === event.incident.id ? event.incident : incident,
+        );
+      });
+    },
+    [],
+  );
 
   return (
     <div className="flex flex-col gap-6">

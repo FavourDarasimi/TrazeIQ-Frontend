@@ -1,21 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { RefreshIcon, SparklesIcon } from "@hugeicons/core-free-icons";
 
 import { GlassCard } from "@/components/ui/glass-card";
 import { InlineError } from "@/components/ui/form";
+import { useRealtimeEvents } from "@/providers/realtime-provider";
 import { getIncidentAnalysis, triggerIncidentAnalysis } from "@/services/ai";
 import type { AIAnalysis, AnalysisConfidence } from "@/types";
 import { apiErrorMessage } from "@/utils/errors";
 
-const POLL_INTERVAL_MS = 4000;
+// Phase 3B: the panel is event-driven — `ai_analysis.ready` lands on the
+// project's Pusher channel and the panel flips to the ready state live. The
+// initial fetch and the long safety re-check below exist only to bootstrap
+// the state and to recover from analyses that fail without an event (a failed
+// analysis never publishes).
 
 // A brand-new incident's analysis row may not exist yet when the page loads
 // (the Celery job creates it moments later). Give it a short grace window of
-// polls before falling back to the manual trigger.
+// quick re-checks before falling back to the manual trigger.
 const IDLE_GRACE_POLLS = 3;
+const GRACE_RETRY_MS = 1500;
+const SAFETY_RECHECK_MS = 45000;
 
 type PanelState = "loading" | "idle" | "pending" | "ready" | "failed" | "error";
 
@@ -89,63 +96,83 @@ export function AIAnalysisPanel({ incidentId }: { incidentId: string }) {
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const cancelledRef = useRef(false);
+  const graceCountRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const tickRef = useRef<() => void>(() => {});
+
+  const clearTimer = useCallback(() => {
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  const armTimer = useCallback((delayMs: number, fn: () => void) => {
+    clearTimer();
+    timerRef.current = setTimeout(fn, delayMs);
+  }, [clearTimer]);
+
+  const refreshRef = useRef<() => void>(() => {});
+  const refresh = useCallback(() => {
+    getIncidentAnalysis(incidentId)
+      .then(({ analysis: result }) => {
+        if (cancelledRef.current) return;
+        setAnalysis(result);
+        if (result.status === "pending") {
+          setState("pending");
+          armTimer(SAFETY_RECHECK_MS, () => refreshRef.current());
+        } else if (result.status === "ready") {
+          setState("ready");
+        } else {
+          setState("failed");
+        }
+      })
+      .catch((err: unknown) => {
+        if (cancelledRef.current) return;
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        const status = (err as { status?: number }).status;
+        if (status === 404) {
+          if (graceCountRef.current < IDLE_GRACE_POLLS) {
+            graceCountRef.current += 1;
+            setState("pending");
+            armTimer(GRACE_RETRY_MS, () => refreshRef.current());
+          } else {
+            setState("idle");
+          }
+        } else {
+          setError(apiErrorMessage(err));
+          setState("error");
+        }
+      });
+  }, [incidentId, armTimer]);
+  useEffect(() => {
+    refreshRef.current = refresh;
+  }, [refresh]);
+
+  // Live: an `ai_analysis.ready` event for this incident flips the panel to
+  // ready instantly — no polling loop.
+  useRealtimeEvents(
+    (event) => {
+      if (event.type !== "ai_analysis.ready") return;
+      if (event.incident.id !== incidentId) return;
+      clearTimer();
+      graceCountRef.current = IDLE_GRACE_POLLS;
+      setAnalysis(event.analysis);
+      setError(null);
+      setState("ready");
+    },
+    [incidentId, clearTimer],
+  );
 
   useEffect(() => {
-    let cancelled = false;
-    let idlePolls = 0;
-    timerRef.current = null;
-
-    function scheduleNext() {
-      if (timerRef.current !== null) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => {
-        if (!cancelled) tick();
-      }, POLL_INTERVAL_MS);
-    }
-
-    function tick() {
-      getIncidentAnalysis(incidentId)
-        .then(({ analysis: result }) => {
-          if (cancelled) return;
-          setAnalysis(result);
-          if (result.status === "pending") {
-            setState("pending");
-            scheduleNext();
-          } else if (result.status === "ready") {
-            setState("ready");
-          } else {
-            setState("failed");
-          }
-        })
-        .catch((err: unknown) => {
-          if (cancelled) return;
-          if (err instanceof DOMException && err.name === "AbortError") return;
-          const status = (err as { status?: number }).status;
-          if (status === 404) {
-            idlePolls += 1;
-            if (idlePolls <= IDLE_GRACE_POLLS) {
-              setState("pending");
-              scheduleNext();
-            } else {
-              setState("idle");
-            }
-          } else {
-            setError(apiErrorMessage(err));
-            setState("error");
-          }
-        });
-    }
-
-    tickRef.current = tick;
-    tick();
-
+    cancelledRef.current = false;
+    graceCountRef.current = 0;
+    refresh();
     return () => {
-      cancelled = true;
-      tickRef.current = () => {};
-      if (timerRef.current !== null) clearTimeout(timerRef.current);
+      cancelledRef.current = true;
+      clearTimer();
     };
-  }, [incidentId]);
+  }, [incidentId, refresh, clearTimer]);
 
   async function handleRun() {
     if (busy) return;
@@ -155,8 +182,7 @@ export function AIAnalysisPanel({ incidentId }: { incidentId: string }) {
       const { analysis: result } = await triggerIncidentAnalysis(incidentId);
       setAnalysis(result);
       setState("pending");
-      setError(null);
-      tickRef.current();
+      armTimer(SAFETY_RECHECK_MS, refresh);
     } catch (err) {
       setError(apiErrorMessage(err));
       setState("error");
@@ -168,7 +194,7 @@ export function AIAnalysisPanel({ incidentId }: { incidentId: string }) {
   function handleRetry() {
     setError(null);
     setState("loading");
-    tickRef.current();
+    refresh();
   }
 
   return (

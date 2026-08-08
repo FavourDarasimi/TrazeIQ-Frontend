@@ -12,6 +12,7 @@ import { SeverityBadge, StatusBadge } from "@/components/ui/incident-badges";
 import { StacktraceBlock } from "@/components/ui/stacktrace-block";
 import { ROUTES } from "@/constants";
 import { AIAnalysisPanel } from "@/features/dashboard/components/ai-analysis-panel";
+import { useRealtimeEvents } from "@/providers/realtime-provider";
 import { getIncident, getIncidentTimeline } from "@/services/incidents";
 import type {
   Incident,
@@ -98,6 +99,17 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
       });
     return () => controller.abort();
   }, [incidentId, attempt]);
+
+  // Phase 3B: live patch — an `incident.updated`/`incident.resolved` event
+  // for this incident updates the header state without a refetch.
+  useRealtimeEvents(
+    (event) => {
+      if (event.type === "ai_analysis.ready") return;
+      if (event.incident.id !== incidentId) return;
+      setIncident((current) => (current ? { ...event.incident } : current));
+    },
+    [incidentId],
+  );
 
   const loading = incident === null && error === null;
 

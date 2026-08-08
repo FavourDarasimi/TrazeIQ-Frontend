@@ -88,6 +88,43 @@ export type AnalysisStatus = "pending" | "ready" | "failed";
 
 export type AnalysisConfidence = "low" | "medium" | "high";
 
+export type DashboardRange = "24h" | "7d" | "30d";
+
+export type DashboardHealth = "healthy" | "degraded" | "critical";
+
+export type DashboardOverview = {
+  open_incidents: {
+    total: number;
+    by_severity: Record<IncidentSeverity, number>;
+  };
+  events_24h: number;
+  event_trend: {
+    percent_change: number;
+    trend: "up" | "down" | "flat";
+  };
+  resolved_24h: number;
+  top_errors: Array<{
+    fingerprint: string;
+    title: string;
+    count: number;
+    last_seen: string;
+    incident_id: string | null;
+    severity: IncidentSeverity | null;
+  }>;
+  health: DashboardHealth;
+};
+
+export type DashboardStatPoint = {
+  ts: string;
+  events: number;
+  incidents: number;
+};
+
+export type DashboardStats = {
+  range: DashboardRange;
+  points: DashboardStatPoint[];
+};
+
 export type AIAnalysis = {
   id: string;
   incident_id: string;
