@@ -1,5 +1,7 @@
 "use client";
 
+// Hallmark · genre: modern-minimal · macrostructure: console-feed · design-system: /Design.md · designed-as-app
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { FlashIcon } from "@hugeicons/core-free-icons";
@@ -7,7 +9,7 @@ import { FlashIcon } from "@hugeicons/core-free-icons";
 import { EmptyState } from "@/components/ui/empty-state";
 import { GlassCard, Spinner } from "@/components/ui/glass-card";
 import { InlineError } from "@/components/ui/form";
-import { SeverityBadge, StatusBadge } from "@/components/ui/incident-badges";
+import { StatusBadge } from "@/components/ui/incident-badges";
 import { incidentDetailUrl } from "@/constants";
 import { useProjectContext } from "@/features/dashboard/components/project-context";
 import { useRealtimeEvents } from "@/providers/realtime-provider";
@@ -16,11 +18,11 @@ import type { Incident, IncidentSeverity, IncidentStatus } from "@/types";
 import { apiErrorMessage } from "@/utils/errors";
 import { formatCount, formatRelativeTime } from "@/utils/format";
 
-const SEVERITY_BAR: Record<IncidentSeverity, string> = {
-  critical: "border-l-sev-critical",
-  high: "border-l-sev-high",
-  medium: "border-l-sev-warning",
-  low: "border-l-sev-low",
+const SEVERITY_DOT: Record<IncidentSeverity, string> = {
+  critical: "bg-sev-critical",
+  high: "bg-sev-high",
+  medium: "bg-sev-warning",
+  low: "bg-sev-low",
 };
 
 type Filters = {
@@ -168,47 +170,55 @@ export function IncidentListPage() {
       ) : null}
 
       {!loading && !error && incidents && incidents.length > 0 ? (
-        <div className="flex flex-col gap-3">
-          {incidents.map((incident) => (
-            <Link
-              key={incident.id}
-              href={incidentDetailUrl(incident.id)}
-              className="group block"
-            >
-              <GlassCard
-                className={`border-l-2 p-5 transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-[0_20px_50px_-20px_rgba(0,0,0,0.9)] ${SEVERITY_BAR[incident.severity]}`}
-              >
-                <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h2 className="truncate text-[15px] font-medium tracking-tight text-ink group-hover:text-accent">
+        <GlassCard className="overflow-hidden">
+          <div className="flex items-center justify-between border-b border-line px-5 py-3">
+            <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
+              incident feed
+            </p>
+            <span className="flex items-center gap-1.5 rounded-full border border-ok/30 bg-ok/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ok">
+              <span
+                aria-hidden
+                className="h-1.5 w-1.5 animate-pulse rounded-full bg-ok [animation-duration:3s] motion-reduce:animate-none"
+              />
+              live
+            </span>
+          </div>
+          <ul>
+            {incidents.map((incident) => (
+              <li key={incident.id}>
+                <Link
+                  href={incidentDetailUrl(incident.id)}
+                  className="flex flex-col gap-2 px-5 py-4 transition-colors duration-150 hover:bg-bg-panel focus-visible:bg-bg-panel focus-visible:outline-none sm:flex-row sm:items-center sm:justify-between sm:gap-6"
+                >
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <span
+                      aria-hidden
+                      className={`h-2 w-2 shrink-0 rounded-full ${SEVERITY_DOT[incident.severity]}`}
+                    />
+                    <div className="min-w-0">
+                      <h2 className="truncate text-[15px] font-medium tracking-tight text-ink">
                         {incident.error_group.title}
                       </h2>
-                      <span className="shrink-0 font-mono text-[11px] text-muted">
-                        #{incident.id}
-                      </span>
+                      <p className="mt-0.5 truncate font-mono text-xs text-muted">
+                        {incident.latest_event?.message}
+                      </p>
                     </div>
-                    <p className="mt-1 truncate font-mono text-xs text-muted">
-                      {incident.latest_event?.message}
-                    </p>
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <SeverityBadge severity={incident.severity} />
+                  <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] text-muted">
+                    <span className="text-ink/60">#{incident.id}</span>
+                    <span className="tabular-nums">
+                      {formatCount(incident.error_group.count)}
+                    </span>
+                    <span className="tabular-nums">
+                      {formatRelativeTime(incident.error_group.last_seen)}
+                    </span>
                     <StatusBadge status={incident.status} />
                   </div>
-                </div>
-                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line pt-3 text-xs text-muted">
-                  <span className="font-medium text-ink/80">
-                    {incident.project.name}
-                  </span>
-                  <span>{formatCount(incident.error_group.count)} occurrences</span>
-                  <span>first {formatRelativeTime(incident.error_group.first_seen)}</span>
-                  <span>last {formatRelativeTime(incident.error_group.last_seen)}</span>
-                </div>
-              </GlassCard>
-            </Link>
-          ))}
-        </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </GlassCard>
       ) : null}
     </div>
   );

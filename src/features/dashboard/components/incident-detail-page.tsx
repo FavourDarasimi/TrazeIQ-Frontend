@@ -1,5 +1,7 @@
 "use client";
 
+// Hallmark · genre: modern-minimal · macrostructure: instrument-panel · design-system: /Design.md · designed-as-app
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -20,7 +22,11 @@ import type {
   IncidentTimelineEntry,
 } from "@/types";
 import { apiErrorMessage } from "@/utils/errors";
-import { formatCount, formatDateTime, formatRelativeTime } from "@/utils/format";
+import {
+  formatClockTime,
+  formatCount,
+  formatDateTime,
+} from "@/utils/format";
 
 const SEVERITY_DOTS: Record<IncidentSeverity, string> = {
   critical: "bg-sev-critical",
@@ -29,42 +35,84 @@ const SEVERITY_DOTS: Record<IncidentSeverity, string> = {
   low: "bg-sev-low",
 };
 
+const LEVEL_LABEL: Record<string, string> = {
+  debug: "DEBUG",
+  info: "INFO",
+  warning: "WARN",
+  error: "ERROR",
+  fatal: "FATAL",
+};
+
+const LEVEL_COLOR: Record<string, string> = {
+  debug: "text-muted",
+  info: "text-muted",
+  warning: "text-sev-warning",
+  error: "text-sev-high",
+  fatal: "text-sev-critical",
+};
+
 function MetaCard({ label, value }: { label: string; value: string }) {
   return (
-    <GlassCard className="px-5 py-4">
+    <GlassCard className="px-4 py-3.5">
       <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted">
         {label}
       </p>
-      <p className="mt-1.5 font-mono text-sm text-ink">{value}</p>
+      <p className="mt-1 truncate font-mono text-sm text-ink">{value}</p>
     </GlassCard>
   );
 }
 
-function Timeline({ entries, severity }: { entries: IncidentTimelineEntry[]; severity: IncidentSeverity }) {
+function Timeline({
+  entries,
+  severity,
+}: {
+  entries: IncidentTimelineEntry[];
+  severity: IncidentSeverity;
+}) {
   return (
     <GlassCard className="p-6">
-      <h2 className="text-sm font-semibold tracking-tight text-ink">
-        Timeline
-      </h2>
+      <div className="flex items-baseline justify-between gap-4">
+        <h2 className="text-sm font-semibold tracking-tight text-ink">
+          Timeline
+        </h2>
+        {entries.length > 0 ? (
+          <span className="font-mono text-[11px] tabular-nums text-muted">
+            {entries.length} {entries.length === 1 ? "entry" : "entries"}
+          </span>
+        ) : null}
+      </div>
       {entries.length === 0 ? (
         <p className="mt-4 text-sm text-muted">
           No recorded occurrences yet.
         </p>
       ) : (
-        <ol className="ml-1.5 mt-5 flex flex-col gap-6 border-l border-line pl-6">
+        <ol className="relative mt-4 flex flex-col">
+          <span
+            aria-hidden
+            className="absolute bottom-2 left-[5px] top-2 w-px bg-line"
+          />
           {entries.map((entry) => (
-            <li key={entry.id} className="relative">
-              <span className="absolute -left-[35px] top-0.5 flex h-5 w-5 items-center justify-center rounded-full border border-line bg-bg-panel">
-                <span className={`h-2 w-2 rounded-full ${SEVERITY_DOTS[severity] ?? "bg-muted"}`} />
-              </span>
-              <div className="flex flex-col gap-1">
+            <li key={entry.id} className="relative flex gap-3 pb-5 last:pb-0">
+              <span
+                aria-hidden
+                className={`relative z-10 mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ring-2 ring-bg-panel ${SEVERITY_DOTS[severity] ?? "bg-muted"}`}
+              />
+              <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                  <span className="text-sm font-medium text-ink">Error detected</span>
+                  <span className="w-10 shrink-0 font-mono text-[11px] tabular-nums text-muted">
+                    {formatClockTime(entry.created_at)}
+                  </span>
+                  <span
+                    className={`font-mono text-[11px] font-medium uppercase tracking-[0.18em] ${LEVEL_COLOR[entry.level] ?? "text-muted"}`}
+                  >
+                    {LEVEL_LABEL[entry.level] ?? entry.level.toUpperCase()}
+                  </span>
                   <span className="font-mono text-[11px] text-muted">
-                    {formatRelativeTime(entry.created_at)}
+                    {entry.service}
+                    {entry.environment ? ` · ${entry.environment}` : ""}
                   </span>
                 </div>
-                <p className="font-mono text-xs leading-relaxed text-muted">
+                <p className="mt-1 font-mono text-xs leading-relaxed text-muted">
                   {entry.message}
                 </p>
               </div>
