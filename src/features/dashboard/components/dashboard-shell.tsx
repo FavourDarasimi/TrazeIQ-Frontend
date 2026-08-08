@@ -9,7 +9,7 @@ import { ChevronDownIcon, Logout01Icon } from "@hugeicons/core-free-icons";
 import { DASHBOARD_NAV } from "@/config/navigation";
 import { ROUTES } from "@/constants";
 import { useAuth } from "@/providers/auth-provider";
-import { useProjectContext } from "@/features/dashboard/components/project-context";
+import { useProjectContext } from "@/features/app/components/project-context";
 
 function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);

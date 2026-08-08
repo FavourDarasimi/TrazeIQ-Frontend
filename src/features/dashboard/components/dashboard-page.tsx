@@ -18,7 +18,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { GlassCard, Spinner } from "@/components/ui/glass-card";
 import { InlineError } from "@/components/ui/form";
 import { incidentDetailUrl } from "@/constants";
-import { useProjectContext } from "@/features/dashboard/components/project-context";
+import { useProjectContext } from "@/features/app/components/project-context";
 import {
   useRealtimeEvents,
 } from "@/providers/realtime-provider";

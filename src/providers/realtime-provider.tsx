@@ -19,7 +19,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { API_ROUTES, incidentDetailUrl } from "@/constants";
 import { api } from "@/lib/api";
 import { useAuth } from "@/providers/auth-provider";
-import { useProjectContext } from "@/features/dashboard/components/project-context";
+import { useProjectContext } from "@/features/app/components/project-context";
 import type { AIAnalysis, Incident, IncidentSeverity } from "@/types";
 
 const PUSHER_KEY = process.env.NEXT_PUBLIC_PUSHER_KEY ?? "";

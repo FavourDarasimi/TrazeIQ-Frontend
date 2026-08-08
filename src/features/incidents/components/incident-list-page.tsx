@@ -11,7 +11,7 @@ import { GlassCard, Spinner } from "@/components/ui/glass-card";
 import { InlineError } from "@/components/ui/form";
 import { StatusBadge } from "@/components/ui/incident-badges";
 import { incidentDetailUrl } from "@/constants";
-import { useProjectContext } from "@/features/dashboard/components/project-context";
+import { useProjectContext } from "@/features/app/components/project-context";
 import { useRealtimeEvents } from "@/providers/realtime-provider";
 import { listIncidents } from "@/services/incidents";
 import type { Incident, IncidentSeverity, IncidentStatus } from "@/types";

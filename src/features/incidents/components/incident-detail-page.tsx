@@ -13,7 +13,7 @@ import { InlineError } from "@/components/ui/form";
 import { SeverityBadge, StatusBadge } from "@/components/ui/incident-badges";
 import { StacktraceBlock } from "@/components/ui/stacktrace-block";
 import { ROUTES } from "@/constants";
-import { AIAnalysisPanel } from "@/features/dashboard/components/ai-analysis-panel";
+import { AIAnalysisPanel } from "@/features/incidents/components/ai-analysis-panel";
 import { useRealtimeEvents } from "@/providers/realtime-provider";
 import { getIncident, getIncidentTimeline } from "@/services/incidents";
 import type {

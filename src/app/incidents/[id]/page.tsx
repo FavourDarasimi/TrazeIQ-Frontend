@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { IncidentDetailPage } from "@/features/dashboard/components/incident-detail-page";
+import { IncidentDetailPage } from "@/features/incidents/components/incident-detail-page";
 
 export const metadata: Metadata = {
   title: "Incident — TrazeIQ",
