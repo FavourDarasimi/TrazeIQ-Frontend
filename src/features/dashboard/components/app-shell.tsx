@@ -5,7 +5,7 @@ import { RequireProtected } from "@/features/auth/components/guards";
 import { DashboardShell } from "@/features/dashboard/components/dashboard-shell";
 import { ProjectProvider } from "@/features/dashboard/components/project-context";
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+export function AppShell({ children }: { children: ReactNode }) {
   return (
     <AuthProvider>
       <RequireProtected>

@@ -1,4 +1,4 @@
-import { API_BASE } from "@/constants";
+import { API_BASE, API_ROUTES } from "@/constants";
 import type { ApiFailure, ApiSuccess } from "@/types";
 
 export class ApiError extends Error {
@@ -30,10 +30,28 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001";
  * `code`/`fields` for `{success: false}` bodies.
  * Components must never call this directly — go through a `services/` layer.
  */
-export async function api<T>(
-  path: string,
-  { method = "GET", body, signal }: ApiRequestOptions = {},
-): Promise<T> {
+
+/** Single-flight refresh: 401s share one rotation so parallel failures
+ * don't blacklist each other's refresh cookie (server rotates on every call). */
+let refreshInFlight: Promise<boolean> | null = null;
+
+function rotateSession(): Promise<boolean> {
+  if (!refreshInFlight) {
+    refreshInFlight = fetch(`${API_URL}${API_BASE}${API_ROUTES.refresh}`, {
+      method: "POST",
+      credentials: "include",
+    })
+      .then((response) => response.ok || response.status === 204)
+      .catch(() => false)
+      .finally(() => {
+        refreshInFlight = null;
+      });
+  }
+  return refreshInFlight;
+}
+
+async function request<T>(path: string, options: ApiRequestOptions, allowRetry: boolean): Promise<T> {
+  const { method = "GET", body, signal } = options;
   const response = await fetch(`${API_URL}${API_BASE}${path}`, {
     method,
     headers: body === undefined ? undefined : { "Content-Type": "application/json" },
@@ -41,6 +59,10 @@ export async function api<T>(
     signal,
     body: body === undefined ? undefined : JSON.stringify(body),
   });
+
+  if (response.status === 401 && allowRetry && path !== API_ROUTES.refresh && (await rotateSession())) {
+    return request<T>(path, options, false);
+  }
 
   if (!response.ok) {
     try {
@@ -59,4 +81,8 @@ export async function api<T>(
   }
   const payload = (await response.json()) as ApiSuccess<T>;
   return payload.data;
+}
+
+export async function api<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
+  return request<T>(path, options, true);
 }

@@ -84,6 +84,21 @@ export type IncidentTimelineEntry = {
   created_at: string;
 };
 
+export type AnalysisStatus = "pending" | "ready" | "failed";
+
+export type AnalysisConfidence = "low" | "medium" | "high";
+
+export type AIAnalysis = {
+  id: string;
+  incident_id: string;
+  status: AnalysisStatus;
+  root_cause: string;
+  suggested_fix: string;
+  confidence: AnalysisConfidence | "";
+  model_used: string;
+  created_at: string;
+};
+
 export type ErrorCode =
   | "EMAIL_TAKEN"
   | "INVALID_CREDENTIALS"

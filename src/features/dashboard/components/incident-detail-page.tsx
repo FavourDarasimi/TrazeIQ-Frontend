@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  ArrowLeft01Icon,
-  SparklesIcon,
-} from "@hugeicons/core-free-icons";
+import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
 
 import { EmptyState } from "@/components/ui/empty-state";
 import { GlassCard, Spinner } from "@/components/ui/glass-card";
@@ -14,6 +11,7 @@ import { InlineError } from "@/components/ui/form";
 import { SeverityBadge, StatusBadge } from "@/components/ui/incident-badges";
 import { StacktraceBlock } from "@/components/ui/stacktrace-block";
 import { ROUTES } from "@/constants";
+import { AIAnalysisPanel } from "@/features/dashboard/components/ai-analysis-panel";
 import { getIncident, getIncidentTimeline } from "@/services/incidents";
 import type {
   Incident,
@@ -29,34 +27,6 @@ const SEVERITY_DOTS: Record<IncidentSeverity, string> = {
   medium: "bg-sev-warning",
   low: "bg-sev-low",
 };
-
-function AIAnalysisPlaceholder() {
-  return (
-    <GlassCard className="border-accent/30 p-6 shadow-[0_0_30px_rgba(79,70,229,0.12)]">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <span className="text-accent">
-            <HugeiconsIcon icon={SparklesIcon} size={20} color="currentColor" strokeWidth={1.5} />
-          </span>
-          <h2 className="text-sm font-semibold tracking-tight text-ink">
-            AI Analysis
-          </h2>
-          <span className="ml-1 inline-flex items-center gap-1 rounded-full border border-accent/40 bg-accent/10 px-2 py-0.5 text-[10px] font-medium tracking-wide text-accent">
-            AI
-          </span>
-        </div>
-        <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted">
-          phase 2
-        </span>
-      </div>
-      <p className="mt-3 max-w-md text-sm leading-relaxed text-muted">
-        This panel isn&apos;t wired up yet. Root cause, suggested fix, and a
-        confidence score will appear here once the AI pipeline lands in
-        Phase 2.
-      </p>
-    </GlassCard>
-  );
-}
 
 function MetaCard({ label, value }: { label: string; value: string }) {
   return (
@@ -226,7 +196,7 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
           <Timeline entries={entries} severity={incident.severity} />
         </div>
         <div className="flex flex-col gap-6">
-          <AIAnalysisPlaceholder />
+          <AIAnalysisPanel key={incident.id} incidentId={incident.id} />
         </div>
       </div>
     </div>
