@@ -51,7 +51,7 @@ export function OnboardingFlow() {
   const [orgName, setOrgName] = useState("");
   const [projectName, setProjectName] = useState("");
   const [projectEnv, setProjectEnv] = useState("production");
-  const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -218,7 +218,7 @@ export function OnboardingFlow() {
               </span>
               <select
                 value={selectedOrgId ?? ""}
-                onChange={(event) => setSelectedOrgId(Number(event.target.value))}
+                onChange={(event) => setSelectedOrgId(event.target.value)}
                 className="h-11 w-full rounded-lg border border-line bg-surface px-3.5 text-sm text-ink outline-none transition-colors focus:border-accent/60 focus:ring-1 focus:ring-accent/40"
               >
                 {orgs.map((org) => (

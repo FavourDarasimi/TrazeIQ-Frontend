@@ -10,7 +10,7 @@ import type {
 export type IncidentFilters = {
   status?: IncidentStatus;
   severity?: IncidentSeverity;
-  project?: number;
+  project?: string;
 };
 
 export function listIncidents(
@@ -31,7 +31,7 @@ export function listIncidents(
 }
 
 export function getIncident(
-  id: number | string,
+  id: string,
   signal?: AbortSignal,
 ): Promise<{ incident: Incident }> {
   return api<{ incident: Incident }>(`${API_ROUTES.incidents}${id}/`, {
@@ -40,7 +40,7 @@ export function getIncident(
 }
 
 export function getIncidentTimeline(
-  id: number | string,
+  id: string,
   signal?: AbortSignal,
 ): Promise<{ entries: IncidentTimelineEntry[] }> {
   return api<{ entries: IncidentTimelineEntry[] }>(

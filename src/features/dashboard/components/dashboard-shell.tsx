@@ -43,7 +43,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           <div className="relative">
             <select
               value={selectedProjectId ?? ""}
-              onChange={(event) => selectProject(Number(event.target.value))}
+              onChange={(event) => selectProject(event.target.value)}
               disabled={status === "loading" || projects.length === 0}
               className="h-10 w-full appearance-none rounded-lg border border-line bg-surface pl-3.5 pr-9 text-sm text-ink outline-none transition-colors focus:border-accent/60 focus:ring-1 focus:ring-accent/40 disabled:opacity-50"
             >

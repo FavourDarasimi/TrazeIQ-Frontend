@@ -105,7 +105,7 @@ function Timeline({ entries, severity }: { entries: IncidentTimelineEntry[]; sev
   );
 }
 
-export function IncidentDetailPage({ incidentId }: { incidentId: number }) {
+export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
   const [incident, setIncident] = useState<Incident | null>(null);
   const [entries, setEntries] = useState<IncidentTimelineEntry[]>([]);
   const [error, setError] = useState<string | null>(null);

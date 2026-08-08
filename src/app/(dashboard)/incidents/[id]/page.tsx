@@ -6,19 +6,20 @@ export const metadata: Metadata = {
   title: "Incident — TrazeIQ",
 };
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export default async function IncidentDetailRoute({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const incidentId = Number(id);
-  if (!Number.isInteger(incidentId)) {
+  if (!UUID_PATTERN.test(id)) {
     return (
       <p className="text-sm text-muted">
-        Unknown incident identifier — the id must be an integer.
+        Unknown incident identifier — the id must be a UUID.
       </p>
     );
   }
-  return <IncidentDetailPage incidentId={incidentId} />;
+  return <IncidentDetailPage incidentId={id} />;
 }

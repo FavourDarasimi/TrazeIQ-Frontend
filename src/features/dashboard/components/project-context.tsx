@@ -18,18 +18,17 @@ const STORAGE_KEY = "trazeiq.selectedProject";
 type ProjectContextValue = {
   status: "loading" | "ready" | "error";
   projects: Project[];
-  selectedProjectId: number | null;
+  selectedProjectId: string | null;
   selectedProject: Project | null;
-  selectProject: (id: number) => void;
+  selectProject: (id: string) => void;
   retry: () => void;
 };
 
 const ProjectContext = createContext<ProjectContextValue | null>(null);
 
-function readStoredSelection(): number | null {
+function readStoredSelection(): string | null {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? Number(raw) : null;
+    return window.localStorage.getItem(STORAGE_KEY);
   } catch {
     return null;
   }
@@ -38,7 +37,7 @@ function readStoredSelection(): number | null {
 export function ProjectProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [projects, setProjects] = useState<Project[]>([]);
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
@@ -62,10 +61,10 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     };
   }, [attempt]);
 
-  const selectProject = useCallback((id: number) => {
+  const selectProject = useCallback((id: string) => {
     setSelectedProjectId(id);
     try {
-      window.localStorage.setItem(STORAGE_KEY, String(id));
+      window.localStorage.setItem(STORAGE_KEY, id);
     } catch {
       // Storage unavailable (private mode) — selection still works in memory.
     }

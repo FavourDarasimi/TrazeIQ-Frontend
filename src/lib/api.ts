@@ -21,7 +21,7 @@ type ApiRequestOptions = {
   signal?: AbortSignal;
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001";
 
 /**
  * Cookie-ready API client. Uses `credentials: "include"` so the httpOnly

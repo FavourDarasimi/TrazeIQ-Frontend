@@ -8,7 +8,7 @@ export function listProjects(): Promise<{ projects: Project[] }> {
 
 export function createProject(input: {
   name: string;
-  organization?: number;
+  organization?: string;
   environment?: string;
 }): Promise<CreatedProject> {
   return api<CreatedProject>(API_ROUTES.projects, {

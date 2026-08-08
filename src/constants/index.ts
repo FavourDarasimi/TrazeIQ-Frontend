@@ -25,6 +25,6 @@ export const ROUTES = {
   settings: "/settings",
 } as const;
 
-export function incidentDetailUrl(id: number | string): string {
+export function incidentDetailUrl(id: string): string {
   return `${ROUTES.incidents}/${id}`;
 }

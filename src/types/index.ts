@@ -12,15 +12,15 @@ export type AuthSession = {
 };
 
 export type Organization = {
-  id: number;
+  id: string;
   name: string;
-  owner: number;
+  owner: string;
   created_at: string;
 };
 
 export type Project = {
-  id: number;
-  organization: number;
+  id: string;
+  organization: string;
   name: string;
   api_key_prefix: string;
   environment: string;
@@ -38,13 +38,13 @@ export type IncidentSeverity = "critical" | "high" | "medium" | "low";
 export type IncidentStatus = "open" | "investigating" | "resolved" | "ignored";
 
 export type ProjectSummary = {
-  id: number;
+  id: string;
   name: string;
   environment: string;
 };
 
 export type ErrorGroupSummary = {
-  id: number;
+  id: string;
   fingerprint: string;
   title: string;
   count: number;
@@ -53,7 +53,7 @@ export type ErrorGroupSummary = {
 };
 
 export type EventSummary = {
-  id: number;
+  id: string;
   message: string;
   stacktrace: string;
   level: string;
@@ -64,7 +64,7 @@ export type EventSummary = {
 };
 
 export type Incident = {
-  id: number;
+  id: string;
   project: ProjectSummary;
   error_group: ErrorGroupSummary;
   severity: IncidentSeverity;
@@ -75,7 +75,7 @@ export type Incident = {
 };
 
 export type IncidentTimelineEntry = {
-  id: number;
+  id: string;
   kind: "event";
   level: string;
   message: string;
