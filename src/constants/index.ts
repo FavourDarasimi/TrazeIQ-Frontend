@@ -11,6 +11,7 @@ export const API_ROUTES = {
   organizations: "/organizations/",
   projects: "/projects/",
   incidents: "/incidents/",
+  invites: "/invites/",
   pusherAuth: "/pusher/auth/",
   dashboardOverview: "/dashboard/overview/",
   dashboardStats: "/dashboard/stats/",
@@ -26,7 +27,13 @@ export const ROUTES = {
   services: "/services",
   aiAssistant: "/ai-assistant",
   settings: "/settings",
+  settingsTeam: "/settings/team",
+  invite: "/invite",
 } as const;
+
+export function inviteAcceptUrl(token: string): string {
+  return `${ROUTES.invite}/${token}`;
+}
 
 export function incidentDetailUrl(id: string): string {
   return `${ROUTES.incidents}/${id}`;

@@ -8,7 +8,13 @@ import { ROUTES } from "@/constants";
 import { useAuth } from "@/providers/auth-provider";
 import { apiErrorMessage, apiFieldErrors } from "@/utils/errors";
 
-export function LoginForm({ initialEmail = "" }: { initialEmail?: string }) {
+export function LoginForm({
+  initialEmail = "",
+  next,
+}: {
+  initialEmail?: string;
+  next?: string;
+}) {
   const { signIn } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState(initialEmail);
@@ -24,7 +30,7 @@ export function LoginForm({ initialEmail = "" }: { initialEmail?: string }) {
     setFieldErrors({});
     try {
       await signIn(email, password);
-      router.replace(ROUTES.onboarding);
+      router.replace(next ?? ROUTES.onboarding);
     } catch (err) {
       setError(apiErrorMessage(err));
       const fields = apiFieldErrors(err);

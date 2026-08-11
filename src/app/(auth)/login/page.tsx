@@ -9,7 +9,11 @@ export const metadata: Metadata = {
   title: "Sign in — TrazeIQ",
 };
 
-export default function LoginPage() {
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
   return (
     <AuthShell
       footer={
@@ -21,8 +25,23 @@ export default function LoginPage() {
         </span>
       }
     >
-      <RedirectIfAuthenticated />
-      <LoginForm />
+      <LoginSearchParams searchParams={searchParams} />
     </AuthShell>
+  );
+}
+
+async function LoginSearchParams({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const { next } = await searchParams;
+  const safeNext =
+    next?.startsWith("/") && !next.startsWith("//") ? next : undefined;
+  return (
+    <>
+      <RedirectIfAuthenticated next={safeNext} />
+      <LoginForm next={safeNext} />
+    </>
   );
 }

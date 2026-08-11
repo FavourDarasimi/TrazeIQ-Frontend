@@ -18,6 +18,35 @@ export type Organization = {
   created_at: string;
 };
 
+export type MembershipRole = "owner" | "admin" | "developer" | "viewer";
+
+export type OrganizationMembership = {
+  user: string;
+  user_id: string;
+  role: MembershipRole;
+  created_at: string;
+};
+
+export type Invite = {
+  id: string;
+  email: string;
+  role: MembershipRole;
+  expires_at: string;
+  created_at: string;
+};
+
+export type InviteCreated = {
+  invite: Invite;
+  invite_token: string;
+};
+
+export type InviteAcceptResult = {
+  membership: {
+    organization: Organization;
+    role: MembershipRole;
+  };
+};
+
 export type Project = {
   id: string;
   organization: string;
@@ -69,18 +98,28 @@ export type Incident = {
   error_group: ErrorGroupSummary;
   severity: IncidentSeverity;
   status: IncidentStatus;
+  assigned_to: string | null;
+  assigned_to_email: string | null;
   created_at: string;
   resolved_at: string | null;
   latest_event: EventSummary | null;
 };
 
+export type IncidentTimelineKind =
+  | "event"
+  | "comment"
+  | "status_change"
+  | "ai_analysis";
+
 export type IncidentTimelineEntry = {
   id: string;
-  kind: "event";
+  kind: IncidentTimelineKind;
   level: string;
   message: string;
   environment: string;
   service: string;
+  content: string;
+  actor_email: string | null;
   created_at: string;
 };
 
@@ -125,6 +164,51 @@ export type DashboardStats = {
   points: DashboardStatPoint[];
 };
 
+export type AlertRuleChannel = "email" | "slack" | "webhook";
+
+export type AlertRuleCondition = {
+  severity?: IncidentSeverity;
+  status?: IncidentStatus;
+};
+
+export type AlertRule = {
+  id: string;
+  project: {
+    id: string;
+    name: string;
+  };
+  name: string;
+  condition: AlertRuleCondition;
+  channel: AlertRuleChannel;
+  target: string;
+  cooldown_minutes: number;
+  created_at: string;
+};
+
+export type AlertLog = {
+  id: string;
+  rule: {
+    id: string;
+    name: string;
+    channel: AlertRuleChannel;
+    target: string;
+  };
+  incident: {
+    id: string;
+    title: string;
+    severity: IncidentSeverity;
+    status: IncidentStatus;
+  };
+  status: "dispatched" | "failed";
+  error: string;
+  dispatched_at: string;
+};
+
+export type SlackStatus = {
+  connected: boolean;
+  team_name: string | null;
+};
+
 export type AIAnalysis = {
   id: string;
   incident_id: string;
@@ -150,6 +234,13 @@ export type ErrorCode =
   | "REGISTRATION_TOKEN_EXPIRED"
   | "REFRESH_TOKEN_INVALID"
   | "GOOGLE_AUTH_FAILED"
+  | "ALREADY_MEMBER"
+  | "INVITE_INVALID"
+  | "INVITE_EXPIRED"
+  | "INVITE_USED"
+  | "INVITE_EMAIL_MISMATCH"
+  | "SLACK_NOT_CONFIGURED"
+  | "SLACK_CONNECT_FAILED"
   | "VALIDATION_FAILED"
   | "NOT_AUTHENTICATED"
   | "PERMISSION_DENIED"

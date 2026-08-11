@@ -6,15 +6,15 @@ import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants";
 import { useAuth } from "@/providers/auth-provider";
 
-export function RedirectIfAuthenticated() {
+export function RedirectIfAuthenticated({ next }: { next?: string }) {
   const { status } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.replace(ROUTES.onboarding);
+      router.replace(next ?? ROUTES.onboarding);
     }
-  }, [status, router]);
+  }, [status, router, next]);
 
   return null;
 }
