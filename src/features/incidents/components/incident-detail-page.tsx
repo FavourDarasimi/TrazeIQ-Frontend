@@ -14,42 +14,12 @@ import { SeverityBadge, StatusBadge } from "@/components/ui/incident-badges";
 import { StacktraceBlock } from "@/components/ui/stacktrace-block";
 import { ROUTES } from "@/constants";
 import { AIAnalysisPanel } from "@/features/incidents/components/ai-analysis-panel";
+import { IncidentTimeline } from "@/features/incidents/components/incident-timeline";
 import { useRealtimeEvents } from "@/providers/realtime-provider";
-import { getIncident, getIncidentTimeline } from "@/services/incidents";
-import type {
-  Incident,
-  IncidentSeverity,
-  IncidentTimelineEntry,
-} from "@/types";
+import { getIncident } from "@/services/incidents";
+import type { Incident } from "@/types";
 import { apiErrorMessage } from "@/utils/errors";
-import {
-  formatClockTime,
-  formatCount,
-  formatDateTime,
-} from "@/utils/format";
-
-const SEVERITY_DOTS: Record<IncidentSeverity, string> = {
-  critical: "bg-sev-critical",
-  high: "bg-sev-high",
-  medium: "bg-sev-warning",
-  low: "bg-sev-low",
-};
-
-const LEVEL_LABEL: Record<string, string> = {
-  debug: "DEBUG",
-  info: "INFO",
-  warning: "WARN",
-  error: "ERROR",
-  fatal: "FATAL",
-};
-
-const LEVEL_COLOR: Record<string, string> = {
-  debug: "text-muted",
-  info: "text-muted",
-  warning: "text-sev-warning",
-  error: "text-sev-high",
-  fatal: "text-sev-critical",
-};
+import { formatCount, formatDateTime } from "@/utils/format";
 
 function MetaCard({ label, value }: { label: string; value: string }) {
   return (
@@ -62,84 +32,17 @@ function MetaCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Timeline({
-  entries,
-  severity,
-}: {
-  entries: IncidentTimelineEntry[];
-  severity: IncidentSeverity;
-}) {
-  return (
-    <GlassCard className="p-6">
-      <div className="flex items-baseline justify-between gap-4">
-        <h2 className="text-sm font-semibold tracking-tight text-ink">
-          Timeline
-        </h2>
-        {entries.length > 0 ? (
-          <span className="font-mono text-[11px] tabular-nums text-muted">
-            {entries.length} {entries.length === 1 ? "entry" : "entries"}
-          </span>
-        ) : null}
-      </div>
-      {entries.length === 0 ? (
-        <p className="mt-4 text-sm text-muted">
-          No recorded occurrences yet.
-        </p>
-      ) : (
-        <ol className="relative mt-4 flex flex-col">
-          <span
-            aria-hidden
-            className="absolute bottom-2 left-[5px] top-2 w-px bg-line"
-          />
-          {entries.map((entry) => (
-            <li key={entry.id} className="relative flex gap-3 pb-5 last:pb-0">
-              <span
-                aria-hidden
-                className={`relative z-10 mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ring-2 ring-bg-panel ${SEVERITY_DOTS[severity] ?? "bg-muted"}`}
-              />
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                  <span className="w-10 shrink-0 font-mono text-[11px] tabular-nums text-muted">
-                    {formatClockTime(entry.created_at)}
-                  </span>
-                  <span
-                    className={`font-mono text-[11px] font-medium uppercase tracking-[0.18em] ${LEVEL_COLOR[entry.level] ?? "text-muted"}`}
-                  >
-                    {LEVEL_LABEL[entry.level] ?? entry.level.toUpperCase()}
-                  </span>
-                  <span className="font-mono text-[11px] text-muted">
-                    {entry.service}
-                    {entry.environment ? ` · ${entry.environment}` : ""}
-                  </span>
-                </div>
-                <p className="mt-1 font-mono text-xs leading-relaxed text-muted">
-                  {entry.message}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      )}
-    </GlassCard>
-  );
-}
-
 export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
   const [incident, setIncident] = useState<Incident | null>(null);
-  const [entries, setEntries] = useState<IncidentTimelineEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
-    Promise.all([
-      getIncident(incidentId, controller.signal),
-      getIncidentTimeline(incidentId, controller.signal),
-    ])
-      .then(([{ incident: result }, timeline]) => {
+    getIncident(incidentId, controller.signal)
+      .then(({ incident: result }) => {
         setError(null);
         setIncident(result);
-        setEntries(timeline.entries);
       })
       .catch((err: unknown) => {
         if (err instanceof DOMException && err.name === "AbortError") return;
@@ -253,7 +156,7 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
           ) : (
             <p className="text-sm text-muted">No raw occurrence stored for this incident.</p>
           )}
-          <Timeline entries={entries} severity={incident.severity} />
+          <IncidentTimeline incidentId={incident.id} severity={incident.severity} />
         </div>
         <div className="flex flex-col gap-6">
           <AIAnalysisPanel key={incident.id} incidentId={incident.id} />

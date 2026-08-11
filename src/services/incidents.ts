@@ -48,3 +48,13 @@ export function getIncidentTimeline(
     { signal },
   );
 }
+
+export function createIncidentComment(
+  id: string,
+  content: string,
+): Promise<{ entry: IncidentTimelineEntry }> {
+  return api<{ entry: IncidentTimelineEntry }>(
+    `${API_ROUTES.incidents}${id}/comments/`,
+    { method: "POST", body: JSON.stringify({ content }) },
+  );
+}
