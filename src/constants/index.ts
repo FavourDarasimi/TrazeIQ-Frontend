@@ -15,6 +15,10 @@ export const API_ROUTES = {
   pusherAuth: "/pusher/auth/",
   dashboardOverview: "/dashboard/overview/",
   dashboardStats: "/dashboard/stats/",
+  alertRules: "/alerts/rules/",
+  alertLogs: "/alerts/logs/",
+  slackConnect: "/integrations/slack/connect/",
+  slackStatus: "/integrations/slack/status/",
 } as const;
 
 export const ROUTES = {
@@ -28,6 +32,8 @@ export const ROUTES = {
   aiAssistant: "/ai-assistant",
   settings: "/settings",
   settingsTeam: "/settings/team",
+  settingsAlerts: "/settings/alerts",
+  slackCallback: "/integrations/slack/callback",
   invite: "/invite",
 } as const;
 

@@ -8,6 +8,7 @@ import { ROUTES } from "@/constants";
 const SETTINGS_NAV = [
   { href: ROUTES.settings, label: "Overview" },
   { href: ROUTES.settingsTeam, label: "Team" },
+  { href: ROUTES.settingsAlerts, label: "Alerts" },
 ];
 
 export function SettingsNav() {

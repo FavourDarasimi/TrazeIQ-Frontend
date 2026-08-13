@@ -55,6 +55,6 @@ export function createIncidentComment(
 ): Promise<{ entry: IncidentTimelineEntry }> {
   return api<{ entry: IncidentTimelineEntry }>(
     `${API_ROUTES.incidents}${id}/comments/`,
-    { method: "POST", body: JSON.stringify({ content }) },
+    { method: "POST", body: { content } },
   );
 }

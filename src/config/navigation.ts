@@ -49,6 +49,6 @@ export const SECTION_STUBS: Record<string, { title: string; body: string }> = {
   },
   [ROUTES.settings]: {
     title: "Settings",
-    body: "Team invites, roles, and alert-rule configuration arrive in Phase 4.",
+    body: "Team invites and roles live under Team; alert rules and Slack delivery live under Alerts.",
   },
 };
