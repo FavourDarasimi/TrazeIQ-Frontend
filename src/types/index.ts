@@ -92,6 +92,35 @@ export type EventSummary = {
   created_at: string;
 };
 
+export type EventLevel = "debug" | "info" | "warning" | "error" | "fatal";
+
+export type EventLog = {
+  id: string;
+  project: string;
+  error_group: string | null;
+  message: string;
+  stacktrace: string;
+  level: EventLevel;
+  environment: string;
+  service: string;
+  endpoint: string;
+  request_method: string;
+  user_id: string;
+  ip_address: string;
+  metadata: Record<string, unknown>;
+  fingerprint: string;
+  created_at: string;
+};
+
+export type EventPageMeta = {
+  page: number;
+  page_size: number;
+  total: number;
+  pages: number;
+  has_next: boolean;
+  has_previous: boolean;
+};
+
 export type Incident = {
   id: string;
   project: ProjectSummary;

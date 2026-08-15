@@ -11,6 +11,7 @@ export const API_ROUTES = {
   organizations: "/organizations/",
   projects: "/projects/",
   incidents: "/incidents/",
+  events: "/events/",
   invites: "/invites/",
   pusherAuth: "/pusher/auth/",
   dashboardOverview: "/dashboard/overview/",

@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 
-import { ROUTES } from "@/constants";
-import { StubRoute } from "@/components/ui/stub-route";
+import { LogsPage } from "@/features/logs/components/logs-page";
 
 export const metadata: Metadata = {
   title: "Logs — TrazeIQ",
 };
 
-export default function LogsPage() {
-  return <StubRoute href={ROUTES.logs} />;
+export default function LogsRoute() {
+  return <LogsPage />;
 }
