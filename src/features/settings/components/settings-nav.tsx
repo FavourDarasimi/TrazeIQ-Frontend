@@ -11,10 +11,16 @@ const SETTINGS_NAV = [
   { href: ROUTES.settingsAlerts, label: "Alerts" },
 ];
 
+/* Hallmark · genre: modern-minimal · macrostructure: settings-app-family
+ * design-system: Design.md · designed-as-app
+ */
 export function SettingsNav() {
   const pathname = usePathname();
   return (
-    <nav className="flex items-center gap-1 border-b border-line pb-0">
+    <nav
+      aria-label="Settings sections"
+      className="flex items-center gap-6 border-b border-line"
+    >
       {SETTINGS_NAV.map((item) => {
         const active =
           item.href === ROUTES.settingsTeam
@@ -24,10 +30,11 @@ export function SettingsNav() {
           <Link
             key={item.href}
             href={item.href}
-            className={`-mb-px border-b-2 px-3 py-2.5 text-sm transition-colors ${
+            aria-current={active ? "page" : undefined}
+            className={`relative -mb-px py-3 font-mono text-[11px] uppercase tracking-[0.28em] transition-colors ${
               active
-                ? "border-accent font-medium text-ink"
-                : "border-transparent text-muted hover:text-ink"
+                ? "border-b-2 border-accent font-medium text-ink"
+                : "border-b-2 border-transparent text-muted hover:text-ink"
             }`}
           >
             {item.label}

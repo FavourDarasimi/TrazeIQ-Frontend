@@ -45,6 +45,10 @@ import type {
 import { apiErrorMessage, apiFieldErrors } from "@/utils/errors";
 import { formatRelativeTime } from "@/utils/format";
 
+/* Hallmark · genre: modern-minimal · macrostructure: settings-app-family
+ * design-system: Design.md · designed-as-app
+ */
+
 const SEVERITY_OPTIONS: Array<{ value: IncidentSeverity; label: string }> = [
   { value: "critical", label: "Critical" },
   { value: "high", label: "High" },
@@ -89,11 +93,53 @@ function ChannelBadge({ channel }: { channel: AlertRuleChannel }) {
   );
 }
 
-function conditionSummary(condition: AlertRuleCondition): string {
-  const parts: string[] = [];
-  if (condition.severity) parts.push(`severity: ${condition.severity}`);
-  if (condition.status) parts.push(`status: ${condition.status}`);
-  return parts.join(" · ");
+function ConditionPicker<T extends string>({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: T;
+  onChange: (value: T) => void;
+  options: Array<{ value: T; label: string }>;
+}) {
+  return (
+    <div>
+      <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-muted">
+        {label}
+      </span>
+      <div className="flex flex-wrap gap-1.5">
+        <button
+          type="button"
+          aria-pressed={value === ""}
+          onClick={() => onChange("" as T)}
+          className={`rounded-md border px-3 py-1.5 font-mono text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+            value === ""
+              ? "border-accent/40 bg-accent/15 text-accent"
+              : "border-line bg-surface text-muted hover:border-line-soft hover:text-ink"
+          }`}
+        >
+          Any
+        </button>
+        {options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            aria-pressed={value === option.value}
+            onClick={() => onChange(option.value)}
+            className={`rounded-md border px-3 py-1.5 font-mono text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+              value === option.value
+                ? "border-accent/40 bg-accent/15 text-accent"
+                : "border-line bg-surface text-muted hover:border-line-soft hover:text-ink"
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function ConditionChips({ condition }: { condition: AlertRuleCondition }) {
@@ -104,6 +150,46 @@ function ConditionChips({ condition }: { condition: AlertRuleCondition }) {
       ) : null}
       {condition.status ? <StatusBadge status={condition.status} /> : null}
     </span>
+  );
+}
+
+function AlertStats({
+  rules,
+  logs,
+}: {
+  rules: AlertRule[];
+  logs: AlertLog[];
+}) {
+  const dispatched = logs.filter((log) => log.status === "dispatched").length;
+  const failed = logs.length - dispatched;
+
+  return (
+    <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-line bg-line">
+      <div className="bg-bg-panel px-4 py-3">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+          rules
+        </p>
+        <p className="mt-1 font-mono text-lg text-ink">{rules.length}</p>
+      </div>
+      <div className="bg-bg-panel px-4 py-3">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+          dispatched
+        </p>
+        <p className="mt-1 font-mono text-lg text-ink">{dispatched}</p>
+      </div>
+      <div className="bg-bg-panel px-4 py-3">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+          failed
+        </p>
+        <p
+          className={`mt-1 font-mono text-lg ${
+            failed > 0 ? "text-sev-critical" : "text-ink"
+          }`}
+        >
+          {failed}
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -185,7 +271,7 @@ export function AlertSettingsPage() {
           <button
             type="button"
             onClick={refresh}
-            className="h-9 rounded-lg border border-line bg-surface px-4 text-sm text-ink transition-colors hover:border-line-soft hover:bg-bg-panel"
+            className="h-9 rounded-lg border border-line bg-surface px-4 text-sm text-ink transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent hover:border-line-soft hover:bg-bg-panel"
           >
             Try again
           </button>
@@ -195,13 +281,16 @@ export function AlertSettingsPage() {
       {loading ? (
         <Spinner label="loading alert settings" />
       ) : (
-        <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
-          <AlertRulesCard
-            rules={rules ?? []}
-            canManage={canManage}
-            onChanged={refresh}
-          />
-          <DeliveryHistoryCard logs={logs ?? []} />
+        <div className="flex flex-col gap-6">
+          <AlertStats rules={rules ?? []} logs={logs ?? []} />
+          <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
+            <AlertRulesCard
+              rules={rules ?? []}
+              canManage={canManage}
+              onChanged={refresh}
+            />
+            <DeliveryHistoryCard logs={logs ?? []} />
+          </div>
         </div>
       )}
 
@@ -259,8 +348,24 @@ function AlertRulesCard({
           <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
             alert rules
           </p>
-          <span className="font-mono text-[11px] text-muted">
-            {rules.length} rule{rules.length === 1 ? "" : "s"}
+          <span className="flex items-center gap-3">
+            <span className="font-mono text-[11px] text-muted">
+              {rules.length} rule{rules.length === 1 ? "" : "s"}
+            </span>
+            {canManage && !showForm ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingId(null);
+                  setShowForm(true);
+                }}
+                className="inline-flex h-8 items-center gap-1.5 rounded-md border border-accent/40 bg-accent/10 px-2.5 text-xs font-medium text-accent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent hover:bg-accent/20"
+              >
+                <HugeiconsIcon icon={PlusSignIcon} size={14} color="currentColor" strokeWidth={1.5} />
+                <span className="hidden sm:inline">New rule</span>
+                <span className="sm:hidden">New</span>
+              </button>
+            ) : null}
           </span>
         </div>
         {rules.length === 0 ? (
@@ -274,7 +379,7 @@ function AlertRulesCard({
             {rules.map((rule) => (
               <li
                 key={rule.id}
-                className="flex flex-col gap-3 border-b border-line px-5 py-4 last:border-b-0 transition-colors duration-150 hover:bg-bg-panel sm:flex-row sm:items-center sm:justify-between sm:gap-6"
+                className="flex flex-col gap-3 border-b border-line px-5 py-3.5 last:border-b-0 transition-colors duration-150 hover:bg-bg-panel sm:flex-row sm:items-center sm:justify-between sm:gap-6"
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
@@ -283,9 +388,6 @@ function AlertRulesCard({
                     </p>
                     <ChannelBadge channel={rule.channel} />
                   </div>
-                  <p className="mt-1 font-mono text-xs text-muted">
-                    {conditionSummary(rule.condition)}
-                  </p>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <ConditionChips condition={rule.condition} />
                     <span className="font-mono text-[11px] text-muted">
@@ -302,7 +404,7 @@ function AlertRulesCard({
                       type="button"
                       aria-label="Edit rule"
                       onClick={() => handleEdit(rule)}
-                      className="flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-surface text-muted transition-colors hover:text-ink"
+                      className="flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-surface text-muted transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent hover:text-ink"
                     >
                       <HugeiconsIcon icon={PencilEdit01Icon} size={16} color="currentColor" strokeWidth={1.5} />
                     </button>
@@ -315,29 +417,17 @@ function AlertRulesCard({
         )}
       </GlassCard>
 
-          {canManage ? (
-            showForm ? (
-              <AlertRuleForm
-                editing={rules.find((rule) => rule.id === editingId) ?? undefined}
-                onCancel={() => {
-                  setShowForm(false);
-                  setEditingId(null);
-                }}
-                onDone={handleCreatedOrUpdated}
-              />
-            ) : (
-          <button
-            type="button"
-            onClick={() => {
+      {canManage ? (
+        showForm ? (
+          <AlertRuleForm
+            editing={rules.find((rule) => rule.id === editingId) ?? undefined}
+            onCancel={() => {
+              setShowForm(false);
               setEditingId(null);
-              setShowForm(true);
             }}
-            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-line bg-surface px-4 text-sm font-medium text-ink transition-colors hover:border-accent/60 hover:bg-bg-panel"
-          >
-            <HugeiconsIcon icon={PlusSignIcon} size={16} color="currentColor" strokeWidth={1.5} />
-            New alert rule
-          </button>
-        )
+            onDone={handleCreatedOrUpdated}
+          />
+        ) : null
       ) : null}
     </div>
   );
@@ -378,7 +468,7 @@ function DeleteRuleButton({
         aria-label="Delete rule"
         onClick={handleDelete}
         disabled={busy}
-        className="flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-surface text-muted transition-colors hover:text-sev-critical disabled:opacity-60"
+        className="flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-surface text-muted transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent hover:text-sev-critical disabled:opacity-60"
       >
         <HugeiconsIcon icon={Delete02Icon} size={16} color="currentColor" strokeWidth={1.5} />
       </button>
@@ -500,59 +590,48 @@ function AlertRuleForm({
         />
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block">
-            <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-muted">
-              Severity
-            </span>
-            <select
-              value={severity}
-              onChange={(event) => setSeverity(event.target.value as IncidentSeverity | "")}
-              className="h-11 w-full rounded-lg border border-line bg-surface px-3.5 text-sm text-ink outline-none transition-colors focus:border-accent/60 focus:ring-1 focus:ring-accent/40"
-            >
-              <option value="">Any</option>
-              {SEVERITY_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="block">
-            <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-muted">
-              Status
-            </span>
-            <select
-              value={status}
-              onChange={(event) => setStatus(event.target.value as IncidentStatus | "")}
-              className="h-11 w-full rounded-lg border border-line bg-surface px-3.5 text-sm text-ink outline-none transition-colors focus:border-accent/60 focus:ring-1 focus:ring-accent/40"
-            >
-              <option value="">Any</option>
-              {STATUS_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <ConditionPicker
+            label="Severity"
+            value={severity}
+            onChange={setSeverity}
+            options={SEVERITY_OPTIONS}
+          />
+          <ConditionPicker
+            label="Status"
+            value={status}
+            onChange={setStatus}
+            options={STATUS_OPTIONS}
+          />
         </div>
 
-        <label className="block">
+        <div>
           <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-muted">
             Channel
           </span>
-          <select
-            value={channel}
-            onChange={(event) => setChannel(event.target.value as AlertRuleChannel)}
-            className="h-11 w-full rounded-lg border border-line bg-surface px-3.5 text-sm text-ink outline-none transition-colors focus:border-accent/60 focus:ring-1 focus:ring-accent/40"
-          >
-            {CHANNEL_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+          <div className="flex items-center gap-1 rounded-lg border border-line bg-surface p-1">
+            {CHANNEL_OPTIONS.map((option) => {
+              const Icon = CHANNEL_ICON[option.value];
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  aria-pressed={channel === option.value}
+                  onClick={() =>
+                    setChannel(option.value as AlertRuleChannel)
+                  }
+                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 font-mono text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+                    channel === option.value
+                      ? "bg-accent/15 text-accent"
+                      : "text-muted hover:text-ink"
+                  }`}
+                >
+                  <HugeiconsIcon icon={Icon} size={14} color="currentColor" strokeWidth={1.5} />
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         <TextField
           label={targetLabel}
@@ -579,7 +658,7 @@ function AlertRuleForm({
           <button
             type="button"
             onClick={onCancel}
-            className="h-11 rounded-lg border border-line bg-surface px-5 text-sm text-ink transition-colors hover:border-line-soft hover:bg-bg-panel"
+            className="h-11 rounded-lg border border-line bg-surface px-5 text-sm text-ink transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent hover:border-line-soft hover:bg-bg-panel"
           >
             Cancel
           </button>
@@ -611,7 +690,7 @@ function DeliveryHistoryCard({ logs }: { logs: AlertLog[] }) {
           {logs.map((log) => (
             <li
               key={log.id}
-              className="flex flex-col gap-2 border-b border-line px-5 py-4 last:border-b-0"
+              className="flex flex-col gap-2 border-b border-line px-5 py-3 last:border-b-0"
             >
               <div className="flex items-center justify-between gap-3">
                 <p className="truncate text-sm font-medium tracking-tight text-ink">

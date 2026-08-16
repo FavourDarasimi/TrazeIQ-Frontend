@@ -24,6 +24,10 @@ import type {
 import { apiErrorMessage, apiFieldErrors } from "@/utils/errors";
 import { formatRelativeTime } from "@/utils/format";
 
+/* Hallmark · genre: modern-minimal · macrostructure: settings-app-family
+ * design-system: Design.md · designed-as-app
+ */
+
 const INVITABLE_ROLES: Array<{ value: MembershipRole; label: string }> = [
   { value: "admin", label: "Admin" },
   { value: "developer", label: "Developer" },
@@ -36,6 +40,50 @@ const ROLE_STYLES: Record<MembershipRole, string> = {
   developer: "border-sev-low/30 bg-sev-low/10 text-sev-low",
   viewer: "border-line bg-surface text-muted",
 };
+
+const ROLE_ORDER: Record<MembershipRole, number> = {
+  owner: 0,
+  admin: 1,
+  developer: 2,
+  viewer: 3,
+};
+
+const ROLE_LABELS: Array<{ role: MembershipRole; label: string }> = [
+  { role: "owner", label: "owners" },
+  { role: "admin", label: "admins" },
+  { role: "developer", label: "developers" },
+  { role: "viewer", label: "viewers" },
+];
+
+function RoleStats({ members }: { members: OrganizationMembership[] }) {
+  const counts = useMemo(() => {
+    const tally: Record<MembershipRole, number> = {
+      owner: 0,
+      admin: 0,
+      developer: 0,
+      viewer: 0,
+    };
+    for (const member of members) tally[member.role] += 1;
+    return tally;
+  }, [members]);
+
+  return (
+    <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-4">
+      {ROLE_LABELS.map(({ role, label }) => (
+        <div key={role} className="bg-bg-panel px-4 py-3">
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+            {label}
+          </p>
+          <p
+            className={`mt-1 font-mono text-lg ${role === "owner" ? "text-accent" : "text-ink"}`}
+          >
+            {counts[role]}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function RoleBadge({ role }: { role: MembershipRole }) {
   return (
@@ -55,16 +103,16 @@ function MemberRow({
   isYou: boolean;
 }) {
   return (
-    <li className="flex flex-col gap-2 px-5 py-4 transition-colors duration-150 hover:bg-bg-panel sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+    <li className="flex flex-col gap-2 border-b border-line px-5 py-3 transition-colors duration-150 last:border-b-0 hover:bg-bg-panel sm:flex-row sm:items-center sm:justify-between sm:gap-6">
       <div className="flex min-w-0 items-center gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-bg-panel font-mono text-xs uppercase text-muted">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line bg-bg-panel font-mono text-[11px] uppercase text-muted">
           {member.user.slice(0, 2)}
         </span>
         <div className="min-w-0">
           <p className="flex items-center gap-2 truncate text-[15px] font-medium tracking-tight text-ink">
             <span className="truncate">{member.user}</span>
             {isYou ? (
-              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+              <span className="shrink-0 rounded border border-line bg-surface px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
                 you
               </span>
             ) : null}
@@ -76,6 +124,34 @@ function MemberRow({
       </div>
       <RoleBadge role={member.role} />
     </li>
+  );
+}
+
+function RolePicker({
+  value,
+  onChange,
+}: {
+  value: MembershipRole;
+  onChange: (role: MembershipRole) => void;
+}) {
+  return (
+    <div className="flex items-center gap-1 rounded-lg border border-line bg-surface p-1">
+      {INVITABLE_ROLES.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          aria-pressed={value === option.value}
+          onClick={() => onChange(option.value)}
+          className={`flex-1 rounded-md px-3 py-1.5 font-mono text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+            value === option.value
+              ? "bg-accent/15 text-accent"
+              : "text-muted hover:text-ink"
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -117,6 +193,18 @@ export function TeamSettingsPage() {
     if (!user || !members) return null;
     return members.find((member) => member.user === user.email)?.role ?? null;
   }, [user, members]);
+
+  const sortedMembers = useMemo(
+    () =>
+      members === null
+        ? []
+        : [...members].sort(
+            (a, b) =>
+              ROLE_ORDER[a.role] - ROLE_ORDER[b.role] ||
+              a.created_at.localeCompare(b.created_at),
+          ),
+    [members],
+  );
 
   const canInvite = myRole === "owner" || myRole === "admin";
 
@@ -189,7 +277,7 @@ export function TeamSettingsPage() {
               setMembers(null);
               setAttempt((value) => value + 1);
             }}
-            className="h-9 rounded-lg border border-line bg-surface px-4 text-sm text-ink transition-colors hover:border-line-soft hover:bg-bg-panel"
+            className="h-9 rounded-lg border border-line bg-surface px-4 text-sm text-ink transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent hover:border-line-soft hover:bg-bg-panel"
           >
             Try again
           </button>
@@ -199,7 +287,9 @@ export function TeamSettingsPage() {
       {loading ? <Spinner label="loading team" /> : null}
 
       {!loading && !error && members ? (
-        <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
+        <div className="flex flex-col gap-6">
+          <RoleStats members={members} />
+          <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
           <GlassCard className="overflow-hidden">
             <div className="flex items-center justify-between border-b border-line px-5 py-3">
               <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
@@ -210,7 +300,7 @@ export function TeamSettingsPage() {
               </span>
             </div>
             <ul>
-              {members.map((member) => (
+              {sortedMembers.map((member) => (
                 <MemberRow
                   key={member.user_id}
                   member={member}
@@ -237,24 +327,12 @@ export function TeamSettingsPage() {
                     onChange={(event) => setEmail(event.target.value)}
                     error={undefined}
                   />
-                  <label className="block">
+                  <div>
                     <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-muted">
                       Role
                     </span>
-                    <select
-                      value={role}
-                      onChange={(event) =>
-                        setRole(event.target.value as MembershipRole)
-                      }
-                      className="h-11 w-full rounded-lg border border-line bg-surface px-3.5 text-sm text-ink outline-none transition-colors focus:border-accent/60 focus:ring-1 focus:ring-accent/40"
-                    >
-                      {INVITABLE_ROLES.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                    <RolePicker value={role} onChange={setRole} />
+                  </div>
                   <SubmitButton loading={busy} loadingLabel="Sending invite…">
                     <span className="inline-flex items-center gap-2">
                       <HugeiconsIcon icon={MailSend01Icon} size={16} color="currentColor" strokeWidth={1.5} />
@@ -277,7 +355,7 @@ export function TeamSettingsPage() {
                         type="button"
                         onClick={handleCopy}
                         aria-label="Copy invite link"
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-line bg-surface text-muted transition-colors hover:text-ink"
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-line bg-surface text-muted transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent hover:text-ink"
                       >
                         <HugeiconsIcon icon={copied ? CheckmarkCircle01Icon : Copy01Icon} size={15} color="currentColor" strokeWidth={1.5} />
                       </button>
@@ -301,6 +379,7 @@ export function TeamSettingsPage() {
               </GlassCard>
             )}
           </div>
+        </div>
         </div>
       ) : null}
     </div>

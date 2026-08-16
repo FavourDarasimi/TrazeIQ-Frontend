@@ -1,10 +1,15 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ChevronDownIcon, Logout01Icon } from "@hugeicons/core-free-icons";
+import {
+  Cancel01Icon,
+  ChevronDownIcon,
+  Logout01Icon,
+  Menu01Icon,
+} from "@hugeicons/core-free-icons";
 
 import { DASHBOARD_NAV } from "@/config/navigation";
 import { ROUTES } from "@/constants";
@@ -21,6 +26,31 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const { user, signOut } = useAuth();
   const { status, projects, selectedProjectId, selectProject, retry } =
     useProjectContext();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  function closeMenu() {
+    setMenuOpen(false);
+  }
+
+  // Lock body scroll while the mobile drawer is open.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [menuOpen]);
+
+  // Close the drawer on Escape.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeMenu();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen]);
 
   async function handleLogout() {
     await signOut();
@@ -29,11 +59,63 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen">
-      <aside className="fixed inset-y-0 left-0 flex w-64 flex-col border-r border-line bg-bg-panel">
+      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-line bg-bg-panel px-4 lg:hidden">
+        <Link
+          href={ROUTES.dashboard}
+          className="font-mono text-sm font-semibold tracking-tight text-ink"
+        >
+          traze<span className="text-accent">iq</span>
+        </Link>
+        <button
+          type="button"
+          onClick={() => setMenuOpen(true)}
+          aria-label="Open menu"
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-ink transition-colors hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          <HugeiconsIcon
+            icon={Menu01Icon}
+            size={22}
+            color="currentColor"
+            strokeWidth={1.5}
+          />
+        </button>
+      </header>
+
+      {menuOpen ? (
+        <button
+          type="button"
+          aria-label="Close menu"
+          data-overlay
+          onClick={closeMenu}
+          className="fixed inset-0 z-40 cursor-default bg-black/60 backdrop-blur-[1px] lg:hidden"
+        />
+      ) : null}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-line bg-bg-panel transition-transform duration-200 ease-out lg:translate-x-0 ${
+          menuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         <div className="flex items-center justify-between px-5 pb-4 pt-5">
-          <Link href={ROUTES.dashboard} className="font-mono text-sm font-semibold tracking-tight text-ink">
+          <Link
+            href={ROUTES.dashboard}
+            className="font-mono text-sm font-semibold tracking-tight text-ink"
+          >
             traze<span className="text-accent">iq</span>
           </Link>
+          <button
+            type="button"
+            onClick={closeMenu}
+            aria-label="Close menu"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface hover:text-ink lg:hidden"
+          >
+            <HugeiconsIcon
+              icon={Cancel01Icon}
+              size={18}
+              color="currentColor"
+              strokeWidth={1.5}
+            />
+          </button>
         </div>
 
         <div className="px-4">
@@ -72,13 +154,14 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           ) : null}
         </div>
 
-        <nav className="mt-6 flex flex-1 flex-col gap-0.5 px-3">
+        <nav className="mt-6 flex flex-1 flex-col gap-0.5 overflow-y-auto px-3">
           {DASHBOARD_NAV.map((item) => {
             const active = isActive(pathname, item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={closeMenu}
                 className={`group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all ${
                   active
                     ? "border-l-2 border-accent bg-white/5 font-medium text-ink"
@@ -125,8 +208,10 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <main className="ml-64 flex-1">
-        <div className="mx-auto w-full max-w-[1500px] px-8 py-8">{children}</div>
+      <main className="min-w-0 flex-1 lg:ml-64">
+        <div className="mx-auto w-full max-w-[1500px] px-4 py-8 pt-20 sm:px-8 lg:pt-8">
+          {children}
+        </div>
       </main>
     </div>
   );

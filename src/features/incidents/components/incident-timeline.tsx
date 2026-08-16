@@ -146,7 +146,7 @@ function TimelineRow({
             <span className="font-mono text-[11px] text-muted">{actor}</span>
           ) : null}
         </div>
-        <p className={`mt-1 ${style.contentClass}`}>
+        <p className={`mt-1 break-words ${style.contentClass}`}>
           {entry.content || entry.message}
         </p>
       </div>

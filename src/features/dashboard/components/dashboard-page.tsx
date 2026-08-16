@@ -262,8 +262,8 @@ const [overview, setOverview] = useState<DashboardOverview | null>(null);
             />
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-3">
-            <GlassCard className="p-6 lg:col-span-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <GlassCard className="min-w-0 overflow-hidden p-6 lg:col-span-2">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
