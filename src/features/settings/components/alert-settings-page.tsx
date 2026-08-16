@@ -18,6 +18,7 @@ import { GlassCard, Spinner } from "@/components/ui/glass-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SeverityBadge, StatusBadge } from "@/components/ui/incident-badges";
 import { InlineError, SubmitButton, TextField } from "@/components/ui/form";
+import { Modal } from "@/components/ui/modal";
 import { ROUTES } from "@/constants";
 import { useProjectContext } from "@/features/app/components/project-context";
 import { useAuth } from "@/providers/auth-provider";
@@ -418,7 +419,14 @@ function AlertRulesCard({
       </GlassCard>
 
       {canManage ? (
-        showForm ? (
+        <Modal
+          open={showForm}
+          title={editingId ? "Edit alert rule" : "New alert rule"}
+          onClose={() => {
+            setShowForm(false);
+            setEditingId(null);
+          }}
+        >
           <AlertRuleForm
             editing={rules.find((rule) => rule.id === editingId) ?? undefined}
             onCancel={() => {
@@ -427,7 +435,7 @@ function AlertRulesCard({
             }}
             onDone={handleCreatedOrUpdated}
           />
-        ) : null
+        </Modal>
       ) : null}
     </div>
   );
@@ -574,7 +582,7 @@ function AlertRuleForm({
   }
 
   return (
-    <GlassCard className="p-6">
+    <>
       <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
         {editing ? "edit alert rule" : "new alert rule"}
       </p>
@@ -664,7 +672,7 @@ function AlertRuleForm({
           </button>
         </div>
       </form>
-    </GlassCard>
+    </>
   );
 }
 

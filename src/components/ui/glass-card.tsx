@@ -1,15 +1,20 @@
-import type { ReactNode } from "react";
+import type { HTMLAttributes, ReactNode, Ref } from "react";
 
 export function GlassCard({
   children,
   className = "",
+  ref,
+  ...rest
 }: {
   children: ReactNode;
   className?: string;
-}) {
+  ref?: Ref<HTMLDivElement>;
+} & HTMLAttributes<HTMLDivElement>) {
   return (
     <div
+      ref={ref}
       className={`rounded-2xl border border-line bg-surface shadow-xl ${className}`}
+      {...rest}
     >
       {children}
     </div>
