@@ -61,11 +61,6 @@ export function AppHeader({ onOpenMenu }: { onOpenMenu?: () => void }) {
           <ol className="flex items-center gap-1.5 font-mono text-xs text-muted">
             {crumbs.map((crumb, index) => (
               <li key={`${crumb}-${index}`} className="flex items-center gap-1.5">
-                {index > 0 ? (
-                  <span aria-hidden="true" className="text-line-soft">
-                    /
-                  </span>
-                ) : null}
                 <span
                   className={
                     index === crumbs.length - 1 ? "text-ink" : "text-muted"

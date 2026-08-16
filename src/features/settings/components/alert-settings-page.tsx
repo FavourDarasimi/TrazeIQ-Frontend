@@ -310,7 +310,7 @@ function AlertHeader() {
   return (
     <div>
       <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
-        <span className="text-accent">{"//"}</span> settings
+        settings
       </p>
       <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink">
         Alerts

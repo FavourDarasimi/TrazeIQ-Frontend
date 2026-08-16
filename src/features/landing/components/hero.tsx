@@ -45,7 +45,7 @@ export function Hero() {
       <Container className="relative flex flex-col items-center pb-20 pt-24 text-center sm:pt-32">
         <Reveal delay={0.05}>
           <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-muted">
-            <span className="text-accent">{"//"}</span> AI incident response
+            AI incident response
           </p>
         </Reveal>
 

@@ -21,7 +21,7 @@ export function Cta() {
       <Container className="relative flex flex-col items-center py-16 text-center sm:py-32">
         <Reveal className="flex flex-col items-center">
           <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-muted">
-          <span className="text-accent">{"//"}</span> get started
+          get started
         </p>
         <h2 className="mt-6 max-w-2xl text-balance text-3xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl">
           Start monitoring in two minutes.

@@ -184,7 +184,7 @@ const [overview, setOverview] = useState<DashboardOverview | null>(null);
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
-            <span className="text-accent">{"//"}</span> dashboard
+            dashboard
           </p>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink">
             Overview
