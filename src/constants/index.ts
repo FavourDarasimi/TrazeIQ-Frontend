@@ -20,6 +20,10 @@ export const API_ROUTES = {
   alertLogs: "/alerts/logs/",
   slackConnect: "/integrations/slack/connect/",
   slackStatus: "/integrations/slack/status/",
+  notifications: "/notifications/",
+  notificationUnreadCount: "/notifications/unread-count/",
+  notificationMarkRead: "/notifications/read/",
+  alertPreferences: "/notifications/preferences/",
 } as const;
 
 export const ROUTES = {

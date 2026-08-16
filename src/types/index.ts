@@ -238,6 +238,38 @@ export type SlackStatus = {
   team_name: string | null;
 };
 
+export type NotificationKind =
+  | "incident_created"
+  | "incident_assigned"
+  | "incident_updated"
+  | "incident_commented"
+  | "incident_resolved"
+  | "system";
+
+export type AppNotification = {
+  id: string;
+  incident: {
+    id: string;
+    title: string;
+    severity: IncidentSeverity;
+    status: IncidentStatus;
+  } | null;
+  kind: NotificationKind;
+  title: string;
+  body: string;
+  is_read: boolean;
+  read_at: string | null;
+  created_at: string;
+};
+
+export type AlertPreferences = {
+  only_assigned_to_me: boolean;
+  notify_on_new_incidents: boolean;
+  notify_on_status_changes: boolean;
+  notify_on_comments: boolean;
+  updated_at: string;
+};
+
 export type AIAnalysis = {
   id: string;
   incident_id: string;

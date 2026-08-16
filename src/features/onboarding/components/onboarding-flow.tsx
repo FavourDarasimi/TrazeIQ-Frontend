@@ -2,19 +2,16 @@
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Building01Icon,
   FolderCodeIcon,
   Key01Icon,
-  Logout01Icon,
 } from "@hugeicons/core-free-icons";
 
 import { CodeBlock } from "@/components/ui/code-block";
 import { InlineError, SubmitButton, TextField } from "@/components/ui/form";
 import { ROUTES } from "@/constants";
-import { useAuth } from "@/providers/auth-provider";
 import { createOrganization } from "@/services/organizations";
 import { createProject } from "@/services/projects";
 import { loadWorkspace, type WorkspaceSnapshot } from "@/services/workspace";
@@ -40,9 +37,6 @@ function StepHeader({ icon, step, title, sub }: { icon: ReactNode; step: string;
 }
 
 export function OnboardingFlow() {
-  const { signOut } = useAuth();
-  const router = useRouter();
-
   const [stage, setStage] = useState<Stage>("loading");
   const [orgs, setOrgs] = useState<Organization[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -95,11 +89,6 @@ export function OnboardingFlow() {
     };
   }, []);
 
-  async function handleLogout() {
-    await signOut();
-    router.replace(ROUTES.login);
-  }
-
   async function submitOrg(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
@@ -151,20 +140,6 @@ export function OnboardingFlow() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <span className="font-mono text-sm font-semibold tracking-tight text-ink">
-          traze<span className="text-accent">iq</span>
-        </span>
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="flex items-center gap-1.5 text-xs text-muted transition-colors hover:text-ink"
-        >
-          <HugeiconsIcon icon={Logout01Icon} size={15} color="currentColor" strokeWidth={1.5} />
-          Log out
-        </button>
-      </div>
-
       {stage === "loading" ? (
         <div className="flex flex-col items-center gap-3 py-16">
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-line-soft border-t-accent" />
