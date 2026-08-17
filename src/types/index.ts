@@ -270,6 +270,38 @@ export type AlertPreferences = {
   updated_at: string;
 };
 
+export type ServiceHealthStatus = "healthy" | "degraded" | "critical";
+
+export type ServiceEnvironmentStat = {
+  name: string;
+  events: number;
+  error_events: number;
+};
+
+export type ServiceHealth = {
+  name: string;
+  status: ServiceHealthStatus;
+  events: number;
+  error_events: number;
+  error_rate: number;
+  fatal_events: number;
+  error_groups: number;
+  uptime: number;
+  last_seen: string;
+  environments: ServiceEnvironmentStat[];
+};
+
+export type ServicesHealthCatalog = {
+  range: DashboardRange;
+  summary: {
+    total_services: number;
+    events: number;
+    critical_services: number;
+    avg_error_rate: number;
+  };
+  services: ServiceHealth[];
+};
+
 export type AIAnalysis = {
   id: string;
   incident_id: string;

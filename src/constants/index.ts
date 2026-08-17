@@ -16,6 +16,7 @@ export const API_ROUTES = {
   pusherAuth: "/pusher/auth/",
   dashboardOverview: "/dashboard/overview/",
   dashboardStats: "/dashboard/stats/",
+  servicesHealth: "/services/health/",
   alertRules: "/alerts/rules/",
   alertLogs: "/alerts/logs/",
   slackConnect: "/integrations/slack/connect/",

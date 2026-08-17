@@ -39,10 +39,6 @@ export const SECTION_STUBS: Record<string, { title: string; body: string }> = {
     title: "Logs",
     body: "Structured, non-error log ingestion is optional scope and not wired up yet.",
   },
-  [ROUTES.services]: {
-    title: "Services",
-    body: "Per-service health and breakdown views arrive in a later phase.",
-  },
   [ROUTES.aiAssistant]: {
     title: "AI Assistant",
     body: "The AI Incident Copilot lives on each incident's detail page — Phase 2 wires it to the analysis endpoints.",
