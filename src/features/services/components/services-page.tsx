@@ -1,10 +1,12 @@
+// Hallmark · genre: modern-minimal · macrostructure: service-ledger · design-system: /Design.md · designed-as-app
+// pre-emit critique: P4 H5 E5 S5 R5 V5
 "use client";
 
 import { useEffect, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Layers02Icon } from "@hugeicons/core-free-icons";
 
-import { GlassCard, Spinner } from "@/components/ui/glass-card";
+import { Spinner } from "@/components/ui/glass-card";
 import { InlineError } from "@/components/ui/form";
 import { useProjectContext } from "@/features/app/components/project-context";
 import { useRealtimeEvents } from "@/providers/realtime-provider";
@@ -26,44 +28,109 @@ const RANGES: { value: DashboardRange; label: string }[] = [
 
 const STATUS_META: Record<
   ServiceHealthStatus,
-  { label: string; dot: string; chip: string }
+  { label: string; dot: string; text: string; orb: string }
 > = {
   healthy: {
     label: "Healthy",
     dot: "bg-ok shadow-[0_0_10px_rgba(16,185,129,0.5)]",
-    chip: "border-ok/30 bg-ok/10 text-ok",
+    text: "text-ok",
+    orb: "bg-ok shadow-[0_0_12px_rgba(16,185,129,0.55)]",
   },
   degraded: {
     label: "Degraded",
     dot: "bg-sev-warning shadow-[0_0_10px_rgba(245,158,11,0.55)]",
-    chip: "border-sev-warning/30 bg-sev-warning/10 text-sev-warning",
+    text: "text-sev-warning",
+    orb: "bg-sev-warning shadow-[0_0_12px_rgba(245,158,11,0.6)]",
   },
   critical: {
     label: "Critical",
     dot: "bg-sev-critical shadow-[0_0_10px_rgba(239,68,68,0.6)]",
-    chip: "border-sev-critical/30 bg-sev-critical/10 text-sev-critical",
+    text: "text-sev-critical",
+    orb: "bg-sev-critical shadow-[0_0_12px_rgba(239,68,68,0.65)]",
   },
 };
 
-function StatCard({
-  label,
-  value,
-  sub,
+function uptimeTone(uptime: number) {
+  if (uptime >= 99) return "text-ok";
+  if (uptime >= 90) return "text-sev-warning";
+  return "text-sev-critical";
+}
+
+function HealthBand({
+  catalog,
+  range,
 }: {
-  label: string;
-  value: string;
-  sub?: string;
+  catalog: ServicesHealthCatalog;
+  range: DashboardRange;
+}) {
+  const summary = catalog.summary;
+  const aggregate: ServiceHealthStatus =
+    summary.critical_services > 0
+      ? "critical"
+      : catalog.services.some((service) => service.status === "degraded")
+        ? "degraded"
+        : "healthy";
+  const meta = STATUS_META[aggregate];
+  const avgUptime =
+    catalog.services.length > 0
+      ? Math.round(
+          (catalog.services.reduce((total, service) => total + service.uptime, 0) /
+            catalog.services.length) *
+            100,
+        ) / 100
+      : 100;
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border border-line bg-bg-panel px-4 py-3">
+      <span className="flex items-center gap-3">
+        <span
+          className={`h-2.5 w-2.5 rounded-full ${meta.orb} animate-[pulse_3s_ease-in-out_infinite]`}
+        />
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+          System health
+        </span>
+        <span className={`font-mono text-sm font-medium ${meta.text}`}>
+          {avgUptime}%
+        </span>
+      </span>
+      <p className="min-w-0 flex-wrap font-mono text-xs text-muted">
+        <span className="text-ink">$</span> health --range {range} ·{" "}
+        <span className="text-ink">{summary.total_services}</span> services ·{" "}
+        <span className="text-ink">{formatCount(summary.events)}</span> events ·{" "}
+        <span className={summary.critical_services > 0 ? "text-sev-critical" : "text-ink"}>
+          {summary.critical_services}
+        </span>{" "}
+        critical ·{" "}
+        <span className="text-ink">{Math.round(summary.avg_error_rate * 100)}%</span> err
+      </p>
+    </div>
+  );
+}
+
+function RangeToggle({
+  range,
+  onChange,
+}: {
+  range: DashboardRange;
+  onChange: (range: DashboardRange) => void;
 }) {
   return (
-    <GlassCard className="p-5">
-      <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
-        {label}
-      </p>
-      <p className="mt-2 text-3xl font-semibold tracking-tight text-ink">
-        {value}
-      </p>
-      {sub ? <p className="mt-1 text-xs text-muted">{sub}</p> : null}
-    </GlassCard>
+    <div className="flex items-center gap-1 rounded-lg border border-line bg-surface p-1">
+      {RANGES.map(({ value, label }) => (
+        <button
+          key={value}
+          onClick={() => onChange(value)}
+          aria-pressed={range === value}
+          className={`rounded-md px-2.5 py-1 text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+            range === value
+              ? "bg-accent/15 text-accent"
+              : "text-muted hover:text-ink"
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -72,46 +139,57 @@ function ServiceRow({ service }: { service: ServiceHealth }) {
   const errorShare = Math.round(service.error_rate * 100);
 
   return (
-    <li className="flex flex-col gap-4 px-5 py-4 transition-colors hover:bg-bg-panel">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <span className={`h-2 w-2 shrink-0 rounded-full ${status.dot}`} />
+    <tr className="transition-colors hover:bg-bg-panel">
+      <td className="px-4 py-3 align-top sm:pr-6">
+        <div className="flex min-w-0 items-start gap-3">
+          <span
+            className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${status.dot}`}
+          />
           <div className="min-w-0">
             <p className="truncate font-mono text-sm font-medium text-ink">
               {service.name}
             </p>
-            <p className="font-mono text-[11px] text-muted">
+            <p className="mt-0.5 font-mono text-[11px] text-muted">
               {formatRelativeTime(service.last_seen)}
             </p>
+            {service.environments.length > 0 ? (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {service.environments.map((environment) => (
+                  <span
+                    key={environment.name}
+                    className="rounded-md border border-line bg-surface px-2 py-0.5 font-mono text-[11px] text-muted"
+                  >
+                    {environment.name}
+                    <span className="text-ink">
+                      {" "}
+                      {formatCount(environment.events)}
+                    </span>
+                    {environment.error_events > 0 ? (
+                      <span className="text-sev-warning">
+                        {" "}
+                        · {formatCount(environment.error_events)} err
+                      </span>
+                    ) : null}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </div>
         </div>
-
-        <span
-          className={`rounded-md border px-2 py-0.5 font-mono text-[11px] ${status.chip}`}
-        >
+      </td>
+      <td className="hidden px-4 py-3 align-middle sm:table-cell">
+        <span className={`font-mono text-xs font-medium ${status.text}`}>
           {status.label}
         </span>
-
-        <div className="flex items-center gap-2 font-mono text-xs text-muted">
-          <span className="w-20">uptime</span>
-          <span
-            className={
-              service.uptime >= 99
-                ? "text-ok"
-                : service.uptime >= 90
-                  ? "text-sev-warning"
-                  : "text-sev-critical"
-            }
-          >
-            {service.uptime}%
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="w-24 font-mono text-[11px] uppercase tracking-[0.15em] text-muted">
-            error rate
-          </span>
-          <div className="h-1.5 w-28 overflow-hidden rounded-full bg-surface">
+      </td>
+      <td className="px-4 py-3 text-right align-middle">
+        <span className={`font-mono text-xs ${uptimeTone(service.uptime)}`}>
+          {service.uptime}%
+        </span>
+      </td>
+      <td className="hidden px-4 py-3 align-middle md:table-cell">
+        <div className="flex items-center justify-end gap-2">
+          <div className="h-1.5 w-24 overflow-hidden rounded-full bg-surface">
             <div
               className={`h-full rounded-full ${
                 service.status === "healthy"
@@ -127,40 +205,18 @@ function ServiceRow({ service }: { service: ServiceHealth }) {
             {errorShare}%
           </span>
         </div>
-
-        <div className="ml-auto flex shrink-0 items-center gap-4 font-mono text-xs text-muted">
-          <span className="flex items-center gap-1.5">
-            <HugeiconsIcon
-              icon={Layers02Icon}
-              size={14}
-              color="currentColor"
-              strokeWidth={1.5}
-            />
-            {formatCount(service.events)} events
-          </span>
-          <span>{service.error_groups} groups</span>
-        </div>
-      </div>
-
-      {service.environments.length > 0 ? (
-        <div className="flex flex-wrap gap-2 pl-5">
-          {service.environments.map((environment) => (
-            <span
-              key={environment.name}
-              className="flex items-center gap-1.5 rounded-md border border-line bg-surface px-2 py-1 font-mono text-[11px] text-muted"
-            >
-              {environment.name}
-              <span className="text-ink">{formatCount(environment.events)}</span>
-              {environment.error_events > 0 ? (
-                <span className="text-sev-warning">
-                  · {formatCount(environment.error_events)} err
-                </span>
-              ) : null}
-            </span>
-          ))}
-        </div>
-      ) : null}
-    </li>
+      </td>
+      <td className="hidden px-4 py-3 text-right align-middle md:table-cell">
+        <span className="font-mono text-xs text-muted">
+          {formatCount(service.events)}
+        </span>
+      </td>
+      <td className="hidden px-4 py-3 text-right align-middle lg:table-cell">
+        <span className="font-mono text-xs text-muted">
+          {service.error_groups}
+        </span>
+      </td>
+    </tr>
   );
 }
 
@@ -191,81 +247,48 @@ export function ServicesPage() {
   }, [range, selectedProjectId, attempt, liveTick]);
 
   const loading = catalog === null && error === null;
-  const summary = catalog?.summary;
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
-            services
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink">
-            Health catalog
-          </h1>
-        </div>
-        <div className="flex items-center gap-1 rounded-lg border border-line bg-surface p-1">
-          {RANGES.map(({ value, label }) => (
-            <button
-              key={value}
-              onClick={() => setRange(value)}
-              aria-pressed={range === value}
-              className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
-                range === value
-                  ? "bg-accent/15 text-accent"
-                  : "text-muted hover:text-ink"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+      <div>
+        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
+          services
+        </p>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink">
+          Health catalog
+        </h1>
       </div>
 
       {error ? (
-        <GlassCard className="p-6">
+        <div className="rounded-lg border border-line bg-surface p-6">
           <InlineError>
             <div className="flex flex-wrap items-center gap-3">
               <span>{error}</span>
               <button
                 onClick={() => setAttempt((count) => count + 1)}
-                className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink transition-colors hover:border-accent/60 hover:text-accent"
+                className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent hover:border-accent/60 hover:text-accent"
               >
                 Retry
               </button>
             </div>
           </InlineError>
-        </GlassCard>
+        </div>
       ) : null}
 
       {loading ? (
         <Spinner label="aggregating…" />
       ) : catalog ? (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard
-              label="Services"
-              value={String(summary?.total_services ?? 0)}
-              sub="with traffic in window"
-            />
-            <StatCard
-              label={`Events · ${range}`}
-              value={formatCount(summary?.events ?? 0)}
-              sub="attributed to a service"
-            />
-            <StatCard
-              label="Critical"
-              value={String(summary?.critical_services ?? 0)}
-              sub="fatal event in window"
-            />
-            <StatCard
-              label="Avg error rate"
-              value={`${Math.round((summary?.avg_error_rate ?? 0) * 100)}%`}
-              sub="error + fatal share"
-            />
-          </div>
+          <HealthBand catalog={catalog} range={range} />
 
-          <GlassCard className="overflow-hidden">
+          <div className="overflow-hidden rounded-lg border border-line bg-black">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-2.5">
+              <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
+                services · {range}
+              </p>
+              <RangeToggle range={range} onChange={setRange} />
+            </div>
+
             {catalog.services.length === 0 ? (
               <div className="flex flex-col items-center gap-2 px-6 py-14 text-center">
                 <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-line bg-surface text-muted">
@@ -276,21 +299,47 @@ export function ServicesPage() {
                     strokeWidth={1.5}
                   />
                 </span>
-                <p className="text-sm text-ink">No service traffic yet.</p>
-                <p className="max-w-sm text-xs text-muted">
-                  Tag events with a <span className="font-mono">service</span>{" "}
+                <p className="font-mono text-sm text-ink">
+                  <span className="text-muted">$</span> no service traffic yet.
+                </p>
+                <p className="max-w-sm font-mono text-xs text-muted">
+                  Tag events with a <span className="text-ink">service</span>{" "}
                   field and they&apos;ll show up here with error rate, uptime
                   and per-environment volume.
                 </p>
               </div>
             ) : (
-              <ul className="divide-y divide-line">
-                {catalog.services.map((service) => (
-                  <ServiceRow key={service.name} service={service} />
-                ))}
-              </ul>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2 text-left font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-muted">
+                      Service
+                    </th>
+                    <th className="hidden px-4 py-2 text-left font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-muted sm:table-cell">
+                      Status
+                    </th>
+                    <th className="px-4 py-2 text-right font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-muted">
+                      Uptime
+                    </th>
+                    <th className="hidden px-4 py-2 text-right font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-muted md:table-cell">
+                      Err rate
+                    </th>
+                    <th className="hidden px-4 py-2 text-right font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-muted md:table-cell">
+                      Events
+                    </th>
+                    <th className="hidden px-4 py-2 text-right font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-muted lg:table-cell">
+                      Groups
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-line">
+                  {catalog.services.map((service) => (
+                    <ServiceRow key={service.name} service={service} />
+                  ))}
+                </tbody>
+              </table>
             )}
-          </GlassCard>
+          </div>
         </>
       ) : null}
     </div>
