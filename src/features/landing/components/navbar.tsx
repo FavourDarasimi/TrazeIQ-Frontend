@@ -12,11 +12,12 @@ const links = [
   { label: "Dashboard", href: "#dashboard" },
   { label: "Security", href: "#security" },
   { label: "FAQ", href: "#faq" },
+  { label: "Docs", href: "/docs" },
 ];
 
-export function Logo() {
+export function Logo({ href = "#top" }: { href?: string }) {
   return (
-    <a href="#top" className="flex items-center gap-2.5">
+    <a href={href} className="flex items-center gap-2.5">
       <span className="flex h-6 w-6 items-center justify-center rounded-md bg-accent">
         <span className="h-1.5 w-1.5 rounded-full bg-ink" />
       </span>
