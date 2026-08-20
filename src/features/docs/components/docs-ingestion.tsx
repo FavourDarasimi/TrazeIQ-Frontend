@@ -1,4 +1,18 @@
 import { Code, DocsSection, DocsTable, StatusBadge } from "./docs-shared";
+import { DocsCode } from "./docs-code";
+
+const requestBody = `{
+  "message": "TypeError: Cannot read properties of undefined (reading 'id')",
+  "stacktrace": "at processPayment (/app/src/payments.js:42:17)\\n    at handler (/app/src/routes.js:9:5)",
+  "level": "error",
+  "environment": "production",
+  "service": "payment-api",
+  "endpoint": "/v1/orders",
+  "request_method": "POST",
+  "user_id": "usr_8f2c",
+  "ip_address": "203.0.113.10",
+  "metadata": { "order_id": "ord_71b3", "attempt": 2 }
+}`;
 
 export function DocsIngestion() {
   return (
@@ -9,6 +23,8 @@ export function DocsIngestion() {
       sub="Authenticate with your project's API key in the X-API-Key header. The endpoint responds in milliseconds — AI analysis, alerting, and realtime delivery all happen asynchronously, so reporting an error never blocks your app."
     >
       <div className="flex flex-col gap-6">
+        <DocsCode label="request.json" code={requestBody} />
+
         <DocsTable
           head={["Field", "Type", "Required", "Notes"]}
           rows={[

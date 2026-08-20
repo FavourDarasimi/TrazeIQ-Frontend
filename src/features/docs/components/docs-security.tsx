@@ -1,4 +1,4 @@
-import { Code, DocsSection } from "./docs-shared";
+import { DocsSection } from "./docs-shared";
 
 const items = [
   {
@@ -32,13 +32,13 @@ export function DocsSecurity() {
       sub="The monitoring tool sees every stacktrace your app throws — that privilege comes with constraints."
     >
       <ul className="flex flex-col gap-5">
-        {items.map(({ title, body }, i) => (
+        {items.map(({ title, body }) => (
           <li key={title} className="flex flex-col gap-1">
-            <p className="flex items-center gap-2 text-sm font-medium text-ink">
-              <Code>{String(i + 1).padStart(2, "0")}</Code>
+            <p className="flex items-center gap-3 text-sm font-medium text-ink">
+              <span className="h-1 w-1 shrink-0 rounded-full bg-accent" />
               {title}
             </p>
-            <p className="pl-8 text-sm leading-relaxed text-muted">{body}</p>
+            <p className="pl-4 text-sm leading-relaxed text-muted">{body}</p>
           </li>
         ))}
       </ul>

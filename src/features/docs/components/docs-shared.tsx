@@ -1,7 +1,5 @@
 import type { ReactNode } from "react";
 
-import { Eyebrow } from "@/components/ui/shared";
-
 export function DocsSection({
   id,
   label,
@@ -17,8 +15,10 @@ export function DocsSection({
 }) {
   return (
     <section id={id} className="scroll-mt-28 border-t border-line pt-10">
-      <div className="flex flex-col gap-3">
-        <Eyebrow>{label}</Eyebrow>
+      <div className="flex flex-col gap-2">
+        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
+          {label}
+        </p>
         <h2 className="text-2xl font-semibold tracking-tight text-ink">
           {title}
         </h2>

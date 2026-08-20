@@ -1,5 +1,4 @@
-import { CodeBlock } from "@/components/ui/code-block";
-
+import { DocsCode } from "./docs-code";
 import { DocsSection } from "./docs-shared";
 
 const curlSnippet = `curl -X POST https://api.trazeiq.io/api/v1/events/ \\
@@ -35,6 +34,8 @@ export function DocsQuickstart() {
       sub="No SDK to install. The integration is a plain HTTPS POST — copy the snippet into your app's error handler and you're done."
     >
       <div className="flex flex-col gap-6">
+        <DocsCode label="curl — fire the first event" code={curlSnippet} />
+
         <ol className="flex flex-col gap-5">
           {[
             {
@@ -45,7 +46,7 @@ export function DocsQuickstart() {
             {
               step: "02",
               title: "Drop the snippet into your error handler",
-              body: "The curl snippet below is the whole integration. In a real app, wrap it in the catch block where you handle exceptions.",
+              body: "The curl snippet above is the whole integration. In a real app, wrap it in the catch block where you handle exceptions.",
             },
             {
               step: "03",
@@ -63,8 +64,7 @@ export function DocsQuickstart() {
           ))}
         </ol>
 
-        <CodeBlock title="curl — fire the first event" code={curlSnippet} />
-        <CodeBlock title="fetch — from inside your app" code={jsSnippet} />
+        <DocsCode label="fetch — from inside your app" code={jsSnippet} />
       </div>
     </DocsSection>
   );
