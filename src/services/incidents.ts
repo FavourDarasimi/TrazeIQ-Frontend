@@ -39,6 +39,28 @@ export function getIncident(
   });
 }
 
+export function resolveIncident(
+  id: string,
+): Promise<{ incident: Incident }> {
+  return api<{ incident: Incident }>(`${API_ROUTES.incidents}${id}/resolve/`, {
+    method: "POST",
+  });
+}
+
+export function updateIncident(
+  id: string,
+  payload: {
+    status?: IncidentStatus;
+    severity?: IncidentSeverity;
+    assigned_to?: string | null;
+  },
+): Promise<{ incident: Incident }> {
+  return api<{ incident: Incident }>(`${API_ROUTES.incidents}${id}/`, {
+    method: "PATCH",
+    body: payload,
+  });
+}
+
 export function getIncidentTimeline(
   id: string,
   signal?: AbortSignal,
