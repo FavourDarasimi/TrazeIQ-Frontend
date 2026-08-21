@@ -12,7 +12,7 @@ export function RedirectIfAuthenticated({ next }: { next?: string }) {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.replace(next ?? ROUTES.onboarding);
+      router.replace(next ?? ROUTES.dashboard);
     }
   }, [status, router, next]);
 

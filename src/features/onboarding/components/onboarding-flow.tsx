@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Building01Icon,
@@ -37,6 +38,7 @@ function StepHeader({ icon, step, title, sub }: { icon: ReactNode; step: string;
 }
 
 export function OnboardingFlow() {
+  const router = useRouter();
   const [stage, setStage] = useState<Stage>("loading");
   const [orgs, setOrgs] = useState<Organization[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -60,7 +62,7 @@ export function OnboardingFlow() {
     } else if (snapshot.projects.length === 0) {
       setStage("project");
     } else {
-      setStage("done");
+      router.replace(ROUTES.dashboard);
     }
   }
 

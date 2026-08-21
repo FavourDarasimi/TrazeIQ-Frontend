@@ -146,7 +146,7 @@ export function RegisterFlow() {
     try {
       const session = await login(email, loginPassword);
       applySession(session);
-      router.replace(ROUTES.onboarding);
+      router.replace(ROUTES.dashboard);
     } catch (err) {
       setError(apiErrorMessage(err));
       const fields = apiFieldErrors(err);

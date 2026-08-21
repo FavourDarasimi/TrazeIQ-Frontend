@@ -30,7 +30,7 @@ export function LoginForm({
     setFieldErrors({});
     try {
       await signIn(email, password);
-      router.replace(next ?? ROUTES.onboarding);
+      router.replace(next ?? ROUTES.dashboard);
     } catch (err) {
       setError(apiErrorMessage(err));
       const fields = apiFieldErrors(err);
