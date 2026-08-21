@@ -58,3 +58,43 @@ export function createIncidentComment(
     { method: "POST", body: { content } },
   );
 }
+
+export type BulkUpdatePayload = {
+  incident_ids: string[];
+  status?: IncidentStatus;
+  severity?: IncidentSeverity;
+  assigned_to?: string | null;
+};
+
+export type BulkUpdateResult = {
+  updated_count: number;
+  incidents: Incident[];
+};
+
+export function bulkUpdateIncidents(
+  payload: BulkUpdatePayload,
+): Promise<BulkUpdateResult> {
+  return api<BulkUpdateResult>(
+    `${API_ROUTES.incidents}bulk-update/`,
+    { method: "POST", body: payload },
+  );
+}
+
+export function bulkResolveIncidents(
+  incidentIds: string[],
+): Promise<BulkUpdateResult> {
+  return api<BulkUpdateResult>(
+    `${API_ROUTES.incidents}bulk-resolve/`,
+    { method: "POST", body: { incident_ids: incidentIds } },
+  );
+}
+
+export function bulkAssignIncidents(
+  incidentIds: string[],
+  assignedTo: string | null,
+): Promise<BulkUpdateResult> {
+  return api<BulkUpdateResult>(
+    `${API_ROUTES.incidents}bulk-assign/`,
+    { method: "POST", body: { incident_ids: incidentIds, assigned_to: assignedTo } },
+  );
+}
