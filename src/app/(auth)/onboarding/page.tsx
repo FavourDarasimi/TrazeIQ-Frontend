@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function OnboardingPage() {
   return (
-    <AuthShell>
+    <AuthShell header={false}>
       <RequireProtected>
         <OnboardingFlow />
       </RequireProtected>

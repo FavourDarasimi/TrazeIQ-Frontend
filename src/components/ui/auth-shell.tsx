@@ -6,9 +6,17 @@ import type { ReactNode } from "react";
 import { AuthHeader } from "@/components/ui/auth-header";
 import { useAuth } from "@/providers/auth-provider";
 
-export function AuthShell({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
+export function AuthShell({
+  children,
+  footer,
+  header = true,
+}: {
+  children: ReactNode;
+  footer?: ReactNode;
+  header?: boolean;
+}) {
   const { status } = useAuth();
-  const isAuthenticated = status === "authenticated";
+  const isAuthenticated = status === "authenticated" && header;
 
   if (!isAuthenticated) {
     return (
