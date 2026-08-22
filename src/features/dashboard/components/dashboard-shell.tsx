@@ -17,6 +17,7 @@ import { ROUTES } from "@/constants";
 import { useAuth } from "@/providers/auth-provider";
 import { useProjectContext } from "@/features/app/components/project-context";
 import { AppHeader } from "@/features/dashboard/components/app-header";
+import { FirstTourModal } from "@/features/onboarding/components/first-tour-modal";
 
 function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -265,6 +266,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           {children}
         </div>
       </main>
+      <FirstTourModal />
     </div>
   );
 }
