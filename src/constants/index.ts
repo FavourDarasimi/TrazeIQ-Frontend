@@ -28,6 +28,8 @@ export const API_ROUTES = {
 } as const;
 
 export const ROUTES = {
+  home: "/",
+  docs: "/docs",
   login: "/login",
   register: "/register",
   onboarding: "/onboarding",
