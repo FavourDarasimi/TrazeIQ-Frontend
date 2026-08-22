@@ -148,17 +148,9 @@ export function LogsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
-            command center
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink">
-            Logs
-          </h1>
-        </div>
-        <p className="font-mono text-[11px] text-muted">
-          source: <span className="text-ink/60">GET /api/v1/events/</span>
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">
+          Logs
+        </h1>
       </div>
 
       <GlassCard>

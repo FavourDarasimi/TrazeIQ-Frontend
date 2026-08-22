@@ -3,7 +3,6 @@ import {
   Home01Icon,
   Layers02Icon,
   Settings01Icon,
-  SparklesIcon,
   TerminalIcon,
 } from "@hugeicons/core-free-icons";
 
@@ -21,12 +20,6 @@ export const DASHBOARD_NAV: NavItem[] = [
   { href: ROUTES.incidents, label: "Incidents", icon: FlashIcon },
   { href: ROUTES.logs, label: "Logs", icon: TerminalIcon },
   { href: ROUTES.services, label: "Services", icon: Layers02Icon },
-  {
-    href: ROUTES.aiAssistant,
-    label: "AI Assistant",
-    icon: SparklesIcon,
-    stub: "Phase 2",
-  },
   { href: ROUTES.settings, label: "Settings", icon: Settings01Icon },
 ];
 

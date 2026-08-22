@@ -183,10 +183,7 @@ const [overview, setOverview] = useState<DashboardOverview | null>(null);
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
-            dashboard
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink">
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">
             Overview
           </h1>
         </div>
