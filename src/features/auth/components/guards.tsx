@@ -5,15 +5,29 @@ import { useRouter } from "next/navigation";
 
 import { ROUTES } from "@/constants";
 import { useAuth } from "@/providers/auth-provider";
+import { needsOnboarding } from "@/services/workspace";
 
 export function RedirectIfAuthenticated({ next }: { next?: string }) {
   const { status } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === "authenticated") {
-      router.replace(next ?? ROUTES.dashboard);
-    }
+    if (status !== "authenticated") return;
+    let cancelled = false;
+    // An authenticated user without a completed workspace still belongs in
+    // onboarding, even when landing on the auth pages directly.
+    needsOnboarding()
+      .then((incomplete) => {
+        if (!cancelled) {
+          router.replace(
+            incomplete ? ROUTES.onboarding : next ?? ROUTES.dashboard,
+          );
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, [status, router, next]);
 
   return null;

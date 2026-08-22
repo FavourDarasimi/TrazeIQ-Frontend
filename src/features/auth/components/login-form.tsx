@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { InlineError, SubmitButton, TextField } from "@/components/ui/form";
 import { ROUTES } from "@/constants";
 import { useAuth } from "@/providers/auth-provider";
+import { needsOnboarding } from "@/services/workspace";
 import { apiErrorMessage, apiFieldErrors } from "@/utils/errors";
 
 export function LoginForm({
@@ -30,7 +31,9 @@ export function LoginForm({
     setFieldErrors({});
     try {
       await signIn(email, password);
-      router.replace(next ?? ROUTES.dashboard);
+      router.replace(
+        (await needsOnboarding()) ? ROUTES.onboarding : next ?? ROUTES.dashboard,
+      );
     } catch (err) {
       setError(apiErrorMessage(err));
       const fields = apiFieldErrors(err);

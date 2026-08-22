@@ -7,6 +7,7 @@ import { InlineError, SubmitButton, TextField } from "@/components/ui/form";
 import { ROUTES } from "@/constants";
 import { ApiError } from "@/lib/api";
 import { useAuth } from "@/providers/auth-provider";
+import { needsOnboarding } from "@/services/workspace";
 import {
   completeRegistration,
   login,
@@ -146,7 +147,9 @@ export function RegisterFlow() {
     try {
       const session = await login(email, loginPassword);
       applySession(session);
-      router.replace(ROUTES.dashboard);
+      router.replace(
+        (await needsOnboarding()) ? ROUTES.onboarding : ROUTES.dashboard,
+      );
     } catch (err) {
       setError(apiErrorMessage(err));
       const fields = apiFieldErrors(err);

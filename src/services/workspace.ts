@@ -18,3 +18,15 @@ export async function loadWorkspace(): Promise<WorkspaceSnapshot> {
     projects: projectResult.projects,
   };
 }
+
+// A user who signed up but never finished setup has no org or no project;
+// they belong in the onboarding flow, which resumes at the right stage.
+// Best-effort: a failed lookup must never block sign-in routing.
+export async function needsOnboarding(): Promise<boolean> {
+  try {
+    const { organizations, projects } = await loadWorkspace();
+    return organizations.length === 0 || projects.length === 0;
+  } catch {
+    return false;
+  }
+}
