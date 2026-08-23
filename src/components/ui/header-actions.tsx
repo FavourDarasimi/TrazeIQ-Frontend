@@ -9,10 +9,8 @@ import {
   ChevronDownIcon,
   Logout01Icon,
   Settings01Icon,
-  SparklesIcon,
 } from "@hugeicons/core-free-icons";
 
-import { FirstTourModal } from "@/features/onboarding/components/first-tour-modal";
 import { ROUTES } from "@/constants";
 import { SeverityBadge } from "@/components/ui/incident-badges";
 import { useAuth } from "@/providers/auth-provider";
@@ -214,7 +212,6 @@ function BellDropdown() {
 
 function UserDropdown() {
   const [open, setOpen] = useState(false);
-  const [tourOpen, setTourOpen] = useState(false);
   const { user, signOut } = useAuth();
   const router = useRouter();
 
@@ -280,17 +277,6 @@ function UserDropdown() {
           </Link>
           <button
             type="button"
-            onClick={() => {
-              setOpen(false);
-              setTourOpen(true);
-            }}
-            className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-muted transition-colors hover:bg-bg-panel hover:text-ink"
-          >
-            <HugeiconsIcon icon={SparklesIcon} size={16} color="currentColor" strokeWidth={1.5} />
-            Product tour
-          </button>
-          <button
-            type="button"
             onClick={() => void handleLogout()}
             className="flex w-full items-center gap-2.5 border-t border-line px-4 py-2.5 text-sm text-muted transition-colors hover:bg-bg-panel hover:text-sev-critical"
           >
@@ -299,7 +285,6 @@ function UserDropdown() {
           </button>
         </div>
       ) : null}
-      <FirstTourModal forceOpen={tourOpen} onClose={() => setTourOpen(false)} />
     </div>
   );
 }

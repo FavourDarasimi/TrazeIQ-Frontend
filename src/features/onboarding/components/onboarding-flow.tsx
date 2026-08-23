@@ -12,6 +12,7 @@ import {
 
 import { CodeBlock } from "@/components/ui/code-block";
 import { InlineError, SubmitButton, TextField } from "@/components/ui/form";
+import { armTourForNewUser } from "@/features/onboarding/components/first-tour-modal";
 import { ROUTES } from "@/constants";
 import { createOrganization } from "@/services/organizations";
 import { createProject } from "@/services/projects";
@@ -292,6 +293,7 @@ export function OnboardingFlow() {
 
           <Link
             href={ROUTES.dashboard}
+            onClick={armTourForNewUser}
             className="inline-flex h-11 items-center justify-center rounded-lg bg-accent px-4 text-sm font-medium text-ink shadow-[0_0_24px_rgba(79,70,229,0.35)] transition-colors hover:bg-[#5b52ea]"
           >
             Continue to dashboard

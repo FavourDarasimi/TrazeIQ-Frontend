@@ -10,21 +10,28 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Alert02Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
   BellIcon,
   Cancel01Icon,
   CheckmarkCircleIcon,
   FlashIcon,
-  Layers02Icon,
   SparklesIcon,
   TerminalIcon,
 } from "@hugeicons/core-free-icons";
 
-import { GlassCard } from "@/components/ui/glass-card";
-
 export const TOUR_STORAGE_KEY = "trazeiq_tour_dismissed";
+export const PENDING_TOUR_KEY = "trazeiq_pending_tour";
+
+// Armed only when a brand-new user finishes onboarding and continues to the
+// dashboard — the sole trigger for auto-opening the product tour.
+export function armTourForNewUser() {
+  try {
+    window.sessionStorage.setItem(PENDING_TOUR_KEY, "1");
+  } catch {
+    // Storage unavailable
+  }
+}
 
 type TourStep = {
   id: string;
@@ -89,45 +96,33 @@ const TOUR_STEPS: TourStep[] = [
   },
 ];
 
-export type FirstTourModalProps = {
-  forceOpen?: boolean;
-  onClose?: () => void;
-};
-
-export function FirstTourModal({ forceOpen, onClose }: FirstTourModalProps) {
+export function FirstTourModal() {
   const [open, setOpen] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [neverShowAgain, setNeverShowAgain] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
-    if (forceOpen) {
-      setOpen(true);
-      return;
-    }
     try {
-      const dismissed = window.localStorage.getItem(TOUR_STORAGE_KEY);
-      if (dismissed !== "true") {
-        const timer = setTimeout(() => {
-          setOpen(true);
-        }, 600);
-        return () => clearTimeout(timer);
-      }
+      if (window.sessionStorage.getItem(PENDING_TOUR_KEY) !== "1") return;
+      window.sessionStorage.removeItem(PENDING_TOUR_KEY);
+      // Belt-and-suspenders: an already-dismissed browser never re-tours.
+      if (window.localStorage.getItem(TOUR_STORAGE_KEY) === "true") return;
+      const timer = setTimeout(() => {
+        setOpen(true);
+      }, 600);
+      return () => clearTimeout(timer);
     } catch {
       // Storage unavailable
     }
-  }, [forceOpen]);
+  }, []);
 
   const handleDismiss = () => {
-    if (neverShowAgain || !forceOpen) {
-      try {
-        window.localStorage.setItem(TOUR_STORAGE_KEY, "true");
-      } catch {
-        // Storage unavailable
-      }
+    try {
+      window.localStorage.setItem(TOUR_STORAGE_KEY, "true");
+    } catch {
+      // Storage unavailable
     }
     setOpen(false);
-    onClose?.();
   };
 
   const handleNext = () => {
@@ -323,20 +318,8 @@ export function FirstTourModal({ forceOpen, onClose }: FirstTourModalProps) {
             </div>
           </div>
 
-          {/* Footer "Never show again" Checkbox */}
-          <div className="mt-4 flex items-center justify-between text-xs text-muted">
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={neverShowAgain}
-                onChange={(e) => setNeverShowAgain(e.target.checked)}
-                className="h-3.5 w-3.5 rounded border border-line bg-surface accent-accent focus:ring-1 focus:ring-accent/40"
-              />
-              <span className="font-mono text-[11px] text-muted hover:text-ink transition-colors">
-                Don&apos;t show this tour again on login
-              </span>
-            </label>
-
+          {/* Footer "Skip tour" */}
+          <div className="mt-4 flex items-center justify-end text-xs text-muted">
             <button
               type="button"
               onClick={handleDismiss}
