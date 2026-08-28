@@ -32,6 +32,7 @@ import { IncidentTimeline } from "@/features/incidents/components/incident-timel
 import { useRealtimeEvents } from "@/providers/realtime-provider";
 import { getIncident, updateIncident } from "@/services/incidents";
 import type { Incident } from "@/types";
+import { ApiError } from "@/lib/api";
 import { apiErrorMessage } from "@/utils/errors";
 import { formatCount, formatDateTime } from "@/utils/format";
 
@@ -51,6 +52,7 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
   const { selectedProject } = useProjectContext();
   const [incident, setIncident] = useState<Incident | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isNotFound, setIsNotFound] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [mutating, setMutating] = useState(false);
@@ -66,10 +68,18 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
     getIncident(incidentId, controller.signal)
       .then(({ incident: result }) => {
         setError(null);
+        setIsNotFound(false);
         setIncident(result);
       })
       .catch((err: unknown) => {
         if (err instanceof DOMException && err.name === "AbortError") return;
+        if (err instanceof ApiError && err.code === "NOT_FOUND") {
+          setIsNotFound(true);
+          setError(null);
+          setIncident(null);
+          return;
+        }
+        setIsNotFound(false);
         setError(apiErrorMessage(err));
       });
     return () => controller.abort();
@@ -110,10 +120,27 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
     setModal(null);
   };
 
-  const loading = incident === null && error === null;
+  const loading = incident === null && error === null && !isNotFound;
 
   if (loading) {
     return <Spinner label="loading incident" />;
+  }
+
+  if (isNotFound) {
+    return (
+      <EmptyState
+        title="Incident not found"
+        body={`No incident matches “${incidentId}”. It may have been removed, the ID is malformed, or you don’t have access to its project.`}
+        action={
+          <Link
+            href={ROUTES.incidents}
+            className="inline-flex h-9 items-center justify-center rounded-lg bg-accent px-4 text-sm font-medium text-ink shadow-[0_0_24px_rgba(79,70,229,0.35)] transition-colors hover:bg-[#5b52ea] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            Back to incidents
+          </Link>
+        }
+      />
+    );
   }
 
   if (error) {
