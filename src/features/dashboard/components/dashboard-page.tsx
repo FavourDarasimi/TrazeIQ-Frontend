@@ -12,12 +12,13 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { CheckmarkCircleIcon, FlashIcon } from "@hugeicons/core-free-icons";
+import { CheckmarkCircleIcon, FlashIcon, Layers02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
+import { EmptyState } from "@/components/ui/empty-state";
 import { GlassCard, Spinner } from "@/components/ui/glass-card";
 import { InlineError } from "@/components/ui/form";
-import { incidentDetailUrl } from "@/constants";
+import { incidentDetailUrl, ROUTES } from "@/constants";
 import { useProjectContext } from "@/features/app/components/project-context";
 import { useAuth } from "@/providers/auth-provider";
 import {
@@ -126,13 +127,15 @@ function SeverityChips({
 
 export function DashboardPage() {
   const { status: authStatus } = useAuth();
-  const { selectedProjectId } = useProjectContext();
-const [overview, setOverview] = useState<DashboardOverview | null>(null);
+  const { selectedProjectId, status: projectStatus } = useProjectContext();
+ const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [range, setRange] = useState<DashboardRange>("24h");
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [liveTick, setLiveTick] = useState(0);
+
+  const hasProject = selectedProjectId !== null;
 
   useRealtimeEvents(
     () => {
@@ -142,7 +145,13 @@ const [overview, setOverview] = useState<DashboardOverview | null>(null);
   );
 
   useEffect(() => {
-    if (authStatus !== "authenticated") return;
+    if (authStatus !== "authenticated" || !hasProject) {
+      if (!hasProject) {
+        setOverview(null);
+        setError(null);
+      }
+      return;
+    }
     const controller = new AbortController();
     getDashboardOverview(selectedProjectId, controller.signal)
       .then(({ overview: data }) => {
@@ -154,10 +163,13 @@ const [overview, setOverview] = useState<DashboardOverview | null>(null);
         setError(apiErrorMessage(err));
       });
     return () => controller.abort();
-  }, [authStatus, selectedProjectId, attempt, liveTick]);
+  }, [authStatus, selectedProjectId, hasProject, attempt, liveTick]);
 
   useEffect(() => {
-    if (authStatus !== "authenticated") return;
+    if (authStatus !== "authenticated" || !hasProject) {
+      if (!hasProject) setStats(null);
+      return;
+    }
     const controller = new AbortController();
     getDashboardStats(range, selectedProjectId, controller.signal)
       .then(({ stats: data }) => {
@@ -169,7 +181,7 @@ const [overview, setOverview] = useState<DashboardOverview | null>(null);
         setError(apiErrorMessage(err));
       });
     return () => controller.abort();
-  }, [authStatus, range, selectedProjectId, attempt, liveTick]);
+  }, [authStatus, range, selectedProjectId, hasProject, attempt, liveTick]);
 
   const chartData = useMemo(() => {
     if (!stats) return [];
@@ -179,7 +191,7 @@ const [overview, setOverview] = useState<DashboardOverview | null>(null);
     }));
   }, [stats]);
 
-  const loading = overview === null && error === null;
+  const loading = hasProject && overview === null && error === null;
   const health = overview ? HEALTH_META[overview.health] : null;
   const trend = overview?.event_trend;
 
@@ -207,6 +219,22 @@ const [overview, setOverview] = useState<DashboardOverview | null>(null);
           </div>
         ) : null}
       </div>
+
+      {!hasProject && projectStatus === "ready" ? (
+        <EmptyState
+          icon={Layers02Icon}
+          title="No project selected"
+          body="Select a project from the Command Center to view its health, incidents, and error trends. Create a project to start monitoring."
+          action={
+            <Link
+              href={ROUTES.onboarding}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-ink shadow-[0_0_24px_rgba(79,70,229,0.35)] transition-colors hover:bg-[#5b52ea]"
+            >
+              Create a project
+            </Link>
+          }
+        />
+      ) : null}
 
       {error ? (
         <GlassCard className="p-6">

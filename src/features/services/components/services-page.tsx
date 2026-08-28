@@ -6,8 +6,10 @@ import { useEffect, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Layers02Icon } from "@hugeicons/core-free-icons";
 
-import { Spinner } from "@/components/ui/glass-card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { GlassCard, Spinner } from "@/components/ui/glass-card";
 import { InlineError } from "@/components/ui/form";
+import { ROUTES } from "@/constants";
 import { useProjectContext } from "@/features/app/components/project-context";
 import { useAuth } from "@/providers/auth-provider";
 import { useRealtimeEvents } from "@/providers/realtime-provider";
@@ -20,6 +22,7 @@ import type {
 } from "@/types";
 import { apiErrorMessage } from "@/utils/errors";
 import { formatCount, formatRelativeTime } from "@/utils/format";
+import Link from "next/link";
 
 const RANGES: { value: DashboardRange; label: string }[] = [
   { value: "24h", label: "24h" },
@@ -223,19 +226,27 @@ function ServiceRow({ service }: { service: ServiceHealth }) {
 
 export function ServicesPage() {
   const { status: authStatus } = useAuth();
-  const { selectedProjectId } = useProjectContext();
+  const { selectedProjectId, status: projectStatus } = useProjectContext();
   const [catalog, setCatalog] = useState<ServicesHealthCatalog | null>(null);
   const [range, setRange] = useState<DashboardRange>("24h");
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [liveTick, setLiveTick] = useState(0);
 
+  const hasProject = selectedProjectId !== null;
+
   useRealtimeEvents(() => {
     setLiveTick((tick) => tick + 1);
   }, []);
 
   useEffect(() => {
-    if (authStatus !== "authenticated") return;
+    if (authStatus !== "authenticated" || !hasProject) {
+      if (!hasProject) {
+        setCatalog(null);
+        setError(null);
+      }
+      return;
+    }
     const controller = new AbortController();
     getServicesHealth(range, selectedProjectId, controller.signal)
       .then(({ catalog: data }) => {
@@ -247,9 +258,9 @@ export function ServicesPage() {
         setError(apiErrorMessage(err));
       });
     return () => controller.abort();
-  }, [authStatus, range, selectedProjectId, attempt, liveTick]);
+  }, [authStatus, range, selectedProjectId, hasProject, attempt, liveTick]);
 
-  const loading = catalog === null && error === null;
+  const loading = hasProject && catalog === null && error === null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -261,6 +272,22 @@ export function ServicesPage() {
           Health catalog
         </h1>
       </div>
+
+      {!hasProject && projectStatus === "ready" ? (
+        <EmptyState
+          icon={Layers02Icon}
+          title="No project selected"
+          body="Select a project from the Command Center to view its service health, error rates, and uptime."
+          action={
+            <Link
+              href={ROUTES.onboarding}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-ink shadow-[0_0_24px_rgba(79,70,229,0.35)] transition-colors hover:bg-[#5b52ea]"
+            >
+              Create a project
+            </Link>
+          }
+        />
+      ) : null}
 
       {error ? (
         <div className="rounded-lg border border-line bg-surface p-6">
