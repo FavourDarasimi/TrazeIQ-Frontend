@@ -109,7 +109,7 @@ function RoleChip({ role }: { role: MembershipRole }) {
 
 export function SettingsOverviewPage() {
   const { selectedProject } = useProjectContext();
-  const { user } = useAuth();
+  const { user, status: authStatus } = useAuth();
 
   const organizationId = selectedProject?.organization ?? null;
 
@@ -130,6 +130,7 @@ export function SettingsOverviewPage() {
   const loading = organizationId !== null && orgName === null && error === null;
 
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     if (organizationId === null) return;
     const controller = new AbortController();
     Promise.all([
@@ -155,7 +156,7 @@ export function SettingsOverviewPage() {
         setError(apiErrorMessage(err));
       });
     return () => controller.abort();
-  }, [organizationId, selectedProject]);
+  }, [authStatus, organizationId, selectedProject]);
 
   if (organizationId === null || !selectedProject) {
     return (

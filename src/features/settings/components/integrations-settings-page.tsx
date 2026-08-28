@@ -20,6 +20,7 @@ import { GlassCard, Spinner } from "@/components/ui/glass-card";
 import { InlineError } from "@/components/ui/form";
 import { ROUTES } from "@/constants";
 import { useProjectContext } from "@/features/app/components/project-context";
+import { useAuth } from "@/providers/auth-provider";
 import { connectSlack, getSlackStatus } from "@/services/alerts";
 import { apiErrorMessage } from "@/utils/errors";
 
@@ -37,6 +38,7 @@ function Header() {
 }
 
 export function IntegrationsSettingsPage() {
+  const { status: authStatus } = useAuth();
   const { selectedProject } = useProjectContext();
   const organizationId = selectedProject?.organization ?? null;
   const projectId = selectedProject?.id ?? null;
@@ -47,6 +49,7 @@ export function IntegrationsSettingsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     if (!organizationId) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional sync reset when org missing
       setLoading(false);
@@ -67,7 +70,7 @@ export function IntegrationsSettingsPage() {
     return () => {
       cancelled = true;
     };
-  }, [organizationId]);
+  }, [authStatus, organizationId]);
 
   function handleConnect() {
     if (!organizationId) {

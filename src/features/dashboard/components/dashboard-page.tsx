@@ -19,6 +19,7 @@ import { GlassCard, Spinner } from "@/components/ui/glass-card";
 import { InlineError } from "@/components/ui/form";
 import { incidentDetailUrl } from "@/constants";
 import { useProjectContext } from "@/features/app/components/project-context";
+import { useAuth } from "@/providers/auth-provider";
 import {
   useRealtimeEvents,
 } from "@/providers/realtime-provider";
@@ -124,6 +125,7 @@ function SeverityChips({
 }
 
 export function DashboardPage() {
+  const { status: authStatus } = useAuth();
   const { selectedProjectId } = useProjectContext();
 const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -140,6 +142,7 @@ const [overview, setOverview] = useState<DashboardOverview | null>(null);
   );
 
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     const controller = new AbortController();
     getDashboardOverview(selectedProjectId, controller.signal)
       .then(({ overview: data }) => {
@@ -151,9 +154,10 @@ const [overview, setOverview] = useState<DashboardOverview | null>(null);
         setError(apiErrorMessage(err));
       });
     return () => controller.abort();
-  }, [selectedProjectId, attempt, liveTick]);
+  }, [authStatus, selectedProjectId, attempt, liveTick]);
 
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     const controller = new AbortController();
     getDashboardStats(range, selectedProjectId, controller.signal)
       .then(({ stats: data }) => {
@@ -165,7 +169,7 @@ const [overview, setOverview] = useState<DashboardOverview | null>(null);
         setError(apiErrorMessage(err));
       });
     return () => controller.abort();
-  }, [range, selectedProjectId, attempt, liveTick]);
+  }, [authStatus, range, selectedProjectId, attempt, liveTick]);
 
   const chartData = useMemo(() => {
     if (!stats) return [];

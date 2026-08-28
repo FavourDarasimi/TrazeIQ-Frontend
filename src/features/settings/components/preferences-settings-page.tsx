@@ -15,6 +15,7 @@ import { GlassCard, Spinner } from "@/components/ui/glass-card";
 import { InlineError } from "@/components/ui/form";
 import { ROUTES } from "@/constants";
 import { useProjectContext } from "@/features/app/components/project-context";
+import { useAuth } from "@/providers/auth-provider";
 import { getAlertPreferences, updateAlertPreferences } from "@/services/notifications";
 import type { AlertPreferences } from "@/types";
 import { apiErrorMessage } from "@/utils/errors";
@@ -72,6 +73,7 @@ function Toggle({
 }
 
 export function PreferencesSettingsPage() {
+  const { status: authStatus } = useAuth();
   const { selectedProject } = useProjectContext();
   const projectId = selectedProject?.id ?? null;
 
@@ -81,6 +83,7 @@ export function PreferencesSettingsPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     if (!projectId) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional sync reset when project missing
       setLoading(false);
@@ -102,7 +105,7 @@ export function PreferencesSettingsPage() {
     return () => {
       cancelled = true;
     };
-  }, [projectId]);
+  }, [authStatus, projectId]);
 
   async function handleToggle<K extends keyof AlertPreferences>(key: K, value: AlertPreferences[K]) {
     if (!prefs) return;

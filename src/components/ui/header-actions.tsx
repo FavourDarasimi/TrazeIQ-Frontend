@@ -25,6 +25,7 @@ import { formatRelativeTime } from "@/utils/format";
 const POLL_INTERVAL_MS = 45_000;
 
 function BellDropdown() {
+  const { status: authStatus } = useAuth();
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [unread, setUnread] = useState(0);
@@ -34,6 +35,7 @@ function BellDropdown() {
 
   // Poll the unread counter so the badge stays live while the page is open.
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     let cancelled = false;
     fetchUnreadCount()
       .then((count) => {
@@ -49,9 +51,10 @@ function BellDropdown() {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, []);
+  }, [authStatus]);
 
   const refresh = () => {
+    if (authStatus !== "authenticated") return;
     fetchUnreadCount()
       .then((count) => setUnread(count.unread_count))
       .catch(() => undefined);
@@ -61,6 +64,7 @@ function BellDropdown() {
   };
 
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     if (!open) return;
     refresh();
     function onKeyDown(event: KeyboardEvent) {

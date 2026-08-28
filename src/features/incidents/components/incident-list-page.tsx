@@ -12,6 +12,7 @@ import { InlineError } from "@/components/ui/form";
 import { StatusBadge } from "@/components/ui/incident-badges";
 import { incidentDetailUrl } from "@/constants";
 import { useProjectContext } from "@/features/app/components/project-context";
+import { useAuth } from "@/providers/auth-provider";
 import { useRealtimeEvents } from "@/providers/realtime-provider";
 import { listIncidents } from "@/services/incidents";
 import type { Incident, IncidentSeverity, IncidentStatus } from "@/types";
@@ -66,6 +67,7 @@ type Filters = {
 };
 
 export function IncidentListPage() {
+  const { status: authStatus } = useAuth();
   const { selectedProjectId, selectedProject } = useProjectContext();
   const [filters, setFilters] = useState<Filters>({
     status: "",
@@ -85,6 +87,7 @@ export function IncidentListPage() {
   const loading = incidents === null && error === null;
 
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     const controller = new AbortController();
     setSelectedIds(new Set());
     listIncidents(
@@ -104,7 +107,7 @@ export function IncidentListPage() {
         setError(apiErrorMessage(err));
       });
     return () => controller.abort();
-  }, [filters.status, filters.severity, selectedProjectId, attempt]);
+  }, [authStatus, filters.status, filters.severity, selectedProjectId, attempt]);
 
   // Phase 3B: live patch on Pusher events instead of refetching.
   useRealtimeEvents(

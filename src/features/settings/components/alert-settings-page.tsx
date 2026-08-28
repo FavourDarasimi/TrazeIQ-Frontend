@@ -196,7 +196,7 @@ function AlertStats({
 
 export function AlertSettingsPage() {
   const { selectedProject } = useProjectContext();
-  const { user } = useAuth();
+  const { user, status: authStatus } = useAuth();
 
   const organizationId = selectedProject?.organization ?? null;
   const projectId = selectedProject?.id ?? null;
@@ -219,6 +219,7 @@ export function AlertSettingsPage() {
   const refresh = useCallback(() => setAttempt((value) => value + 1), []);
 
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     if (organizationId === null || projectId === null) return;
     const controller = new AbortController();
     Promise.all([
@@ -239,7 +240,7 @@ export function AlertSettingsPage() {
         setError(apiErrorMessage(err));
       });
     return () => controller.abort();
-  }, [organizationId, projectId, attempt]);
+  }, [authStatus, organizationId, projectId, attempt]);
 
   if (projectId === null) {
     return (
@@ -743,11 +744,13 @@ function SlackCard({
   canManage: boolean;
   onChanged: () => void;
 }) {
+  const { status: authStatus } = useAuth();
   const [status, setStatus] = useState<{ connected: boolean; team_name: string | null } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     if (organizationId === null) return;
     const controller = new AbortController();
     getSlackStatus(organizationId)
@@ -755,7 +758,7 @@ function SlackCard({
       .catch((err: unknown) => setError(apiErrorMessage(err)))
       .finally(() => controller.abort());
     return () => controller.abort();
-  }, [organizationId, onChanged]);
+  }, [authStatus, organizationId, onChanged]);
 
   const slackClientId = process.env.NEXT_PUBLIC_SLACK_CLIENT_ID;
 

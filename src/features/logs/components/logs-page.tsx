@@ -17,6 +17,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { GlassCard, Spinner } from "@/components/ui/glass-card";
 import { InlineError } from "@/components/ui/form";
 import { useProjectContext } from "@/features/app/components/project-context";
+import { useAuth } from "@/providers/auth-provider";
 import { listEvents } from "@/services/events";
 import type { EventLevel, EventLog, EventPageMeta } from "@/types";
 import { apiErrorMessage } from "@/utils/errors";
@@ -58,6 +59,7 @@ type Filters = {
 };
 
 export function LogsPage() {
+  const { status: authStatus } = useAuth();
   const { projects } = useProjectContext();
   const [filters, setFilters] = useState<Filters>({
     level: "",
@@ -80,6 +82,7 @@ export function LogsPage() {
   );
 
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     const controller = new AbortController();
     listEvents(
       {
@@ -104,6 +107,7 @@ export function LogsPage() {
       });
     return () => controller.abort();
   }, [
+    authStatus,
     filters.level,
     filters.environment,
     filters.service,

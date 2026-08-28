@@ -157,7 +157,7 @@ function RolePicker({
 
 export function TeamSettingsPage() {
   const { selectedProject } = useProjectContext();
-  const { user } = useAuth();
+  const { user, status: authStatus } = useAuth();
 
   const organizationId = selectedProject?.organization ?? null;
 
@@ -175,6 +175,7 @@ export function TeamSettingsPage() {
   const loading = organizationId !== null && members === null && error === null;
 
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     if (organizationId === null) return;
     const controller = new AbortController();
     listMembers(organizationId, controller.signal)
@@ -187,7 +188,7 @@ export function TeamSettingsPage() {
         setError(apiErrorMessage(err));
       });
     return () => controller.abort();
-  }, [organizationId, attempt]);
+  }, [authStatus, organizationId, attempt]);
 
   const myRole = useMemo<MembershipRole | null>(() => {
     if (!user || !members) return null;

@@ -231,7 +231,7 @@ export function IncidentTimeline({
   incidentId: string;
   severity: IncidentSeverity;
 }) {
-  const { user } = useAuth();
+  const { user, status: authStatus } = useAuth();
   const { selectedProject } = useProjectContext();
   const [entries, setEntries] = useState<IncidentTimelineEntry[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -243,6 +243,7 @@ export function IncidentTimeline({
   // events, retry). Bumping aborts the previous in-flight request, so a
   // stale response can never clobber a newer one.
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     const controller = new AbortController();
     getIncidentTimeline(incidentId, controller.signal)
       .then(({ entries: result }) => {
@@ -258,7 +259,7 @@ export function IncidentTimeline({
         if (!hasEntriesRef.current) setError(apiErrorMessage(err));
       });
     return () => controller.abort();
-  }, [incidentId, refreshToken]);
+  }, [authStatus, incidentId, refreshToken]);
 
   const refresh = useCallback(() => {
     setRefreshToken((value) => value + 1);
@@ -283,6 +284,7 @@ export function IncidentTimeline({
   // Phase 4A ladder: the comment endpoint is developer-or-above. Frontend
   // role-hiding is UX only — the API stays authoritative.
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     const organizationId = selectedProject?.organization;
     if (!organizationId || !user) return;
     const controller = new AbortController();
@@ -297,7 +299,7 @@ export function IncidentTimeline({
         if (!controller.signal.aborted) setCanComment(true);
       });
     return () => controller.abort();
-  }, [selectedProject, user]);
+  }, [authStatus, selectedProject, user]);
 
   // No org/user to look the role up against — fall back to showing the box;
   // the API rejects a viewer's post regardless.

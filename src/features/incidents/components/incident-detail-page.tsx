@@ -22,6 +22,7 @@ import { SeverityBadge, StatusBadge } from "@/components/ui/incident-badges";
 import { StacktraceBlock } from "@/components/ui/stacktrace-block";
 import { ROUTES } from "@/constants";
 import { useProjectContext } from "@/features/app/components/project-context";
+import { useAuth } from "@/providers/auth-provider";
 import { AIAnalysisPanel } from "@/features/incidents/components/ai-analysis-panel";
 import { BulkAssignModal } from "@/features/incidents/components/bulk-assign-modal";
 import { BulkResolveModal } from "@/features/incidents/components/bulk-resolve-modal";
@@ -46,6 +47,7 @@ function MetaCard({ label, value }: { label: string; value: string }) {
 }
 
 export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
+  const { status: authStatus } = useAuth();
   const { selectedProject } = useProjectContext();
   const [incident, setIncident] = useState<Incident | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +61,7 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
   >(null);
 
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     const controller = new AbortController();
     getIncident(incidentId, controller.signal)
       .then(({ incident: result }) => {
@@ -70,7 +73,7 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
         setError(apiErrorMessage(err));
       });
     return () => controller.abort();
-  }, [incidentId, attempt]);
+  }, [authStatus, incidentId, attempt]);
 
   // Live updates
   useRealtimeEvents(

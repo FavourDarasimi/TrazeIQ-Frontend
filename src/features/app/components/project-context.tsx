@@ -12,6 +12,7 @@ import {
 
 import type { Project } from "@/types";
 import { loadWorkspace } from "@/services/workspace";
+import { useAuth } from "@/providers/auth-provider";
 
 const STORAGE_KEY = "trazeiq.selectedProject";
 
@@ -35,12 +36,21 @@ function readStoredSelection(): string | null {
 }
 
 export function ProjectProvider({ children }: { children: ReactNode }) {
+  const { status: authStatus } = useAuth();
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    if (authStatus !== "authenticated") {
+      if (authStatus === "loading") return;
+      // Authenticated context no longer valid — reset to empty ready state without network call.
+      setProjects([]);
+      setSelectedProjectId(null);
+      setStatus("ready");
+      return;
+    }
     let cancelled = false;
     loadWorkspace()
       .then((snapshot) => {
@@ -59,7 +69,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [attempt]);
+  }, [authStatus, attempt]);
 
   const selectProject = useCallback((id: string) => {
     setSelectedProjectId(id);

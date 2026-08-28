@@ -9,6 +9,7 @@ import { Layers02Icon } from "@hugeicons/core-free-icons";
 import { Spinner } from "@/components/ui/glass-card";
 import { InlineError } from "@/components/ui/form";
 import { useProjectContext } from "@/features/app/components/project-context";
+import { useAuth } from "@/providers/auth-provider";
 import { useRealtimeEvents } from "@/providers/realtime-provider";
 import { getServicesHealth } from "@/services/services";
 import type {
@@ -221,6 +222,7 @@ function ServiceRow({ service }: { service: ServiceHealth }) {
 }
 
 export function ServicesPage() {
+  const { status: authStatus } = useAuth();
   const { selectedProjectId } = useProjectContext();
   const [catalog, setCatalog] = useState<ServicesHealthCatalog | null>(null);
   const [range, setRange] = useState<DashboardRange>("24h");
@@ -233,6 +235,7 @@ export function ServicesPage() {
   }, []);
 
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     const controller = new AbortController();
     getServicesHealth(range, selectedProjectId, controller.signal)
       .then(({ catalog: data }) => {
@@ -244,7 +247,7 @@ export function ServicesPage() {
         setError(apiErrorMessage(err));
       });
     return () => controller.abort();
-  }, [range, selectedProjectId, attempt, liveTick]);
+  }, [authStatus, range, selectedProjectId, attempt, liveTick]);
 
   const loading = catalog === null && error === null;
 

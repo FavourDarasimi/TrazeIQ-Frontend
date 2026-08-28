@@ -6,6 +6,7 @@ import { RefreshIcon, SparklesIcon } from "@hugeicons/core-free-icons";
 
 import { GlassCard } from "@/components/ui/glass-card";
 import { InlineError } from "@/components/ui/form";
+import { useAuth } from "@/providers/auth-provider";
 import { useRealtimeEvents } from "@/providers/realtime-provider";
 import { getIncidentAnalysis, triggerIncidentAnalysis } from "@/services/ai";
 import type { AIAnalysis, AnalysisConfidence } from "@/types";
@@ -92,6 +93,7 @@ function AnalyzingState() {
 }
 
 export function AIAnalysisPanel({ incidentId }: { incidentId: string }) {
+  const { status: authStatus } = useAuth();
   const [state, setState] = useState<PanelState>("loading");
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -114,6 +116,7 @@ export function AIAnalysisPanel({ incidentId }: { incidentId: string }) {
 
   const refreshRef = useRef<() => void>(() => {});
   const refresh = useCallback(() => {
+    if (authStatus !== "authenticated") return;
     getIncidentAnalysis(incidentId)
       .then(({ analysis: result }) => {
         if (cancelledRef.current) return;
@@ -144,7 +147,7 @@ export function AIAnalysisPanel({ incidentId }: { incidentId: string }) {
           setState("error");
         }
       });
-  }, [incidentId, armTimer]);
+  }, [authStatus, incidentId, armTimer]);
   useEffect(() => {
     refreshRef.current = refresh;
   }, [refresh]);
@@ -165,6 +168,7 @@ export function AIAnalysisPanel({ incidentId }: { incidentId: string }) {
   );
 
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     cancelledRef.current = false;
     graceCountRef.current = 0;
     refresh();
@@ -172,7 +176,7 @@ export function AIAnalysisPanel({ incidentId }: { incidentId: string }) {
       cancelledRef.current = true;
       clearTimer();
     };
-  }, [incidentId, refresh, clearTimer]);
+  }, [authStatus, incidentId, refresh, clearTimer]);
 
   async function handleRun() {
     if (busy) return;

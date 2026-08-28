@@ -11,6 +11,7 @@ import { UserIcon, Cancel01Icon } from "@hugeicons/core-free-icons";
 import { Modal } from "@/components/ui/modal";
 import { InlineError } from "@/components/ui/form";
 import { Spinner } from "@/components/ui/glass-card";
+import { useAuth } from "@/providers/auth-provider";
 import { bulkAssignIncidents } from "@/services/incidents";
 import { listMembers } from "@/services/organizations";
 import type { Incident, OrganizationMembership } from "@/types";
@@ -40,8 +41,10 @@ export function BulkAssignModal({
   const [error, setError] = useState<string | null>(null);
 
   const count = selectedIds.length;
+  const { status: authStatus } = useAuth();
 
   useEffect(() => {
+    if (authStatus !== "authenticated") return;
     if (!open || !organizationId) return;
 
     const controller = new AbortController();
@@ -60,7 +63,7 @@ export function BulkAssignModal({
       });
 
     return () => controller.abort();
-  }, [open, organizationId]);
+  }, [authStatus, open, organizationId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
