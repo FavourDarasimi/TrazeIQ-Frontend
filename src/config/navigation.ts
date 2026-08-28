@@ -2,8 +2,12 @@ import {
   FlashIcon,
   Home01Icon,
   Layers02Icon,
-  Settings01Icon,
+  Notification03Icon,
+  Plug02Icon,
+  Settings02Icon,
   TerminalIcon,
+  UserGroupIcon,
+  UserSettings01Icon,
 } from "@hugeicons/core-free-icons";
 
 import { ROUTES } from "@/constants";
@@ -20,7 +24,20 @@ export const DASHBOARD_NAV: NavItem[] = [
   { href: ROUTES.incidents, label: "Incidents", icon: FlashIcon },
   { href: ROUTES.logs, label: "Logs", icon: TerminalIcon },
   { href: ROUTES.services, label: "Services", icon: Layers02Icon },
-  { href: ROUTES.settings, label: "Settings", icon: Settings01Icon },
+  { href: ROUTES.settings, label: "Settings", icon: Settings02Icon },
+];
+
+export type SettingsSubItem = {
+  href: string;
+  label: string;
+  icon: typeof Home01Icon;
+};
+
+export const SETTINGS_SUBNAV: SettingsSubItem[] = [
+  { href: ROUTES.settingsTeam, label: "Team", icon: UserGroupIcon },
+  { href: ROUTES.settingsAlerts, label: "Alerts", icon: Notification03Icon },
+  { href: ROUTES.settingsIntegrations, label: "Integrations", icon: Plug02Icon },
+  { href: ROUTES.settingsPreferences, label: "Preferences", icon: UserSettings01Icon },
 ];
 
 export const SECTION_STUBS: Record<string, { title: string; body: string }> = {
