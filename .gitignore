@@ -44,4 +44,10 @@ scripts/
 .hallmark
 .next-dev.log
 
-ARCHITECTURE.md 
+ARCHITECTURE.md
+
+# qa - local test harnesses (not committed)
+qa_full.mjs
+repro_issue2.mjs
+repro_*.mjs
+qa_*.mjs

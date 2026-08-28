@@ -102,6 +102,17 @@ export function RegisterFlow() {
       resetToEmail();
       return;
     }
+    // Client-side guard: give instant feedback and avoid consuming server
+    // rate-limit / token state on obviously invalid input (dev HMR can also
+    // drop the in-memory token if the module reloads mid-flow).
+    if (password.length < 8) {
+      setFieldErrors({ password: ["Password must be at least 8 characters."] });
+      return;
+    }
+    if (password !== confirmPassword) {
+      setFieldErrors({ confirm_password: ["Passwords do not match."] });
+      return;
+    }
     setBusy(true);
     setError(null);
     setFieldErrors({});
@@ -298,7 +309,14 @@ export function RegisterFlow() {
                   autoComplete="new-password"
                   placeholder="At least 8 characters"
                   value={password}
-                  onChange={(event) => setPassword(event.target.value)}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                    if (fieldErrors.password) {
+                      const next = { ...fieldErrors };
+                      delete next.password;
+                      setFieldErrors(next);
+                    }
+                  }}
                   error={fieldErrors.password?.[0]}
                 />
                 <TextField
@@ -307,7 +325,14 @@ export function RegisterFlow() {
                   autoComplete="new-password"
                   placeholder="Repeat your password"
                   value={confirmPassword}
-                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  onChange={(event) => {
+                    setConfirmPassword(event.target.value);
+                    if (fieldErrors.confirm_password) {
+                      const next = { ...fieldErrors };
+                      delete next.confirm_password;
+                      setFieldErrors(next);
+                    }
+                  }}
                   error={fieldErrors.confirm_password?.[0]}
                 />
                 <SubmitButton loading={busy} loadingLabel="Creating account…">
