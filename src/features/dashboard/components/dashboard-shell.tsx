@@ -10,6 +10,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
+  AddCircleIcon,
   Cancel01Icon,
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -193,36 +194,54 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.25em] text-muted">
               Project
             </p>
-            <div className="relative">
-              <select
-                value={selectedProjectId ?? ""}
-                onChange={(event) => selectProject(event.target.value)}
-                disabled={status === "loading" || projects.length === 0}
-                className="h-10 w-full appearance-none rounded-lg border border-line bg-surface pl-3.5 pr-9 text-sm text-ink outline-none transition-colors focus:border-accent/60 focus:ring-1 focus:ring-accent/40 disabled:opacity-50"
+            {status === "ready" && projects.length === 0 ? (
+              <Link
+                href={ROUTES.onboarding}
+                onClick={closeMenu}
+                className="flex h-10 w-full items-center gap-2 rounded-lg border border-dashed border-line bg-surface px-3.5 text-sm text-muted transition-colors hover:border-accent/60 hover:text-ink"
               >
-                {status === "loading" ? (
-                  <option value="">Loading…</option>
-                ) : (
-                  projects.map((project) => (
-                    <option key={project.id} value={project.id}>
-                      {project.name}
-                    </option>
-                  ))
-                )}
-              </select>
-              <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted">
-                <HugeiconsIcon icon={ChevronDownIcon} size={16} color="currentColor" strokeWidth={1.5} />
-              </span>
-            </div>
-            {status === "error" ? (
-              <button
-                type="button"
-                onClick={retry}
-                className="mt-1.5 text-xs text-sev-critical transition-colors hover:text-ink"
-              >
-                Couldn&apos;t load projects — retry
-              </button>
-            ) : null}
+                <HugeiconsIcon
+                  icon={AddCircleIcon}
+                  size={16}
+                  color="currentColor"
+                  strokeWidth={1.5}
+                />
+                Create a project
+              </Link>
+            ) : (
+              <>
+                <div className="relative">
+                  <select
+                    value={selectedProjectId ?? ""}
+                    onChange={(event) => selectProject(event.target.value)}
+                    disabled={status === "loading" || projects.length === 0}
+                    className="h-10 w-full appearance-none rounded-lg border border-line bg-surface pl-3.5 pr-9 text-sm text-ink outline-none transition-colors focus:border-accent/60 focus:ring-1 focus:ring-accent/40 disabled:opacity-50"
+                  >
+                    {status === "loading" ? (
+                      <option value="">Loading…</option>
+                    ) : (
+                      projects.map((project) => (
+                        <option key={project.id} value={project.id}>
+                          {project.name}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                  <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted">
+                    <HugeiconsIcon icon={ChevronDownIcon} size={16} color="currentColor" strokeWidth={1.5} />
+                  </span>
+                </div>
+                {status === "error" ? (
+                  <button
+                    type="button"
+                    onClick={retry}
+                    className="mt-1.5 text-xs text-sev-critical transition-colors hover:text-ink"
+                  >
+                    Couldn&apos;t load projects — retry
+                  </button>
+                ) : null}
+              </>
+            )}
           </div>
 
         <nav className="mt-6 flex flex-1 flex-col gap-0.5 overflow-y-auto px-3">
