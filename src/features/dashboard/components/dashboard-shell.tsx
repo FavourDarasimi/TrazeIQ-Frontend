@@ -175,28 +175,26 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               strokeWidth={1.5}
             />
           </button>
-          <button
-            type="button"
-            onClick={() => setCollapsed((value) => !value)}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="hidden h-8 w-8 items-center justify-center rounded-lg border border-line bg-surface text-muted transition-colors hover:border-accent/50 hover:bg-accent/10 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent lg:flex"
-          >
-            <HugeiconsIcon
-              icon={collapsed ? ChevronRightIcon : ChevronLeftIcon}
-              size={18}
-              color="currentColor"
-              strokeWidth={1.5}
-            />
-          </button>
         </div>
 
-        <div
-          className={`px-4 ${collapsed ? "lg:hidden" : ""}`}
+        <button
+          type="button"
+          onClick={() => setCollapsed((value) => !value)}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="absolute right-0 top-5 z-10 hidden h-8 w-8 translate-x-1/2 items-center justify-center rounded-full border border-line bg-bg-panel text-muted shadow-[0_4px_16px_rgba(0,0,0,0.28)] transition-colors hover:border-accent/50 hover:bg-accent/10 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent lg:flex"
         >
-          <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.25em] text-muted">
-              Project
-            </p>
+          <HugeiconsIcon
+            icon={collapsed ? ChevronRightIcon : ChevronLeftIcon}
+            size={16}
+            color="currentColor"
+            strokeWidth={1.5}
+          />
+        </button>
+
+        <div
+          className={`px-4  pt-5 ${collapsed ? "lg:hidden" : ""}`}
+        >
             {status === "ready" && projects.length === 0 ? (
               <Link
                 href={ROUTES.onboarding}
@@ -260,7 +258,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                   collapsed ? "lg:justify-center lg:px-0" : ""
                 } ${
                   active
-                    ? "bg-accent font-medium text-ink shadow-[0_0_20px_rgba(79,70,229,0.25)] hover:bg-accent before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-ink"
+                    ? "bg-accent font-medium text-ink shadow-[0_0_20px_rgba(79,70,229,0.25)] hover:bg-accent"
                     : "text-muted hover:bg-accent/10 hover:text-ink hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
                 }`}
               >
@@ -296,7 +294,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                     collapsed ? "lg:justify-center lg:px-0" : ""
                   } ${
                     settingsActive
-                    ? "bg-accent font-medium text-ink shadow-[0_0_20px_rgba(79,70,229,0.25)] before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-ink"
+                    ? "bg-accent font-medium text-ink shadow-[0_0_20px_rgba(79,70,229,0.25)]"
                       : "text-muted hover:bg-accent/10 hover:text-ink hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
                   }`}
                 >
@@ -304,7 +302,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                     href={ROUTES.settings}
                     onClick={closeMenu}
                     title={collapsed ? settingsItem.label : undefined}
-                    className="flex flex-1 items-center gap-3"
+                    className={`flex flex-1 items-center gap-3 ${collapsed ? "lg:justify-center" : ""}`}
                   >
                     <HugeiconsIcon
                       icon={settingsItem.icon}
@@ -399,7 +397,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               type="button"
               onClick={handleLogout}
               aria-label="Log out"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface hover:text-ink"
+              className={`flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface hover:text-ink ${
+                collapsed ? "lg:hidden" : ""
+              }`}
             >
               <HugeiconsIcon icon={Logout01Icon} size={16} color="currentColor" strokeWidth={1.5} />
             </button>
