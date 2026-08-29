@@ -14,11 +14,14 @@ import { Security } from "@/features/landing/components/security";
 import { Faq } from "@/features/landing/components/faq";
 import { Cta } from "@/features/landing/components/cta";
 import { Footer } from "@/features/landing/components/footer";
+import { AuthProvider } from "@/providers/auth-provider";
 
 export default function Home() {
   return (
     <main className="bg-bg">
-      <Navbar />
+      <AuthProvider>
+        <Navbar />
+      </AuthProvider>
       <Hero />
       <TechStack />
       <Problem />

@@ -5,6 +5,8 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon, Menu01Icon } from "@hugeicons/core-free-icons";
 
 import { Container } from "@/components/ui/shared";
+import { ROUTES } from "@/constants";
+import { useAuth } from "@/providers/auth-provider";
 
 const links = [
   { label: "Product", href: "#features" },
@@ -30,6 +32,8 @@ export function Logo({ href = "#top" }: { href?: string }) {
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const { status } = useAuth();
+  const authenticated = status === "authenticated";
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-bg/80 backdrop-blur-xl">
@@ -50,10 +54,10 @@ export function Navbar() {
 
         <div className="hidden items-center gap-3 md:flex">
           <a
-            href="/login"
+            href={authenticated ? ROUTES.dashboard : ROUTES.login}
             className="text-sm text-muted transition-colors hover:text-ink"
           >
-            Sign in
+            {authenticated ? "Dashboard" : "Sign in"}
           </a>
           <a
             href="/register"
@@ -94,10 +98,10 @@ export function Navbar() {
             ))}
             <div className="mt-2 flex flex-col gap-2 border-t border-line pt-4">
               <a
-                href="/login"
+                href={authenticated ? ROUTES.dashboard : ROUTES.login}
                 className="rounded-lg border border-line px-3 py-2.5 text-center text-sm text-ink"
               >
-                Sign in
+                {authenticated ? "Dashboard" : "Sign in"}
               </a>
               <a
                 href="/register"
