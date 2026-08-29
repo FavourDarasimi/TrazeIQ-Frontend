@@ -139,22 +139,28 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       ) : null}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-line bg-bg-panel transition-all duration-200 ease-out lg:translate-x-0 ${
-          collapsed ? "lg:w-[68px]" : "lg:w-64"
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-line bg-bg-panel shadow-[12px_0_40px_rgba(0,0,0,0.12)] transition-[width,transform] duration-200 ease-out lg:translate-x-0 ${
+          collapsed ? "lg:w-[76px]" : "lg:w-64"
         } ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div
-          className={`flex items-center justify-between px-5 pb-4 pt-5 ${
-            collapsed ? "lg:justify-center" : ""
+          className={`flex items-center justify-between border-b border-line px-4 pb-4 pt-4 ${
+            collapsed ? "lg:flex-col lg:gap-4" : ""
           }`}
         >
           <Link
             href={ROUTES.dashboard}
-            className={`font-mono text-sm font-semibold tracking-tight text-ink ${
-              collapsed ? "lg:hidden" : ""
+            aria-label="TrazeIQ dashboard"
+            className={`flex min-w-0 items-center gap-2.5 font-mono text-sm font-semibold tracking-tight text-ink ${
+              collapsed ? "lg:justify-center" : ""
             }`}
           >
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent shadow-[0_0_18px_rgba(79,70,229,0.35)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-ink" />
+            </span>
+            <span className={collapsed ? "lg:hidden" : ""}>
             traze<span className="text-accent">iq</span>
+            </span>
           </Link>
           <button
             type="button"
@@ -174,7 +180,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             onClick={() => setCollapsed((value) => !value)}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="hidden h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent lg:flex"
+            className="hidden h-8 w-8 items-center justify-center rounded-lg border border-line bg-surface text-muted transition-colors hover:border-accent/50 hover:bg-accent/10 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent lg:flex"
           >
             <HugeiconsIcon
               icon={collapsed ? ChevronRightIcon : ChevronLeftIcon}
@@ -250,11 +256,11 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 href={item.href}
                 onClick={closeMenu}
                 title={collapsed ? item.label : undefined}
-                className={`group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all ${
+                className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all ${
                   collapsed ? "lg:justify-center lg:px-0" : ""
                 } ${
                   active
-                    ? "bg-accent font-medium text-ink shadow-[0_0_20px_rgba(79,70,229,0.25)] hover:bg-accent"
+                    ? "bg-accent font-medium text-ink shadow-[0_0_20px_rgba(79,70,229,0.25)] hover:bg-accent before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-ink"
                     : "text-muted hover:bg-accent/10 hover:text-ink hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
                 }`}
               >
@@ -286,11 +292,11 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             return (
               <div className="flex flex-col gap-0.5">
                 <div
-                  className={`group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all ${
+                  className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all ${
                     collapsed ? "lg:justify-center lg:px-0" : ""
                   } ${
                     settingsActive
-                      ? "bg-accent font-medium text-ink shadow-[0_0_20px_rgba(79,70,229,0.25)]"
+                    ? "bg-accent font-medium text-ink shadow-[0_0_20px_rgba(79,70,229,0.25)] before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-ink"
                       : "text-muted hover:bg-accent/10 hover:text-ink hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
                   }`}
                 >
@@ -403,7 +409,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
       <main
         className={`min-w-0 flex-1 transition-[margin] duration-200 ease-out ${
-          collapsed ? "lg:ml-[68px]" : "lg:ml-64"
+          collapsed ? "lg:ml-[76px]" : "lg:ml-64"
         }`}
       >
         <AppHeader onOpenMenu={() => setMenuOpen(true)} />
