@@ -16,6 +16,7 @@ function SlackCallback() {
     const error = params.get("error");
 
     if (!window.opener) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reflect the external popup state
       setState("error");
       return;
     }

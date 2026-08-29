@@ -77,15 +77,12 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate persisted expansion
       if (saved === "1") setSettingsOpen(true);
       if (saved === "0" && !isActive(window.location.pathname, ROUTES.settings)) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate persisted collapse
         setSettingsOpen(false);
       } else if (isActive(window.location.pathname, ROUTES.settings)) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- auto-expand active section
         setSettingsOpen(true);
       }
     } catch {
       if (isActive(window.location.pathname, ROUTES.settings)) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- fallback expand
         setSettingsOpen(true);
       }
     }

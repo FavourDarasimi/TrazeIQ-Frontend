@@ -46,6 +46,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     if (authStatus !== "authenticated") {
       if (authStatus === "loading") return;
       // Authenticated context no longer valid — reset to empty ready state without network call.
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset context when auth expires
       setProjects([]);
       setSelectedProjectId(null);
       setStatus("ready");

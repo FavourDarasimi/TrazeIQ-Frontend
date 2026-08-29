@@ -7,7 +7,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Layers02Icon } from "@hugeicons/core-free-icons";
 
 import { EmptyState } from "@/components/ui/empty-state";
-import { GlassCard, Spinner } from "@/components/ui/glass-card";
+import { Spinner } from "@/components/ui/glass-card";
 import { InlineError } from "@/components/ui/form";
 import { ROUTES } from "@/constants";
 import { useProjectContext } from "@/features/app/components/project-context";
@@ -242,6 +242,7 @@ export function ServicesPage() {
   useEffect(() => {
     if (authStatus !== "authenticated" || !hasProject) {
       if (!hasProject) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- clear stale project data
         setCatalog(null);
         setError(null);
       }

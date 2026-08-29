@@ -48,6 +48,7 @@ export function BulkAssignModal({
     if (!open || !organizationId) return;
 
     const controller = new AbortController();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- start request state
     setLoadingMembers(true);
     setError(null);
 

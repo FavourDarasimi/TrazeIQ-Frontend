@@ -147,6 +147,7 @@ export function DashboardPage() {
   useEffect(() => {
     if (authStatus !== "authenticated" || !hasProject) {
       if (!hasProject) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- clear stale project data
         setOverview(null);
         setError(null);
       }
@@ -167,6 +168,7 @@ export function DashboardPage() {
 
   useEffect(() => {
     if (authStatus !== "authenticated" || !hasProject) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clear stale project data
       if (!hasProject) setStats(null);
       return;
     }

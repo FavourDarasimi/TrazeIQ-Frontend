@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -53,7 +53,7 @@ function BellDropdown() {
     };
   }, [authStatus]);
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     if (authStatus !== "authenticated") return;
     fetchUnreadCount()
       .then((count) => setUnread(count.unread_count))
@@ -61,7 +61,7 @@ function BellDropdown() {
     listNotifications(20)
       .then((inbox) => setNotifications(inbox.notifications))
       .catch(() => undefined);
-  };
+  }, [authStatus]);
 
   useEffect(() => {
     if (authStatus !== "authenticated") return;
@@ -74,7 +74,7 @@ function BellDropdown() {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [open]);
+  }, [authStatus, open, refresh]);
 
   async function handleOpenNotification(notification: AppNotification) {
     setOpen(false);

@@ -90,6 +90,7 @@ export function IncidentListPage() {
   useEffect(() => {
     if (authStatus !== "authenticated") return;
     const controller = new AbortController();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- selection is invalidated by new results
     setSelectedIds(new Set());
     listIncidents(
       {

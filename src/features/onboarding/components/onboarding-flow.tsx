@@ -91,6 +91,8 @@ export function OnboardingFlow() {
     return () => {
       cancelled = true;
     };
+  // applySnapshot only coordinates this initial workspace load.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function submitOrg(event: FormEvent) {

@@ -8,7 +8,6 @@ import { useState } from "react";
 
 import { Modal } from "@/components/ui/modal";
 import { InlineError } from "@/components/ui/form";
-import { Spinner } from "@/components/ui/glass-card";
 import { bulkUpdateIncidents } from "@/services/incidents";
 import type { Incident, IncidentStatus } from "@/types";
 import { apiErrorMessage } from "@/utils/errors";
