@@ -34,9 +34,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const { status } = useAuth();
   const authenticated = status === "authenticated";
-  const landingLinks = authenticated
-    ? links.filter((link) => link.label !== "Dashboard")
-    : links;
+  const landingLinks = links.filter((link) => link.label !== "Dashboard");
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-bg/80 backdrop-blur-xl">

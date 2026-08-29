@@ -215,7 +215,42 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </div>
 
         <nav className="mt-6 flex flex-1 flex-col gap-0.5 overflow-y-auto px-3">
-          {DASHBOARD_NAV.filter((i) => i.href !== ROUTES.settings).map((item) => {
+          {isActive(pathname, ROUTES.settings) ? (
+            <>
+              <Link
+                href={ROUTES.dashboard}
+                onClick={closeMenu}
+                className="mb-3 flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted transition-colors hover:bg-accent/10 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
+                <HugeiconsIcon icon={ChevronLeftIcon} size={16} color="currentColor" strokeWidth={1.5} />
+                <span className={collapsed ? "lg:hidden" : ""}>Settings</span>
+              </Link>
+              <div className="mb-2 border-b border-line" />
+              {[
+                { href: ROUTES.settings, label: "Overview", icon: DASHBOARD_NAV.find((item) => item.href === ROUTES.settings)!.icon },
+                ...SETTINGS_SUBNAV,
+              ].map((item) => {
+                const active =
+                  item.href === ROUTES.settings
+                    ? pathname === item.href
+                    : pathname === item.href || pathname.startsWith(`${item.href}/`);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={closeMenu}
+                    title={collapsed ? item.label : undefined}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${collapsed ? "lg:justify-center lg:px-0" : ""} ${active ? "bg-accent font-medium text-ink shadow-[0_0_20px_rgba(79,70,229,0.25)]" : "text-muted hover:bg-accent/10 hover:text-ink hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"}`}
+                  >
+                    <HugeiconsIcon icon={item.icon} size={20} color="currentColor" strokeWidth={1.5} />
+                    <span className={collapsed ? "lg:hidden" : ""}>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </>
+          ) : (
+            <>
+              {DASHBOARD_NAV.filter((i) => i.href !== ROUTES.settings).map((item) => {
             const active = isActive(pathname, item.href);
             return (
               <Link
@@ -249,51 +284,23 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 ) : null}
               </Link>
             );
-          })}
-
-          {isActive(pathname, ROUTES.settings) ? (
-            <div className="flex flex-col gap-0.5">
-              {[
-                { href: ROUTES.settings, label: "Overview", icon: DASHBOARD_NAV.find((item) => item.href === ROUTES.settings)!.icon },
-                ...SETTINGS_SUBNAV,
-              ].map((item) => {
-                const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={closeMenu}
-                    title={collapsed ? item.label : undefined}
-                    className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-                      collapsed ? "lg:justify-center lg:px-0" : ""
-                    } ${
-                      active
-                        ? "bg-accent font-medium text-ink shadow-[0_0_20px_rgba(79,70,229,0.25)]"
-                        : "text-muted hover:bg-accent/10 hover:text-ink hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
-                    }`}
-                  >
-                    <HugeiconsIcon icon={item.icon} size={20} color="currentColor" strokeWidth={1.5} />
-                    <span className={collapsed ? "lg:hidden" : ""}>{item.label}</span>
-                  </Link>
-                );
               })}
-            </div>
-          ) : (
-            <Link
-              href={ROUTES.settings}
-              onClick={closeMenu}
-              title={collapsed ? "Settings" : undefined}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-                collapsed ? "lg:justify-center lg:px-0" : ""
-              } text-muted hover:bg-accent/10 hover:text-ink hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]`}
-            >
-              <HugeiconsIcon icon={DASHBOARD_NAV.find((item) => item.href === ROUTES.settings)!.icon} size={20} color="currentColor" strokeWidth={1.5} />
-              <span className={collapsed ? "lg:hidden" : ""}>Settings</span>
-            </Link>
+              <Link
+                href={ROUTES.settings}
+                onClick={closeMenu}
+                title={collapsed ? "Settings" : undefined}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted transition-all hover:bg-accent/10 hover:text-ink hover:shadow-[0_0_20px_rgba(79,70,229,0.15)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${collapsed ? "lg:justify-center lg:px-0" : ""}`}
+              >
+                <HugeiconsIcon icon={DASHBOARD_NAV.find((item) => item.href === ROUTES.settings)!.icon} size={20} color="currentColor" strokeWidth={1.5} />
+                <span className={collapsed ? "lg:hidden" : ""}>Settings</span>
+                <HugeiconsIcon icon={ChevronRightIcon} size={16} color="currentColor" strokeWidth={1.5} className={collapsed ? "lg:hidden" : "ml-auto"} />
+              </Link>
+            </>
           )}
+
         </nav>
 
-        <div className="px-3 pb-3">
+        {!isActive(pathname, ROUTES.settings) ? <div className="px-3 pb-3">
           <Link
             href={ROUTES.docs}
             onClick={closeMenu}
@@ -303,7 +310,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             <HugeiconsIcon icon={BookOpen01Icon} size={20} color="currentColor" strokeWidth={1.5} />
             <span className={collapsed ? "lg:hidden" : ""}>Docs</span>
           </Link>
-        </div>
+        </div> : null}
 
         <div className="border-t border-line px-4 py-4">
           <div
