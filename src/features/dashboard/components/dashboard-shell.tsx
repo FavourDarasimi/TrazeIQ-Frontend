@@ -11,6 +11,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   AddCircleIcon,
+  BookOpen01Icon,
   Cancel01Icon,
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -37,7 +38,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     useProjectContext();
   const [menuOpen, setMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
   function closeMenu() {
     setMenuOpen(false);
@@ -69,37 +69,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       // Storage unavailable — collapse still applies for this session.
     }
   }, [collapsed]);
-
-  // Restore settings group expansion and keep it open while inside /settings.
-  useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem("trazeiq-settings-expanded");
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate persisted expansion
-      if (saved === "1") setSettingsOpen(true);
-      if (saved === "0" && !isActive(window.location.pathname, ROUTES.settings)) {
-        setSettingsOpen(false);
-      } else if (isActive(window.location.pathname, ROUTES.settings)) {
-        setSettingsOpen(true);
-      }
-    } catch {
-      if (isActive(window.location.pathname, ROUTES.settings)) {
-        setSettingsOpen(true);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync group with route
-    if (isActive(pathname, ROUTES.settings)) setSettingsOpen(true);
-  }, [pathname]);
-
-  useEffect(() => {
-    try {
-      window.localStorage.setItem("trazeiq-settings-expanded", settingsOpen ? "1" : "0");
-    } catch {
-      // ignore
-    }
-  }, [settingsOpen]);
 
   // Lock body scroll while the mobile drawer is open.
   useEffect(() => {
@@ -282,97 +251,59 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             );
           })}
 
-          {/* Unified Settings — single sidebar entry with collapsible subsections */}
-          {(() => {
-            const settingsItem = DASHBOARD_NAV.find((i) => i.href === ROUTES.settings)!;
-            const settingsActive = isActive(pathname, ROUTES.settings);
-            const showSubs = settingsOpen && !collapsed;
-            return (
-              <div className="flex flex-col gap-0.5">
-                <div
-                  className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all ${
-                    collapsed ? "lg:justify-center lg:px-0" : ""
-                  } ${
-                    settingsActive
-                    ? "bg-accent font-medium text-ink shadow-[0_0_20px_rgba(79,70,229,0.25)]"
-                      : "text-muted hover:bg-accent/10 hover:text-ink hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
-                  }`}
-                >
+          {isActive(pathname, ROUTES.settings) ? (
+            <div className="flex flex-col gap-0.5">
+              {[
+                { href: ROUTES.settings, label: "Overview", icon: DASHBOARD_NAV.find((item) => item.href === ROUTES.settings)!.icon },
+                ...SETTINGS_SUBNAV,
+              ].map((item) => {
+                const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                return (
                   <Link
-                    href={ROUTES.settings}
+                    key={item.href}
+                    href={item.href}
                     onClick={closeMenu}
-                    title={collapsed ? settingsItem.label : undefined}
-                    className={`flex flex-1 items-center gap-3 ${collapsed ? "lg:justify-center" : ""}`}
+                    title={collapsed ? item.label : undefined}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+                      collapsed ? "lg:justify-center lg:px-0" : ""
+                    } ${
+                      active
+                        ? "bg-accent font-medium text-ink shadow-[0_0_20px_rgba(79,70,229,0.25)]"
+                        : "text-muted hover:bg-accent/10 hover:text-ink hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
+                    }`}
                   >
-                    <HugeiconsIcon
-                      icon={settingsItem.icon}
-                      size={20}
-                      color="currentColor"
-                      strokeWidth={1.5}
-                    />
-                    <span className={collapsed ? "lg:hidden" : ""}>{settingsItem.label}</span>
+                    <HugeiconsIcon icon={item.icon} size={20} color="currentColor" strokeWidth={1.5} />
+                    <span className={collapsed ? "lg:hidden" : ""}>{item.label}</span>
                   </Link>
-                  <button
-                    type="button"
-                    aria-label={settingsOpen ? "Collapse Settings" : "Expand Settings"}
-                    aria-expanded={settingsOpen}
-                    onClick={() => setSettingsOpen((v) => !v)}
-                    className={`hidden shrink-0 items-center justify-center rounded-md p-1 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent lg:flex ${
-                      collapsed ? "lg:hidden" : ""
-                    } ${settingsActive ? "text-ink/80 hover:bg-black/10" : "text-muted hover:bg-surface hover:text-ink"}`}
-                  >
-                    <HugeiconsIcon
-                      icon={ChevronDownIcon}
-                      size={14}
-                      color="currentColor"
-                      strokeWidth={1.5}
-                      className={`transition-transform duration-200 ${settingsOpen ? "" : "-rotate-90"}`}
-                    />
-                  </button>
-                </div>
-
-                {showSubs ? (
-                  <div className="ml-3 flex flex-col gap-0.5 border-l border-line pl-3">
-                    {SETTINGS_SUBNAV.map((sub) => {
-                      const active = pathname === sub.href || pathname.startsWith(`${sub.href}/`);
-                      return (
-                        <Link
-                          key={sub.href}
-                          href={sub.href}
-                          onClick={closeMenu}
-                          className={`flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-                            active
-                              ? "bg-accent/15 font-medium text-accent"
-                              : "text-muted hover:bg-surface hover:text-ink"
-                          }`}
-                        >
-                          <HugeiconsIcon icon={sub.icon} size={14} color="currentColor" strokeWidth={1.5} />
-                          {sub.label}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                ) : null}
-
-                {/* Collapsed rail: hint dots for subsections when inside Settings */}
-                {collapsed && settingsActive ? (
-                  <div className="hidden flex-col items-center gap-1 py-1 lg:flex">
-                    {SETTINGS_SUBNAV.map((sub) => {
-                      const active = pathname === sub.href;
-                      return (
-                        <span
-                          key={sub.href}
-                          aria-hidden
-                          className={`h-1 w-1 rounded-full transition-colors ${active ? "bg-accent" : "bg-line"}`}
-                        />
-                      );
-                    })}
-                  </div>
-                ) : null}
-              </div>
-            );
-          })()}
+                );
+              })}
+            </div>
+          ) : (
+            <Link
+              href={ROUTES.settings}
+              onClick={closeMenu}
+              title={collapsed ? "Settings" : undefined}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+                collapsed ? "lg:justify-center lg:px-0" : ""
+              } text-muted hover:bg-accent/10 hover:text-ink hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]`}
+            >
+              <HugeiconsIcon icon={DASHBOARD_NAV.find((item) => item.href === ROUTES.settings)!.icon} size={20} color="currentColor" strokeWidth={1.5} />
+              <span className={collapsed ? "lg:hidden" : ""}>Settings</span>
+            </Link>
+          )}
         </nav>
+
+        <div className="px-3 pb-3">
+          <Link
+            href={ROUTES.docs}
+            onClick={closeMenu}
+            title={collapsed ? "Docs" : undefined}
+            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted transition-all hover:bg-accent/10 hover:text-ink hover:shadow-[0_0_20px_rgba(79,70,229,0.15)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${collapsed ? "lg:justify-center lg:px-0" : ""}`}
+          >
+            <HugeiconsIcon icon={BookOpen01Icon} size={20} color="currentColor" strokeWidth={1.5} />
+            <span className={collapsed ? "lg:hidden" : ""}>Docs</span>
+          </Link>
+        </div>
 
         <div className="border-t border-line px-4 py-4">
           <div

@@ -1,11 +1,11 @@
 import {
-  FlashIcon,
+  FileSearchIcon,
   Home01Icon,
   Layers02Icon,
   Notification03Icon,
   Plug02Icon,
   Settings02Icon,
-  TerminalIcon,
+  Alert02Icon,
   UserGroupIcon,
   UserSettings01Icon,
 } from "@hugeicons/core-free-icons";
@@ -21,8 +21,8 @@ export type NavItem = {
 
 export const DASHBOARD_NAV: NavItem[] = [
   { href: ROUTES.dashboard, label: "Overview", icon: Home01Icon },
-  { href: ROUTES.incidents, label: "Incidents", icon: FlashIcon },
-  { href: ROUTES.logs, label: "Logs", icon: TerminalIcon },
+  { href: ROUTES.incidents, label: "Incidents", icon: Alert02Icon },
+  { href: ROUTES.logs, label: "Logs", icon: FileSearchIcon },
   { href: ROUTES.services, label: "Services", icon: Layers02Icon },
   { href: ROUTES.settings, label: "Settings", icon: Settings02Icon },
 ];

@@ -34,6 +34,9 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const { status } = useAuth();
   const authenticated = status === "authenticated";
+  const landingLinks = authenticated
+    ? links.filter((link) => link.label !== "Dashboard")
+    : links;
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-bg/80 backdrop-blur-xl">
@@ -41,7 +44,7 @@ export function Navbar() {
         <Logo />
 
         <nav className="hidden items-center gap-8 md:flex">
-          {links.map((link) => (
+          {landingLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
@@ -53,18 +56,26 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <a
-            href={authenticated ? ROUTES.dashboard : ROUTES.login}
-            className="text-sm text-muted transition-colors hover:text-ink"
-          >
-            {authenticated ? "Dashboard" : "Sign in"}
-          </a>
-          <a
-            href="/register"
-            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-[#5b52ea]"
-          >
-            Start Monitoring
-          </a>
+          {authenticated ? (
+            <a
+              href={ROUTES.dashboard}
+              className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-[#5b52ea]"
+            >
+              Dashboard
+            </a>
+          ) : (
+            <>
+              <a href={ROUTES.login} className="text-sm text-muted transition-colors hover:text-ink">
+                Sign in
+              </a>
+              <a
+                href="/register"
+                className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-[#5b52ea]"
+              >
+                Start Monitoring
+              </a>
+            </>
+          )}
         </div>
 
         <button
@@ -86,7 +97,7 @@ export function Navbar() {
       {open ? (
         <div className="border-t border-line bg-bg-panel md:hidden">
           <Container className="flex flex-col gap-1 py-4">
-            {links.map((link) => (
+            {landingLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
@@ -97,18 +108,23 @@ export function Navbar() {
               </a>
             ))}
             <div className="mt-2 flex flex-col gap-2 border-t border-line pt-4">
-              <a
-                href={authenticated ? ROUTES.dashboard : ROUTES.login}
-                className="rounded-lg border border-line px-3 py-2.5 text-center text-sm text-ink"
-              >
-                {authenticated ? "Dashboard" : "Sign in"}
-              </a>
-              <a
-                href="/register"
-                className="rounded-lg bg-accent px-3 py-2.5 text-center text-sm font-medium text-ink"
-              >
-                Start Monitoring
-              </a>
+              {authenticated ? (
+                <a
+                  href={ROUTES.dashboard}
+                  className="rounded-lg bg-accent px-3 py-2.5 text-center text-sm font-medium text-ink"
+                >
+                  Dashboard
+                </a>
+              ) : (
+                <>
+                  <a href={ROUTES.login} className="rounded-lg border border-line px-3 py-2.5 text-center text-sm text-ink">
+                    Sign in
+                  </a>
+                  <a href="/register" className="rounded-lg bg-accent px-3 py-2.5 text-center text-sm font-medium text-ink">
+                    Start Monitoring
+                  </a>
+                </>
+              )}
             </div>
           </Container>
         </div>
