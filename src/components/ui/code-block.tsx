@@ -6,7 +6,7 @@ import { Copy01Icon, Tick01Icon } from "@hugeicons/core-free-icons";
 
 import { Window } from "@/components/ui/shared";
 
-export function CodeBlock({ title, code }: { title: string; code: string }) {
+export function CodeBlock({ title, code, onCopied }: { title: string; code: string; onCopied?: () => void }) {
   const [copied, setCopied] = useState(false);
 
   async function onCopy() {
@@ -16,6 +16,7 @@ export function CodeBlock({ title, code }: { title: string; code: string }) {
       return;
     }
     setCopied(true);
+    onCopied?.();
     window.setTimeout(() => setCopied(false), 1600);
   }
 

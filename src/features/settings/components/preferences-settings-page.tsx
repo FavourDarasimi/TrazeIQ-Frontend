@@ -80,6 +80,7 @@ export function PreferencesSettingsPage() {
   const [prefs, setPrefs] = useState<AlertPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -118,6 +119,8 @@ export function PreferencesSettingsPage() {
         Omit<AlertPreferences, "updated_at">
       >);
       setPrefs(preferences);
+      setSaved(true);
+      window.setTimeout(() => setSaved(false), 2200);
     } catch (err) {
       setError(apiErrorMessage(err));
       setPrefs(prefs);
@@ -150,6 +153,15 @@ export function PreferencesSettingsPage() {
   return (
     <div className="flex flex-col gap-6">
       <Header />
+
+      {saved ? (
+        <div
+          role="status"
+          className="fixed bottom-5 right-5 z-50 rounded-lg border border-ok/30 bg-bg-panel px-4 py-3 text-sm text-ink shadow-[0_8px_30px_rgba(0,0,0,0.35)]"
+        >
+          Preferences saved
+        </div>
+      ) : null}
 
       {loading ? <Spinner label="loading preferences" /> : null}
       {error ? <InlineError>{error}</InlineError> : null}

@@ -206,7 +206,7 @@ export function DashboardPage() {
         {health ? (
           <div className="flex items-center gap-3 rounded-xl border border-line bg-surface px-4 py-2.5">
             <span
-              className={`h-2.5 w-2.5 rounded-full ${health.dot} ${health.glow} animate-[pulse_3s_ease-in-out_infinite]`}
+                className={`h-2.5 w-2.5 rounded-full ${health.dot} ${health.glow} ${overview?.health === "healthy" ? "animate-[pulse_3s_ease-in-out_infinite]" : "animate-[pulse_1.5s_ease-in-out_infinite]"} motion-reduce:animate-none`}
             />
             <div className="flex flex-col">
               <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">

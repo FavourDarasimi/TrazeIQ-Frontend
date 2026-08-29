@@ -44,6 +44,7 @@ export function OnboardingFlow() {
   const [orgs, setOrgs] = useState<Organization[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [created, setCreated] = useState<CreatedProject | null>(null);
+  const [copiedNotice, setCopiedNotice] = useState(false);
 
   const [orgName, setOrgName] = useState("");
   const [projectName, setProjectName] = useState("");
@@ -139,6 +140,11 @@ export function OnboardingFlow() {
   function finishReveal() {
     setCreated(null);
     setStage("done");
+  }
+
+  function showCopiedNotice() {
+    setCopiedNotice(true);
+    window.setTimeout(() => setCopiedNotice(false), 2200);
   }
 
   return (
@@ -238,6 +244,14 @@ export function OnboardingFlow() {
 
       {stage === "key" && created ? (
         <div className="flex flex-col gap-4">
+          {copiedNotice ? (
+            <div
+              role="status"
+              className="fixed bottom-5 right-5 z-50 rounded-lg border border-ok/30 bg-bg-panel px-4 py-3 text-sm text-ink shadow-[0_8px_30px_rgba(0,0,0,0.35)]"
+            >
+              API key copied
+            </div>
+          ) : null}
           <StepHeader
             icon={<HugeiconsIcon icon={Key01Icon} size={18} color="currentColor" strokeWidth={1.5} />}
             step="setup 03"
@@ -255,7 +269,7 @@ export function OnboardingFlow() {
             </span>
           </div>
 
-          <CodeBlock title="X-API-Key" code={created.api_key} />
+          <CodeBlock title="X-API-Key" code={created.api_key} onCopied={showCopiedNotice} />
           <CodeBlock title="Send your first event" code={created.integration_snippet} />
 
           <SubmitButton onClick={finishReveal}>I saved my key — continue</SubmitButton>

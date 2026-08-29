@@ -7,6 +7,7 @@ import Link from "next/link";
 import { FlashIcon } from "@hugeicons/core-free-icons";
 
 import { EmptyState } from "@/components/ui/empty-state";
+import { CodeBlock } from "@/components/ui/code-block";
 import { Spinner } from "@/components/ui/glass-card";
 import { InlineError } from "@/components/ui/form";
 import { StatusBadge } from "@/components/ui/incident-badges";
@@ -283,7 +284,21 @@ export function IncidentListPage() {
           <EmptyState
             icon={FlashIcon}
             title="No incidents yet"
-            body="Your dashboard is quiet. POST an error to /api/v1/events/ with your project's X-API-Key and it will show up here, grouped and deduplicated."
+            body="Your dashboard is quiet. Send a test event with your project API key and it will appear here, grouped and deduplicated."
+            action={
+              <div className="flex w-full max-w-xl flex-col gap-3 text-left">
+                <Link
+                  href="/docs"
+                  className="self-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-[#5b52ea]"
+                >
+                  View event docs
+                </Link>
+                <CodeBlock
+                  title="Send a test event"
+                  code={`curl -X POST https://api.trazeiq.io/api/v1/events/ -H 'X-API-Key: YOUR_PROJECT_API_KEY' -H 'Content-Type: application/json' -d '{"message":"Test event from TrazeIQ","level":"error"}'`}
+                />
+              </div>
+            }
           />
         )
       ) : null}
