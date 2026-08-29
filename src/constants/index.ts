@@ -43,6 +43,7 @@ export const ROUTES = {
   settingsAlerts: "/settings/alerts",
   settingsIntegrations: "/settings/integrations",
   settingsPreferences: "/settings/preferences",
+  settingsApiKeys: "/settings/api-keys",
   slackCallback: "/integrations/slack/callback",
   invite: "/invite",
 } as const;

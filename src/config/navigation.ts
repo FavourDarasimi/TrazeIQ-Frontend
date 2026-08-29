@@ -8,6 +8,7 @@ import {
   Alert02Icon,
   UserGroupIcon,
   UserSettings01Icon,
+  Key01Icon,
 } from "@hugeicons/core-free-icons";
 
 import { ROUTES } from "@/constants";
@@ -38,6 +39,7 @@ export const SETTINGS_SUBNAV: SettingsSubItem[] = [
   { href: ROUTES.settingsAlerts, label: "Alerts", icon: Notification03Icon },
   { href: ROUTES.settingsIntegrations, label: "Integrations", icon: Plug02Icon },
   { href: ROUTES.settingsPreferences, label: "Preferences", icon: UserSettings01Icon },
+  { href: ROUTES.settingsApiKeys, label: "API keys", icon: Key01Icon },
 ];
 
 export const SECTION_STUBS: Record<string, { title: string; body: string }> = {

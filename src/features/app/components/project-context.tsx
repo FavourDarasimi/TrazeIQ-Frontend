@@ -23,6 +23,7 @@ type ProjectContextValue = {
   selectedProject: Project | null;
   selectProject: (id: string) => void;
   retry: () => void;
+  refresh: () => void;
 };
 
 const ProjectContext = createContext<ProjectContextValue | null>(null);
@@ -86,6 +87,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     setAttempt((value) => value + 1);
   }, []);
 
+  const refresh = useCallback(() => setAttempt((value) => value + 1), []);
+
   const value = useMemo<ProjectContextValue>(
     () => ({
       status,
@@ -95,8 +98,9 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         projects.find((project) => project.id === selectedProjectId) ?? null,
       selectProject,
       retry,
+      refresh,
     }),
-    [status, projects, selectedProjectId, selectProject, retry],
+    [status, projects, selectedProjectId, selectProject, retry, refresh],
   );
 
   return <ProjectContext.Provider value={value}>{children}</ProjectContext.Provider>;

@@ -16,3 +16,9 @@ export function createProject(input: {
     body: input,
   });
 }
+
+export function rotateProjectKey(projectId: string): Promise<CreatedProject> {
+  return api<CreatedProject>(`${API_ROUTES.projects}${projectId}/rotate-key/`, {
+    method: "POST",
+  });
+}

@@ -10,6 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   ChevronDownIcon,
+  Key01Icon,
   Layers02Icon,
   Notification03Icon,
   Plug02Icon,
@@ -25,6 +26,7 @@ const SETTINGS_NAV = [
   { href: ROUTES.settingsAlerts, label: "Alerts", icon: Notification03Icon },
   { href: ROUTES.settingsIntegrations, label: "Integrations", icon: Plug02Icon },
   { href: ROUTES.settingsPreferences, label: "Preferences", icon: UserSettings01Icon },
+  { href: ROUTES.settingsApiKeys, label: "API keys", icon: Key01Icon },
 ] as const;
 
 export function SettingsNav() {
