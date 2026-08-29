@@ -9,6 +9,8 @@ import { Cancel01Icon, Menu01Icon } from "@hugeicons/core-free-icons";
 import { Footer } from "@/features/landing/components/footer";
 import { Logo } from "@/features/landing/components/navbar";
 import { Container } from "@/components/ui/shared";
+import { ROUTES } from "@/constants";
+import { useAuth } from "@/providers/auth-provider";
 
 import { DocsIngestion } from "./docs-ingestion";
 import { DocsLimits } from "./docs-limits";
@@ -28,6 +30,9 @@ const toc = [
 
 export function DocsPage() {
   const [open, setOpen] = useState(false);
+  const { status: authStatus } = useAuth();
+  const authReady = authStatus !== "loading";
+  const authenticated = authStatus === "authenticated";
 
   return (
     <main className="bg-bg">
@@ -45,19 +50,26 @@ export function DocsPage() {
               </a>
             ))}
           </nav>
-          <div className="hidden items-center gap-3 md:flex">
-            <a
-              href="/login"
-              className="rounded-sm text-sm text-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-            >
-              Sign in
-            </a>
-            <a
-              href="/register"
-              className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-[#5b52ea] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-            >
-              Start Monitoring
-            </a>
+          <div className="flex min-w-[142px] items-center justify-end gap-3">
+            {authReady ? (
+              authenticated ? (
+                <a
+                  href={ROUTES.dashboard}
+                  className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-[#5b52ea] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                >
+                  Dashboard
+                </a>
+              ) : (
+                <div className="hidden items-center gap-3 md:flex">
+                  <a href={ROUTES.login} className="rounded-sm text-sm text-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+                    Sign in
+                  </a>
+                  <a href={ROUTES.register} className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-[#5b52ea] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+                    Start Monitoring
+                  </a>
+                </div>
+              )
+            ) : null}
           </div>
 
           <button
@@ -90,18 +102,22 @@ export function DocsPage() {
                 </a>
               ))}
               <div className="mt-2 flex flex-col gap-2 border-t border-line pt-4">
-                <a
-                  href="/login"
-                  className="rounded-lg border border-line px-3 py-2.5 text-center text-sm text-ink transition-colors hover:border-line-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                >
-                  Sign in
-                </a>
-                <a
-                  href="/register"
-                  className="rounded-lg bg-accent px-3 py-2.5 text-center text-sm font-medium text-ink transition-colors hover:bg-[#5b52ea] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                >
-                  Start Monitoring
-                </a>
+                {authReady ? (
+                  authenticated ? (
+                    <a href={ROUTES.dashboard} className="rounded-lg bg-accent px-3 py-2.5 text-center text-sm font-medium text-ink transition-colors hover:bg-[#5b52ea] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+                      Dashboard
+                    </a>
+                  ) : (
+                    <>
+                      <a href={ROUTES.login} className="rounded-lg border border-line px-3 py-2.5 text-center text-sm text-ink transition-colors hover:border-line-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+                        Sign in
+                      </a>
+                      <a href={ROUTES.register} className="rounded-lg bg-accent px-3 py-2.5 text-center text-sm font-medium text-ink transition-colors hover:bg-[#5b52ea] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+                        Start Monitoring
+                      </a>
+                    </>
+                  )
+                ) : null}
               </div>
             </Container>
           </div>

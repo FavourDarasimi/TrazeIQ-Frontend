@@ -1,5 +1,10 @@
 import { DocsPage } from "@/features/docs/components/docs-page";
+import { AuthProvider } from "@/providers/auth-provider";
 
 export default function Docs() {
-  return <DocsPage />;
+  return (
+    <AuthProvider>
+      <DocsPage />
+    </AuthProvider>
+  );
 }

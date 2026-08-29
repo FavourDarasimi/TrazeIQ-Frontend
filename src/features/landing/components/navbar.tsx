@@ -33,6 +33,7 @@ export function Logo({ href = "#top" }: { href?: string }) {
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const { status } = useAuth();
+  const authReady = status !== "loading";
   const authenticated = status === "authenticated";
   const landingLinks = links.filter((link) => link.label !== "Dashboard");
 
@@ -54,7 +55,7 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          {authenticated ? (
+          {authReady ? authenticated ? (
             <a
               href={ROUTES.dashboard}
               className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-[#5b52ea]"
@@ -73,7 +74,7 @@ export function Navbar() {
                 Start Monitoring
               </a>
             </>
-          )}
+          ) : null}
         </div>
 
         <button
@@ -106,7 +107,7 @@ export function Navbar() {
               </a>
             ))}
             <div className="mt-2 flex flex-col gap-2 border-t border-line pt-4">
-              {authenticated ? (
+              {authReady ? authenticated ? (
                 <a
                   href={ROUTES.dashboard}
                   className="rounded-lg bg-accent px-3 py-2.5 text-center text-sm font-medium text-ink"
@@ -122,7 +123,7 @@ export function Navbar() {
                     Start Monitoring
                   </a>
                 </>
-              )}
+              ) : null}
             </div>
           </Container>
         </div>
