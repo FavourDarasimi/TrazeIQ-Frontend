@@ -412,11 +412,12 @@ export function DashboardPage() {
             </GlassCard>
 
             {(() => {
+              const visibleErrors = overview.top_errors.slice(0, 2);
               const maxCount = Math.max(
-                ...overview.top_errors.map((e) => e.count),
+                ...visibleErrors.map((e) => e.count),
                 1,
               );
-              const totalEvents = overview.top_errors.reduce(
+              const totalEvents = visibleErrors.reduce(
                 (sum, e) => sum + e.count,
                 0,
               );
@@ -447,7 +448,7 @@ export function DashboardPage() {
                     </span>
                   </div>
 
-                  {overview.top_errors.length === 0 ? (
+                  {visibleErrors.length === 0 ? (
                     <div className="mx-6 mt-6 flex flex-col items-center gap-3 rounded-xl border border-dashed border-line bg-bg-panel/40 px-6 py-10 text-center">
                       <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-surface text-muted">
                         <HugeiconsIcon
@@ -469,7 +470,7 @@ export function DashboardPage() {
                     </div>
                   ) : (
                     <ul className="mt-5 flex flex-col divide-y divide-line/60">
-                      {overview.top_errors.map((error, idx) => {
+                      {visibleErrors.map((error, idx) => {
                         const barPct = Math.max(
                           8,
                           Math.round((error.count / maxCount) * 100),
@@ -578,11 +579,11 @@ export function DashboardPage() {
 
                   <div className="mt-auto flex items-center justify-between gap-3 border-t border-line bg-bg-panel/30 px-6 py-3">
                     <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
-                      {overview.top_errors.length === 0
+                      {visibleErrors.length === 0
                         ? "0 patterns"
-                        : `${overview.top_errors.length} patterns · Σ ${formatCount(totalEvents)} events`}
+                        : `${visibleErrors.length} patterns · Σ ${formatCount(totalEvents)} events`}
                     </p>
-                    {overview.top_errors.length > 0 ? (
+                    {visibleErrors.length > 0 ? (
                       <Link
                         href={ROUTES.incidents}
                         className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 font-mono text-xs font-medium text-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"

@@ -11,9 +11,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   AddCircleIcon,
+  ArrowUpDownIcon,
   BookOpen01Icon,
   Cancel01Icon,
-  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   Logout01Icon,
@@ -34,32 +34,32 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, signOut } = useAuth();
-  const { status, projects, selectedProjectId, selectProject, retry } =
+  const { status, projects, selectedProjectId, selectedProject, selectProject, retry } =
     useProjectContext();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState<boolean>(() => {
+    try {
+      if (typeof window !== "undefined") {
+        return window.localStorage.getItem("trazeiq-sidebar-collapsed") === "1";
+      }
+    } catch {
+      // Storage unavailable — keep expanded.
+    }
+    return false;
+  });
+  const [hasMounted, setHasMounted] = useState(false);
 
   function closeMenu() {
     setMenuOpen(false);
   }
 
-  // Restore and persist the collapsed state of the sidebar rail.
   useEffect(() => {
-    const restore = async () => {
-      try {
-        if (
-          window.localStorage.getItem("trazeiq-sidebar-collapsed") === "1"
-        ) {
-          setCollapsed(true);
-        }
-      } catch {
-        // Storage unavailable — keep the default expanded state.
-      }
-    };
-    void restore();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mount flag to disable initial transition flash
+    setHasMounted(true);
   }, []);
 
   useEffect(() => {
+    if (!hasMounted) return;
     try {
       window.localStorage.setItem(
         "trazeiq-sidebar-collapsed",
@@ -68,7 +68,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     } catch {
       // Storage unavailable — collapse still applies for this session.
     }
-  }, [collapsed]);
+  }, [collapsed, hasMounted]);
 
   // Lock body scroll while the mobile drawer is open.
   useEffect(() => {
@@ -108,7 +108,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       ) : null}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-line bg-bg-panel shadow-[12px_0_40px_rgba(0,0,0,0.12)] transition-[width,transform] duration-200 ease-out lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-line bg-bg-panel shadow-[12px_0_40px_rgba(0,0,0,0.12)] ${hasMounted ? "transition-[width,transform] duration-200 ease-out" : ""} lg:translate-x-0 ${
           collapsed ? "lg:w-[76px]" : "lg:w-64"
         } ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
@@ -164,15 +164,17 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         <div
           className={`px-4  pt-5 ${collapsed ? "lg:hidden" : ""}`}
         >
-            {status === "ready" && projects.length === 0 ? (
+            {status === "loading" && projects.length === 0 ? (
+              <div className="h-10 animate-pulse rounded-lg border border-line bg-surface" aria-hidden="true" />
+            ) : status === "ready" && projects.length === 0 ? (
               <Link
                 href={ROUTES.onboarding}
                 onClick={closeMenu}
-                className="flex h-10 w-full items-center gap-2 rounded-lg border border-dashed border-line bg-surface px-3.5 text-sm text-muted transition-colors hover:border-accent/60 hover:text-ink"
+                className="flex h-10 w-full items-center gap-2 rounded-lg border border-dashed border-line bg-surface px-3 text-sm text-muted transition-colors hover:border-accent/60 hover:text-ink"
               >
                 <HugeiconsIcon
                   icon={AddCircleIcon}
-                  size={16}
+                  size={14}
                   color="currentColor"
                   strokeWidth={1.5}
                 />
@@ -180,32 +182,43 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               </Link>
             ) : (
               <>
-                <div className="relative">
+                <div className="group relative">
+                  <div className="flex items-center gap-2.5 rounded-lg border border-line bg-surface px-2.5 py-2 shadow-sm transition-colors group-hover:border-line-soft group-hover:bg-bg-panel group-focus-within:border-accent/50 group-focus-within:ring-1 group-focus-within:ring-accent/30">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-accent/20 bg-accent/10 font-mono text-[11px] font-semibold text-accent">
+                      {(selectedProject?.name ?? projects.find((p) => p.id === selectedProjectId)?.name ?? "?")[0]?.toUpperCase()}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-medium leading-none tracking-tight text-ink">
+                        {selectedProject?.name ?? projects.find((p) => p.id === selectedProjectId)?.name ?? "Select project"}
+                      </p>
+                      <p className="mt-1 flex items-center gap-1 truncate font-mono text-[9px] uppercase tracking-[0.14em] text-muted">
+                        <span className="h-1 w-1 shrink-0 rounded-full bg-ok" />
+                        {selectedProject?.environment ?? projects.find((p) => p.id === selectedProjectId)?.environment ?? "—"}
+                      </p>
+                    </div>
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-line bg-bg-panel text-muted transition-colors group-hover:border-accent/30 group-hover:text-ink">
+                      <HugeiconsIcon icon={ArrowUpDownIcon} size={12} color="currentColor" strokeWidth={1.5} />
+                    </span>
+                  </div>
                   <select
                     value={selectedProjectId ?? ""}
                     onChange={(event) => selectProject(event.target.value)}
-                    disabled={status === "loading" || projects.length === 0}
-                    className="h-10 w-full appearance-none rounded-lg border border-line bg-surface pl-3.5 pr-9 text-sm text-ink outline-none transition-colors focus:border-accent/60 focus:ring-1 focus:ring-accent/40 disabled:opacity-50"
+                    disabled={projects.length === 0}
+                    aria-label="Select project"
+                    className="absolute inset-0 h-full w-full cursor-pointer appearance-none rounded-xl opacity-0 focus:outline-none disabled:cursor-not-allowed"
                   >
-                    {status === "loading" ? (
-                      <option value="">Loading…</option>
-                    ) : (
-                      projects.map((project) => (
-                        <option key={project.id} value={project.id}>
-                          {project.name}
-                        </option>
-                      ))
-                    )}
+                    {projects.map((project) => (
+                      <option key={project.id} value={project.id}>
+                        {project.name} · {project.environment}
+                      </option>
+                    ))}
                   </select>
-                  <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted">
-                    <HugeiconsIcon icon={ChevronDownIcon} size={16} color="currentColor" strokeWidth={1.5} />
-                  </span>
                 </div>
                 {status === "error" ? (
                   <button
                     type="button"
                     onClick={retry}
-                    className="mt-1.5 text-xs text-sev-critical transition-colors hover:text-ink"
+                    className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-sev-critical/20 bg-sev-critical/10 px-3 py-2 font-mono text-xs text-sev-critical transition-colors hover:bg-sev-critical/15 hover:text-ink"
                   >
                     Couldn&apos;t load projects — retry
                   </button>
@@ -346,7 +359,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       </aside>
 
       <main
-        className={`min-w-0 flex-1 transition-[margin] duration-200 ease-out ${
+        className={`min-w-0 flex-1 ${hasMounted ? "transition-[margin] duration-200 ease-out" : ""} ${
           collapsed ? "lg:ml-[76px]" : "lg:ml-64"
         }`}
       >
