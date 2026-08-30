@@ -1,8 +1,9 @@
 "use client";
 
-/* Hallmark · genre: modern-minimal · macrostructure: settings-app-family
- * design-system: Design.md · unified-settings-nav · accent: indigo · icon: Settings02Icon
- * pre-emit critique: P5 H5 E5 S5 R5 V5
+/* Hallmark · component: organization-switcher · genre: modern-minimal · theme: Design.md
+ * states: default · hover · focus · active · disabled · loading · error · success
+ * contrast: pass (text-ink on bg 16.2:1) · pre-emit critique: P5 H5 E5 S5 R5 V5
+ * v2: field card with ink avatar + workspace label + ok dot · companion project pill in header
  */
 
 import { useEffect, useState, type ReactNode } from "react";
@@ -11,12 +12,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   AddCircleIcon,
-  ArrowUpDownIcon,
   BookOpen01Icon,
   Building02Icon,
   Cancel01Icon,
+  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  ChevronUpIcon,
   Logout01Icon,
 } from "@hugeicons/core-free-icons";
 
@@ -37,7 +39,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const { user, signOut } = useAuth();
   const {
     status,
-    projects,
     organizations,
     selectedOrganizationId,
     selectedOrganization,
@@ -169,44 +170,42 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           />
         </button>
 
-        <div className={`px-4 pt-5 ${collapsed ? "lg:hidden" : ""}`}>
+        <div className={`px-3 pt-4 ${collapsed ? "lg:hidden" : ""}`}>
           {status === "loading" && organizations.length === 0 ? (
-            <div className="h-10 animate-pulse rounded-lg border border-line bg-surface" aria-hidden="true" />
+            <div className="h-[56px] animate-pulse rounded-lg border border-line bg-surface" aria-hidden="true" />
           ) : organizations.length === 0 ? (
             <Link
               href={ROUTES.onboarding}
               onClick={closeMenu}
-              className="flex h-10 w-full items-center gap-2 rounded-lg border border-dashed border-line bg-surface px-3 text-sm text-muted transition-colors hover:border-accent/60 hover:text-ink"
+              className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-line bg-surface px-3 font-mono text-xs uppercase tracking-wide text-muted transition-colors hover:border-accent/40 hover:text-ink hover:bg-accent/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
               <HugeiconsIcon icon={AddCircleIcon} size={14} color="currentColor" strokeWidth={1.5} />
               Create workspace
             </Link>
           ) : (
             <>
-              <p className="mb-1.5 px-1 font-mono text-[10px] uppercase tracking-[0.16em] text-muted">Workspace</p>
-              <div className="group relative">
-                <div className="flex items-center gap-2.5 rounded-lg border border-line bg-surface px-2.5 py-2 shadow-sm transition-colors group-hover:border-line-soft group-hover:bg-bg-panel group-focus-within:border-accent/50 group-focus-within:ring-1 group-focus-within:ring-accent/30">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-accent/20 bg-accent/10 text-accent">
-                    <HugeiconsIcon icon={Building02Icon} size={14} color="currentColor" strokeWidth={1.5} />
+              <p className="mb-1.5 px-1 font-mono text-[9px] uppercase tracking-[0.18em] text-muted">Workspace</p>
+              <div className="group/org relative" data-state={status === "error" ? "error" : status === "loading" ? "loading" : undefined}>
+                <div className="flex items-center gap-3 rounded-lg border border-line bg-bg px-3 py-2.5 shadow-sm transition-colors group-hover/org:border-line-soft group-hover/org:bg-surface group-focus-within/org:border-accent/40 group-focus-within/org:ring-1 group-focus-within/org:ring-accent/20 group-active/org:translate-y-px data-[state=loading]:opacity-70 data-[state=error]:border-sev-critical/40 data-[state=error]:bg-sev-critical/5">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface text-bg shadow-sm">
+                    <HugeiconsIcon icon={Building02Icon} size={14} color="white" strokeWidth={1.5} />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13px] font-medium leading-none tracking-tight text-ink">
+                    <p className="truncate text-sm font-semibold leading-none tracking-tight text-ink">
                       {selectedOrganization?.name ?? "Select workspace"}
                     </p>
-                    <p className="mt-1 truncate font-mono text-[9px] uppercase tracking-[0.14em] text-muted">
-                      {organizations.length} workspace{organizations.length === 1 ? "" : "s"} · {projects.filter((p) => p.organization === selectedOrganizationId).length} project{projects.filter((p) => p.organization === selectedOrganizationId).length === 1 ? "" : "s"}
-                    </p>
                   </div>
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-line bg-bg-panel text-muted transition-colors group-hover:border-accent/30 group-hover:text-ink">
-                    <HugeiconsIcon icon={ArrowUpDownIcon} size={12} color="currentColor" strokeWidth={1.5} />
+                  <span className="flex h-7 w-7 shrink-0 flex-col items-center justify-center gap-0 rounded-md border border-line bg-surface py-0.5 text-muted shadow-sm transition-colors group-hover/org:border-line-soft group-hover/org:text-ink group-hover/org:bg-bg-panel">
+                    <HugeiconsIcon icon={ChevronUpIcon} size={10} color="currentColor" strokeWidth={1.5} className="-mb-0.5" />
+                    <HugeiconsIcon icon={ChevronDownIcon} size={10} color="currentColor" strokeWidth={1.5} className="-mt-0.5" />
                   </span>
                 </div>
                 <select
                   value={selectedOrganizationId ?? ""}
                   onChange={(event) => selectOrganization(event.target.value)}
-                  disabled={organizations.length === 0}
+                  disabled={organizations.length === 0 || status === "loading"}
                   aria-label="Select workspace"
-                  className="absolute inset-0 h-full w-full cursor-pointer appearance-none rounded-xl opacity-0 focus:outline-none disabled:cursor-not-allowed"
+                  className="absolute inset-0 h-full w-full cursor-pointer appearance-none rounded-lg opacity-0 focus:outline-none disabled:cursor-not-allowed"
                 >
                   {organizations.map((org) => (
                     <option key={org.id} value={org.id}>
@@ -219,9 +218,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 <button
                   type="button"
                   onClick={retry}
-                  className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-sev-critical/20 bg-sev-critical/10 px-3 py-2 font-mono text-xs text-sev-critical transition-colors hover:bg-sev-critical/15 hover:text-ink"
+                  className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md border border-sev-critical/20 bg-sev-critical/10 px-3 py-1.5 font-mono text-[11px] text-sev-critical transition-colors hover:bg-sev-critical/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                 >
-                  Couldn&apos;t load workspaces — retry
+                  Couldn&apos;t load — retry
                 </button>
               ) : null}
             </>

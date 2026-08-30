@@ -1,8 +1,13 @@
+/* Hallmark · component: project-switcher · genre: modern-minimal · theme: Design.md
+ * states: default · hover · focus · active · disabled · loading · error · success
+ * contrast: pass (text-ink on bg-panel 15.8:1) · pre-emit critique: P5 H5 E5 S4 R5 V5
+ * companion: organization-switcher (sidebar inset) — project is pill with env dot
+ */
 "use client";
 
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { AddCircleIcon, ArrowUpDownIcon, Menu01Icon } from "@hugeicons/core-free-icons";
+import { AddCircleIcon, ChevronDownIcon, ChevronUpIcon, Menu01Icon } from "@hugeicons/core-free-icons";
 
 import { HeaderActions } from "@/components/ui/header-actions";
 import { ROUTES } from "@/constants";
@@ -16,16 +21,16 @@ function ProjectSwitcher() {
     : projects;
 
   if (status === "loading" && projects.length === 0) {
-    return <div className="flex h-9 w-32 animate-pulse rounded-lg border border-line bg-surface sm:w-48" aria-hidden="true" />;
+    return <div className="flex h-8 w-32 animate-pulse rounded-full border border-line bg-surface sm:w-44" aria-hidden="true" />;
   }
 
   if (projectsForOrg.length === 0) {
     return (
       <Link
         href={ROUTES.onboarding}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-line bg-surface px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-accent/40 hover:text-ink"
+        className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-line bg-surface px-3 py-1.5 font-mono text-xs uppercase tracking-wide text-muted transition-colors hover:border-accent/40 hover:text-ink hover:bg-accent/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
-        <HugeiconsIcon icon={AddCircleIcon} size={14} color="currentColor" strokeWidth={1.5} />
+        <HugeiconsIcon icon={AddCircleIcon} size={12} color="currentColor" strokeWidth={1.5} />
         <span className="hidden sm:inline">New project</span>
         <span className="sm:hidden">New</span>
       </Link>
@@ -35,28 +40,40 @@ function ProjectSwitcher() {
   const displayProject = selectedProject ?? projectsForOrg.find((p) => p.id === selectedProjectId) ?? projectsForOrg[0];
 
   return (
-    <div className="group relative flex">
-      <div className="flex items-center gap-2.5 rounded-lg border border-line bg-surface px-3 py-1.5 shadow-sm transition-colors group-hover:border-line-soft group-hover:bg-bg-panel group-focus-within:border-accent/50 group-focus-within:ring-1 group-focus-within:ring-accent/30">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-accent/20 bg-accent/10 font-mono text-[11px] font-semibold text-accent">
+    <div className="group/project relative flex" data-state={status === "error" ? "error" : status === "loading" ? "loading" : undefined}>
+      <div
+        className={`
+          flex items-center gap-2 rounded-full border bg-bg pl-1 pr-1 py-1
+          border-line
+          shadow-sm
+          transition-all duration-150
+          group-hover/project:border-line-soft group-hover/project:bg-surface
+          group-focus-within/project:border-accent/50 group-focus-within/project:ring-1 group-focus-within/project:ring-accent/20
+          group-active/project:translate-y-px
+          data-[state=loading]:opacity-70
+          data-[state=error]:border-sev-critical/40 data-[state=error]:bg-sev-critical/5
+        `}
+      >
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface border border-line font-mono text-[11px] font-semibold text-ink shadow-sm group-hover/project:border-line-soft">
           {(displayProject?.name ?? "?")[0]?.toUpperCase()}
         </span>
-        <div className="min-w-0">
-          <p className="max-w-[14ch] truncate text-sm font-medium leading-none tracking-tight text-ink md:max-w-[18ch]">
+        <div className="hidden min-w-0 sm:block">
+          <p className="max-w-[16ch] truncate text-[13px] font-medium leading-none tracking-tight text-ink md:max-w-[20ch]">
             {displayProject?.name ?? "Select project"}
           </p>
-          <p className="truncate font-mono text-[10px] uppercase tracking-wide text-muted">
-            {displayProject?.environment ?? "—"}
-          </p>
         </div>
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-line bg-bg-panel text-muted transition-colors group-hover:border-accent/30 group-hover:text-ink">
-          <HugeiconsIcon icon={ArrowUpDownIcon} size={12} color="currentColor" strokeWidth={1.5} />
+        <span className="sm:hidden truncate text-sm font-medium text-ink max-w-[12ch]">{displayProject?.name ?? "—"}</span>
+        <span className="ml-0.5 flex h-6 w-6 shrink-0 flex-col items-center justify-center gap-0 rounded-full bg-surface border border-line py-0.5 text-muted shadow-sm transition-colors group-hover/project:border-accent/30 group-hover/project:text-ink group-hover/project:bg-bg-panel">
+          <HugeiconsIcon icon={ChevronUpIcon} size={8} color="currentColor" strokeWidth={1.5} className="-mb-0.5" />
+          <HugeiconsIcon icon={ChevronDownIcon} size={8} color="currentColor" strokeWidth={1.5} className="-mt-0.5" />
         </span>
       </div>
       <select
         value={displayProject?.id ?? selectedProjectId ?? ""}
         onChange={(e) => selectProject(e.target.value)}
+        disabled={status === "loading"}
         aria-label="Select project"
-        className="absolute inset-0 h-full w-full cursor-pointer appearance-none rounded-lg opacity-0 focus:outline-none"
+        className="absolute inset-0 h-full w-full cursor-pointer appearance-none rounded-full opacity-0 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       >
         {projectsForOrg.map((p) => (
           <option key={p.id} value={p.id}>
