@@ -1,3 +1,8 @@
+/* Hallmark · component: error-volume · genre: modern-minimal · theme: Design.md
+ * states: default · hover · focus · active · disabled · loading · error · success
+ * contrast: pass (ink on bg-panel 15.8:1) · pre-emit critique: P5 H4 E5 S4 R5 V5
+ * redesign: Workbench terminal — step chart, underline tabs, left-accent header
+ */
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
@@ -280,63 +285,72 @@ export function DashboardPage() {
       {loading ? (
         <Spinner label="aggregating…" />
       ) : overview ? (
-        <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <StatCard
-              label="Open incidents"
-              value={String(overview.open_incidents.total)}
-              footer={<SeverityChips bySeverity={overview.open_incidents.by_severity} />}
-            />
-            <StatCard
-              label="Events · 24h"
-              value={formatCount(overview.events_24h)}
-              footer={
-                trend ? (
-                  <span className={`font-mono ${TREND_COLOR[trend.trend]}`}>
-                    {TREND_ARROW[trend.trend]} {Math.abs(trend.percent_change)}%
-                    <span className="ml-1.5 text-muted">vs prior 24h</span>
-                  </span>
-                ) : null
-              }
-            />
-            <StatCard
-              label="Resolved · 24h"
-              value={String(overview.resolved_24h)}
-              footer={
-                <span className="flex items-center gap-1.5">
-                  <HugeiconsIcon
-                    icon={CheckmarkCircleIcon}
-                    size={14}
-                    color="#10b981"
-                    strokeWidth={1.5}
-                  />
-                  <span className="text-muted">incidents closed</span>
-                </span>
-              }
-            />
-          </div>
+        (() => {
+          const visibleErrors = overview.top_errors.slice(0, 2);
+          const isTwo = visibleErrors.length === 2;
+          return (
+            <>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <StatCard
+                  label="Open incidents"
+                  value={String(overview.open_incidents.total)}
+                  footer={<SeverityChips bySeverity={overview.open_incidents.by_severity} />}
+                />
+                <StatCard
+                  label="Events · 24h"
+                  value={formatCount(overview.events_24h)}
+                  footer={
+                    trend ? (
+                      <span className={`font-mono ${TREND_COLOR[trend.trend]}`}>
+                        {TREND_ARROW[trend.trend]} {Math.abs(trend.percent_change)}%
+                        <span className="ml-1.5 text-muted">vs prior 24h</span>
+                      </span>
+                    ) : null
+                  }
+                />
+                <StatCard
+                  label="Resolved · 24h"
+                  value={String(overview.resolved_24h)}
+                  footer={
+                    <span className="flex items-center gap-1.5">
+                      <HugeiconsIcon
+                        icon={CheckmarkCircleIcon}
+                        size={14}
+                        color="#10b981"
+                        strokeWidth={1.5}
+                      />
+                      <span className="text-muted">incidents closed</span>
+                    </span>
+                  }
+                />
+              </div>
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <GlassCard className="min-w-0 overflow-hidden p-6 lg:col-span-2">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
-                    Error volume
-                  </p>
-                  <h2 className="mt-1 text-sm font-semibold tracking-tight text-ink">
-                    Events over time
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-start">
+                <GlassCard className="flex min-w-0 flex-col overflow-hidden p-0 lg:col-span-2 lg:h-[344px]">
+              <div className="flex flex-col gap-3 px-6 pt-5 sm:flex-row sm:items-end sm:justify-between">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-accent shadow-[0_0_10px_rgba(79,70,229,0.35)]" aria-hidden="true" />
+                    <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Error volume</p>
+                    <span className="hidden h-3 w-px bg-line sm:block" aria-hidden="true" />
+                    <span className="hidden font-mono text-[11px] tabular-nums text-muted sm:inline">
+                      {stats ? `${formatCount(stats.points.reduce((s, p) => s + p.events, 0))} events · ${range}` : range}
+                    </span>
+                  </div>
+                  <h2 className="mt-1.5 text-sm font-semibold tracking-tight text-ink">
+                    Events <span className="font-normal text-muted">/ Incidents</span>
                   </h2>
                 </div>
-                <div className="flex items-center gap-1 rounded-lg border border-line bg-surface p-1">
+                <div className="flex items-center gap-1 border-b border-line">
                   {RANGES.map(({ value, label }) => (
                     <button
                       key={value}
                       onClick={() => setRange(value)}
                       aria-pressed={range === value}
-                      className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
+                      className={`relative -mb-px border-b-2 px-3 py-2 font-mono text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
                         range === value
-                          ? "bg-accent/15 text-accent"
-                          : "text-muted hover:text-ink"
+                          ? "border-accent text-accent"
+                          : "border-transparent text-muted hover:text-ink"
                       }`}
                     >
                       {label}
@@ -345,70 +359,87 @@ export function DashboardPage() {
                 </div>
               </div>
 
-              {stats ? (
-                <div className="mt-5 h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart
-                      data={chartData}
-                      margin={{ top: 8, right: 8, left: -18, bottom: 0 }}
-                    >
-                      <defs>
-                        <linearGradient id="eventsFill" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#4f46e5" stopOpacity={0.35} />
-                          <stop offset="100%" stopColor="#4f46e5" stopOpacity={0.02} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid
-                        stroke="#1f1f1f"
-                        strokeDasharray="3 3"
-                        vertical={false}
-                      />
-                      <XAxis
-                        dataKey="label"
-                        tick={{ fill: "#71717a", fontSize: 11 }}
-                        tickLine={false}
-                        axisLine={{ stroke: "#1f1f1f" }}
-                        minTickGap={32}
-                      />
-                      <YAxis
-                        tick={{ fill: "#71717a", fontSize: 11 }}
-                        tickLine={false}
-                        axisLine={false}
-                        allowDecimals={false}
-                        width={40}
-                      />
-                      <Tooltip
-                        cursor={{ stroke: "#2a2a2a" }}
-                        contentStyle={{
-                          background: "#111111",
-                          border: "1px solid #1f1f1f",
-                          borderRadius: 12,
-                          fontSize: 12,
-                        }}
-                        labelStyle={{ color: "#fafafa" }}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="events"
-                        stroke="#4f46e5"
-                        strokeWidth={2}
-                        fill="url(#eventsFill)"
-                        name="Events"
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="incidents"
-                        stroke="#f59e0b"
-                        strokeWidth={1.5}
-                        dot={false}
-                        name="Incidents"
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
+              <div className="flex min-h-0 flex-1 flex-col border-t border-line/60 bg-bg/50">
+                {stats ? (
+                  <div className="w-full flex-1 min-h-0 pt-2 pb-0 [&_.recharts-responsive-container]:!h-full">
+                    <div className="h-full w-full min-h-0">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={chartData} margin={{ top: 8, right: 12, left: -10, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="eventsFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="var(--color-accent)" stopOpacity={0.22} />
+                            <stop offset="100%" stopColor="var(--color-accent)" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid stroke="var(--color-line)" strokeDasharray="0" vertical={false} opacity={0.6} />
+                        <XAxis
+                          dataKey="label"
+                          tick={{ fill: "var(--color-muted)", fontSize: 11, fontFamily: "var(--font-mono)" }}
+                          tickLine={false}
+                          axisLine={{ stroke: "var(--color-line)" }}
+                          minTickGap={24}
+                        />
+                        <YAxis
+                          tick={{ fill: "var(--color-muted)", fontSize: 11, fontFamily: "var(--font-mono)" }}
+                          tickLine={false}
+                          axisLine={false}
+                          allowDecimals={false}
+                          width={36}
+                        />
+                        <Tooltip
+                          cursor={{ stroke: "var(--color-line-soft)" }}
+                          contentStyle={{
+                            background: "var(--color-surface)",
+                            border: "1px solid var(--color-line)",
+                            borderRadius: 10,
+                            fontSize: 12,
+                            fontFamily: "var(--font-mono)",
+                          }}
+                          labelStyle={{ color: "var(--color-ink)" }}
+                          itemStyle={{ color: "var(--color-muted)" } as never}
+                        />
+                        <Area
+                          type="stepAfter"
+                          dataKey="events"
+                          stroke="var(--color-accent)"
+                          strokeWidth={1.5}
+                          fill="url(#eventsFill)"
+                          name="Events"
+                          dot={false}
+                          activeDot={{ r: 3, fill: "var(--color-accent)", stroke: "var(--color-surface)", strokeWidth: 2 } as never}
+                        />
+                        <Line
+                          type="stepAfter"
+                          dataKey="incidents"
+                          stroke="var(--color-sev-warning)"
+                          strokeWidth={1.25}
+                          dot={false}
+                          name="Incidents"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-1 items-center justify-center py-10">
+                    <Spinner />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between gap-3 border-t border-line bg-bg-panel/30 px-6 py-3">
+                <div className="flex items-center gap-4 font-mono text-[10px] uppercase tracking-wide text-muted">
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" /> Events
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-sev-warning" aria-hidden="true" /> Incidents
+                  </span>
                 </div>
-              ) : (
-                <Spinner />
-              )}
+                <span className="hidden font-mono text-[10px] tabular-nums text-muted sm:inline">
+                  {stats ? `${stats.points.length} buckets` : "—"}
+                </span>
+              </div>
             </GlassCard>
 
             {(() => {
@@ -422,7 +453,7 @@ export function DashboardPage() {
                 0,
               );
               return (
-                <GlassCard className="flex min-w-0 flex-col overflow-hidden p-0">
+                <GlassCard className="flex min-w-0 flex-col overflow-hidden p-0 lg:h-[344px]">
                   <div className="flex items-start justify-between gap-3 px-6 pt-6">
                     <div className="flex min-w-0 gap-3">
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line bg-bg-panel text-accent">
@@ -603,6 +634,8 @@ export function DashboardPage() {
             })()}
           </div>
         </>
+          );
+        })()
       ) : null}
     </div>
   );
