@@ -13,6 +13,7 @@ import {
   AddCircleIcon,
   ArrowUpDownIcon,
   BookOpen01Icon,
+  Building02Icon,
   Cancel01Icon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -34,8 +35,15 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, signOut } = useAuth();
-  const { status, projects, selectedProjectId, selectedProject, selectProject, retry } =
-    useProjectContext();
+  const {
+    status,
+    projects,
+    organizations,
+    selectedOrganizationId,
+    selectedOrganization,
+    selectOrganization,
+    retry,
+  } = useProjectContext();
   const [menuOpen, setMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     try {
@@ -161,71 +169,64 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           />
         </button>
 
-        <div
-          className={`px-4  pt-5 ${collapsed ? "lg:hidden" : ""}`}
-        >
-            {status === "loading" && projects.length === 0 ? (
-              <div className="h-10 animate-pulse rounded-lg border border-line bg-surface" aria-hidden="true" />
-            ) : status === "ready" && projects.length === 0 ? (
-              <Link
-                href={ROUTES.onboarding}
-                onClick={closeMenu}
-                className="flex h-10 w-full items-center gap-2 rounded-lg border border-dashed border-line bg-surface px-3 text-sm text-muted transition-colors hover:border-accent/60 hover:text-ink"
-              >
-                <HugeiconsIcon
-                  icon={AddCircleIcon}
-                  size={14}
-                  color="currentColor"
-                  strokeWidth={1.5}
-                />
-                Create a project
-              </Link>
-            ) : (
-              <>
-                <div className="group relative">
-                  <div className="flex items-center gap-2.5 rounded-lg border border-line bg-surface px-2.5 py-2 shadow-sm transition-colors group-hover:border-line-soft group-hover:bg-bg-panel group-focus-within:border-accent/50 group-focus-within:ring-1 group-focus-within:ring-accent/30">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-accent/20 bg-accent/10 font-mono text-[11px] font-semibold text-accent">
-                      {(selectedProject?.name ?? projects.find((p) => p.id === selectedProjectId)?.name ?? "?")[0]?.toUpperCase()}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[13px] font-medium leading-none tracking-tight text-ink">
-                        {selectedProject?.name ?? projects.find((p) => p.id === selectedProjectId)?.name ?? "Select project"}
-                      </p>
-                      <p className="mt-1 flex items-center gap-1 truncate font-mono text-[9px] uppercase tracking-[0.14em] text-muted">
-                        <span className="h-1 w-1 shrink-0 rounded-full bg-ok" />
-                        {selectedProject?.environment ?? projects.find((p) => p.id === selectedProjectId)?.environment ?? "—"}
-                      </p>
-                    </div>
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-line bg-bg-panel text-muted transition-colors group-hover:border-accent/30 group-hover:text-ink">
-                      <HugeiconsIcon icon={ArrowUpDownIcon} size={12} color="currentColor" strokeWidth={1.5} />
-                    </span>
+        <div className={`px-4 pt-5 ${collapsed ? "lg:hidden" : ""}`}>
+          {status === "loading" && organizations.length === 0 ? (
+            <div className="h-10 animate-pulse rounded-lg border border-line bg-surface" aria-hidden="true" />
+          ) : organizations.length === 0 ? (
+            <Link
+              href={ROUTES.onboarding}
+              onClick={closeMenu}
+              className="flex h-10 w-full items-center gap-2 rounded-lg border border-dashed border-line bg-surface px-3 text-sm text-muted transition-colors hover:border-accent/60 hover:text-ink"
+            >
+              <HugeiconsIcon icon={AddCircleIcon} size={14} color="currentColor" strokeWidth={1.5} />
+              Create workspace
+            </Link>
+          ) : (
+            <>
+              <p className="mb-1.5 px-1 font-mono text-[10px] uppercase tracking-[0.16em] text-muted">Workspace</p>
+              <div className="group relative">
+                <div className="flex items-center gap-2.5 rounded-lg border border-line bg-surface px-2.5 py-2 shadow-sm transition-colors group-hover:border-line-soft group-hover:bg-bg-panel group-focus-within:border-accent/50 group-focus-within:ring-1 group-focus-within:ring-accent/30">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-accent/20 bg-accent/10 text-accent">
+                    <HugeiconsIcon icon={Building02Icon} size={14} color="currentColor" strokeWidth={1.5} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-medium leading-none tracking-tight text-ink">
+                      {selectedOrganization?.name ?? "Select workspace"}
+                    </p>
+                    <p className="mt-1 truncate font-mono text-[9px] uppercase tracking-[0.14em] text-muted">
+                      {organizations.length} workspace{organizations.length === 1 ? "" : "s"} · {projects.filter((p) => p.organization === selectedOrganizationId).length} project{projects.filter((p) => p.organization === selectedOrganizationId).length === 1 ? "" : "s"}
+                    </p>
                   </div>
-                  <select
-                    value={selectedProjectId ?? ""}
-                    onChange={(event) => selectProject(event.target.value)}
-                    disabled={projects.length === 0}
-                    aria-label="Select project"
-                    className="absolute inset-0 h-full w-full cursor-pointer appearance-none rounded-xl opacity-0 focus:outline-none disabled:cursor-not-allowed"
-                  >
-                    {projects.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.name} · {project.environment}
-                      </option>
-                    ))}
-                  </select>
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-line bg-bg-panel text-muted transition-colors group-hover:border-accent/30 group-hover:text-ink">
+                    <HugeiconsIcon icon={ArrowUpDownIcon} size={12} color="currentColor" strokeWidth={1.5} />
+                  </span>
                 </div>
-                {status === "error" ? (
-                  <button
-                    type="button"
-                    onClick={retry}
-                    className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-sev-critical/20 bg-sev-critical/10 px-3 py-2 font-mono text-xs text-sev-critical transition-colors hover:bg-sev-critical/15 hover:text-ink"
-                  >
-                    Couldn&apos;t load projects — retry
-                  </button>
-                ) : null}
-              </>
-            )}
-          </div>
+                <select
+                  value={selectedOrganizationId ?? ""}
+                  onChange={(event) => selectOrganization(event.target.value)}
+                  disabled={organizations.length === 0}
+                  aria-label="Select workspace"
+                  className="absolute inset-0 h-full w-full cursor-pointer appearance-none rounded-xl opacity-0 focus:outline-none disabled:cursor-not-allowed"
+                >
+                  {organizations.map((org) => (
+                    <option key={org.id} value={org.id}>
+                      {org.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {status === "error" ? (
+                <button
+                  type="button"
+                  onClick={retry}
+                  className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-sev-critical/20 bg-sev-critical/10 px-3 py-2 font-mono text-xs text-sev-critical transition-colors hover:bg-sev-critical/15 hover:text-ink"
+                >
+                  Couldn&apos;t load workspaces — retry
+                </button>
+              ) : null}
+            </>
+          )}
+        </div>
 
         <nav className="mt-6 flex flex-1 flex-col gap-0.5 overflow-y-auto px-3">
           {isActive(pathname, ROUTES.settings) ? (
