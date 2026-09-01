@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { HeadingAnchor } from "./docs-anchor";
 
 export function DocsSection({
   id,
@@ -19,8 +20,9 @@ export function DocsSection({
         <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
           {label}
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-ink">
-          {title}
+        <h2 className="group flex items-center gap-2 text-2xl font-semibold tracking-tight text-ink">
+          <span>{title}</span>
+          <HeadingAnchor id={id} label={title} />
         </h2>
         {sub ? <p className="max-w-2xl text-base leading-relaxed text-muted">{sub}</p> : null}
       </div>
