@@ -93,6 +93,32 @@ function DocsWhyTrazeIQ() {
   );
 }
 
+function DocsOnboardingChecklist() {
+  return (
+    <DocsSection
+      id="setup"
+      label="Onboarding"
+      title="Get to your first incident in under 10 minutes"
+      sub="The setup flow is intentionally simple: define your project, send one event, and let TrazeIQ turn the noise into a clean investigation path."
+    >
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {[
+          { step: "01", title: "Create a project", body: "Create your organization, add a project, and generate a project API key for ingestion." },
+          { step: "02", title: "Send one event", body: "Capture a production error with a single POST to the ingestion endpoint from your app." },
+          { step: "03", title: "Review the incident", body: "TrazeIQ groups repeats, surfaces the issue, and summarizes the likely root cause." },
+          { step: "04", title: "Set alerts", body: "Connect Slack or notifications to trigger when issues cross the threshold your team cares about." },
+        ].map((item) => (
+          <div key={item.step} className="rounded-xl border border-line bg-bg-panel p-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">{item.step}</p>
+            <h3 className="mt-3 text-base font-medium text-ink">{item.title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted">{item.body}</p>
+          </div>
+        ))}
+      </div>
+    </DocsSection>
+  );
+}
+
 function DocsPricing() {
   return (
     <DocsSection
@@ -331,6 +357,7 @@ export function DocsPage() {
               {/* Product overview */}
               <DocsProductOverview />
               <DocsWhyTrazeIQ />
+              <DocsOnboardingChecklist />
               <DocsPricing />
 
               {/* Getting Started */}

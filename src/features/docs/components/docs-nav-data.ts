@@ -17,6 +17,7 @@ export const docsGroups: DocsNavGroup[] = [
     id: "getting-started",
     label: "Getting Started",
     items: [
+      { id: "setup", label: "Setup in 10 minutes" },
       { id: "quickstart", label: "Quickstart" },
       { id: "pipeline", label: "How it works" },
       { id: "limits", label: "Limits & budgets" },
