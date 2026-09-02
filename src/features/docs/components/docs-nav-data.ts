@@ -19,19 +19,6 @@ export const docsGroups: DocsNavGroup[] = [
     items: [
       { id: "setup", label: "Setup in 10 minutes" },
       { id: "quickstart", label: "Quickstart" },
-      { id: "pipeline", label: "How it works" },
-      { id: "limits", label: "Limits & budgets" },
-    ],
-  },
-  {
-    id: "authentication",
-    label: "Authentication",
-    items: [
-      { id: "auth-overview", label: "Session vs API key" },
-      { id: "auth-otp", label: "OTP registration" },
-      { id: "auth-session", label: "Login & session" },
-      { id: "auth-google", label: "Google OAuth" },
-      { id: "auth-password", label: "Forgot & reset" },
     ],
   },
   {
@@ -40,17 +27,6 @@ export const docsGroups: DocsNavGroup[] = [
     items: [
       { id: "organizations", label: "Organizations" },
       { id: "projects", label: "Projects" },
-      { id: "projects-rotate", label: "Rotate API key" },
-    ],
-  },
-  {
-    id: "api-reference",
-    label: "API Reference",
-    items: [
-      { id: "ingestion", label: "POST /events/" },
-      { id: "read-api", label: "Events & incidents" },
-      { id: "timeline", label: "Timeline & comments" },
-      { id: "analytics", label: "Dashboard" },
     ],
   },
   {
@@ -65,12 +41,9 @@ export const docsGroups: DocsNavGroup[] = [
   },
   {
     id: "security-reference",
-    label: "Security & Reference",
+    label: "Security & Trust",
     items: [
       { id: "security", label: "Security" },
-      { id: "audit", label: "Audit log" },
-      { id: "errors", label: "Error codes" },
-      { id: "reference", label: "Full API reference" },
     ],
   },
 ];

@@ -18,23 +18,13 @@ import { allNavItems } from "./docs-nav-data";
 import { Code, DocsSection, DocsTable } from "./docs-shared";
 
 import { DocsQuickstart } from "./docs-quickstart";
-import { DocsPipeline } from "./docs-pipeline";
-import { DocsLimits } from "./docs-limits";
-import { DocsAuth } from "./docs-auth";
 import { DocsOrganizations } from "./docs-organizations";
 import { DocsProjects } from "./docs-projects";
-import { DocsIngestion } from "./docs-ingestion";
-import { DocsReadApi } from "./docs-read-api";
-import { DocsTimeline } from "./docs-timeline";
-import { DocsAnalytics } from "./docs-analytics";
 import { DocsAlerts } from "./docs-alerts";
 import { DocsSlack } from "./docs-slack";
 import { DocsRealtime } from "./docs-realtime";
 import { DocsNotifications } from "./docs-notifications";
 import { DocsSecurity } from "./docs-security";
-import { DocsAudit } from "./docs-audit";
-import { DocsErrors } from "./docs-errors";
-import { DocsReference } from "./docs-reference";
 
 function DocsProductOverview() {
   return (
@@ -362,21 +352,10 @@ export function DocsPage() {
 
               {/* Getting Started */}
               <DocsQuickstart />
-              <DocsPipeline />
-              <DocsLimits />
-
-              {/* Authentication */}
-              <DocsAuth />
 
               {/* Account & Team */}
               <DocsOrganizations />
               <DocsProjects />
-
-              {/* API Reference */}
-              <DocsIngestion />
-              <DocsReadApi />
-              <DocsTimeline />
-              <DocsAnalytics />
 
               {/* Integrations & Alerts */}
               <DocsAlerts />
@@ -384,11 +363,8 @@ export function DocsPage() {
               <DocsRealtime />
               <DocsNotifications />
 
-              {/* Security & Reference */}
+              {/* Security & Trust */}
               <DocsSecurity />
-              <DocsAudit />
-              <DocsErrors />
-              <DocsReference />
             </div>
           </Container>
         </div>
