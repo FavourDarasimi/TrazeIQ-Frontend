@@ -5,23 +5,32 @@ export type DocsNavGroup = { id: string; label: string; items: DocsNavItem[] };
 
 export const docsGroups: DocsNavGroup[] = [
   {
+    id: "product",
+    label: "Product",
+    items: [
+      { id: "overview", label: "Overview" },
+      { id: "why-trazeiq", label: "Why TrazeIQ" },
+      { id: "pricing", label: "Pricing" },
+    ],
+  },
+  {
     id: "getting-started",
     label: "Getting Started",
     items: [
       { id: "quickstart", label: "Quickstart" },
-      { id: "pipeline", label: "Concepts" },
-      { id: "limits", label: "Limits & Budgets" },
+      { id: "pipeline", label: "How it works" },
+      { id: "limits", label: "Limits & budgets" },
     ],
   },
   {
     id: "authentication",
     label: "Authentication",
     items: [
-      { id: "auth-overview", label: "Session vs API Key" },
-      { id: "auth-otp", label: "OTP Registration" },
-      { id: "auth-session", label: "Login & Session" },
+      { id: "auth-overview", label: "Session vs API key" },
+      { id: "auth-otp", label: "OTP registration" },
+      { id: "auth-session", label: "Login & session" },
       { id: "auth-google", label: "Google OAuth" },
-      { id: "auth-password", label: "Forgot & Reset" },
+      { id: "auth-password", label: "Forgot & reset" },
     ],
   },
   {
@@ -29,9 +38,8 @@ export const docsGroups: DocsNavGroup[] = [
     label: "Account & Team",
     items: [
       { id: "organizations", label: "Organizations" },
-      { id: "team", label: "Members & Invites" },
       { id: "projects", label: "Projects" },
-      { id: "projects-rotate", label: "Rotate API Key" },
+      { id: "projects-rotate", label: "Rotate API key" },
     ],
   },
   {
@@ -39,18 +47,16 @@ export const docsGroups: DocsNavGroup[] = [
     label: "API Reference",
     items: [
       { id: "ingestion", label: "POST /events/" },
-      { id: "read-api", label: "Events & Incidents" },
-      { id: "timeline", label: "Timeline & Comments" },
+      { id: "read-api", label: "Events & incidents" },
+      { id: "timeline", label: "Timeline & comments" },
       { id: "analytics", label: "Dashboard" },
-      { id: "services-health", label: "Services Health" },
     ],
   },
   {
     id: "integrations-alerts",
     label: "Integrations & Alerts",
     items: [
-      { id: "alerts", label: "Alert Rules" },
-      { id: "alerts-webhook", label: "Webhooks & Payload" },
+      { id: "alerts", label: "Alert rules" },
       { id: "slack", label: "Slack" },
       { id: "realtime", label: "Realtime" },
       { id: "notifications", label: "Notifications" },
@@ -61,9 +67,9 @@ export const docsGroups: DocsNavGroup[] = [
     label: "Security & Reference",
     items: [
       { id: "security", label: "Security" },
-      { id: "audit", label: "Audit Log" },
-      { id: "errors", label: "Error Codes" },
-      { id: "reference", label: "Full API Reference" },
+      { id: "audit", label: "Audit log" },
+      { id: "errors", label: "Error codes" },
+      { id: "reference", label: "Full API reference" },
     ],
   },
 ];

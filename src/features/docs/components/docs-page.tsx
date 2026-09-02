@@ -15,6 +15,7 @@ import { DocsSidebar } from "./docs-sidebar";
 import { DocsToc } from "./docs-toc";
 import { DocsSearch, SearchTrigger } from "./docs-search";
 import { allNavItems } from "./docs-nav-data";
+import { Code, DocsSection, DocsTable } from "./docs-shared";
 
 import { DocsQuickstart } from "./docs-quickstart";
 import { DocsPipeline } from "./docs-pipeline";
@@ -34,6 +35,98 @@ import { DocsSecurity } from "./docs-security";
 import { DocsAudit } from "./docs-audit";
 import { DocsErrors } from "./docs-errors";
 import { DocsReference } from "./docs-reference";
+
+function DocsProductOverview() {
+  return (
+    <DocsSection
+      id="overview"
+      label="Product"
+      title="TrazeIQ helps small teams catch production issues before customers do"
+      sub="The platform collects errors, groups repeated failures, and turns noisy production signals into a single, actionable incident workflow."
+    >
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {[
+          { title: "Collect", body: "Capture errors from your backend, APIs, workers, and jobs in one place." },
+          { title: "Group", body: "Merge repeated failures into a single incident so your team is not chasing duplicates." },
+          { title: "Analyze", body: "Use AI to highlight the likely root cause and suggested fix before the ticket escalates." },
+          { title: "Alert", body: "Send the right issue to Slack, notifications, and the dashboard without polling." },
+        ].map((item) => (
+          <div key={item.title} className="rounded-xl border border-line bg-bg-panel p-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">{item.title}</p>
+            <p className="mt-3 text-sm leading-relaxed text-muted">{item.body}</p>
+          </div>
+        ))}
+      </div>
+    </DocsSection>
+  );
+}
+
+function DocsWhyTrazeIQ() {
+  return (
+    <DocsSection
+      id="why-trazeiq"
+      label="Why teams choose us"
+      title="Built for small SaaS teams that need clarity, not a giant observability stack"
+      sub="TrazeIQ is designed for fast-moving product teams that need a practical signal-to-action workflow without Datadog-scale overhead."
+    >
+      <DocsTable
+        head={["Need", "Typical workflow", "TrazeIQ outcome"]}
+        rows={[
+          [
+            "Catch new production issues quickly",
+            "Dashboards are noisy and alerts are delayed.",
+            "A new error is grouped, prioritized, and surfaced in a single incident track.",
+          ],
+          [
+            "Understand the likely cause",
+            "Teams manually inspect logs and stack traces.",
+            "AI produces a root-cause summary and fix suggestion before investigation deepens.",
+          ],
+          [
+            "Keep the team aligned",
+            "Updates are spread across chat, email, and comments.",
+            "One incident timeline keeps status, comments, assignments, and notifications in sync.",
+          ],
+        ]}
+      />
+    </DocsSection>
+  );
+}
+
+function DocsPricing() {
+  return (
+    <DocsSection
+      id="pricing"
+      label="Pricing"
+      title="Simple plans for teams at every stage"
+      sub="The product is designed to be self-serve and lightweight — start small, add capacity as your team and incident volume grow."
+    >
+      <DocsTable
+        head={["Plan", "Best for", "Includes"]}
+        rows={[
+          [
+            <Code key="starter">Starter</Code>,
+            "Early-stage SaaS teams with a few apps and services",
+            "Project-based monitoring, core alerts, incident timeline, basic AI summaries.",
+          ],
+          [
+            <Code key="growth">Growth</Code>,
+            "Teams with multiple services and ongoing production load",
+            "Advanced alert rules, more event volume, richer team workflows, shared ownership.",
+          ],
+          [
+            <Code key="enterprise">Enterprise</Code>,
+            "Larger organizations with compliance and operational rigor",
+            "Custom retention, managed setup, deeper access controls, and expanded support.",
+          ],
+        ]}
+      />
+      <p className="text-sm leading-relaxed text-muted">
+        For actual pricing, billing cadence, and enterprise contracts, use the product billing flow inside the app. This section is meant to explain the product model rather than replace the live commercial configuration.
+      </p>
+    </DocsSection>
+  );
+}
 
 export function DocsPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -222,19 +315,24 @@ export function DocsPage() {
             <div className="flex flex-col gap-4">
               <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">documentation</p>
               <h1 className="text-balance text-4xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl">
-                Send an error. Read the incident back.
+                Monitor what breaks before customers do.
               </h1>
               <p className="max-w-2xl text-pretty text-base leading-relaxed text-muted sm:text-lg">
-                TrazeIQ watches your production errors, groups the repeats, gets an AI root cause and fix, and tells your team — before a customer does. This page is the whole integration guide.
+                TrazeIQ helps product and engineering teams capture production errors, understand the likely root cause, and resolve incidents before they turn into noisy customer-facing outages.
               </p>
               <div className="flex flex-wrap gap-2 pt-2">
-                <a href="#quickstart" className="inline-flex items-center rounded-full bg-accent px-4 py-2 text-sm font-medium text-ink hover:bg-[#5b52ea] focus-visible:outline-2 focus-visible:outline-accent">Quickstart</a>
-                <a href="#ingestion" className="inline-flex items-center rounded-full border border-line bg-bg-panel px-4 py-2 text-sm text-ink hover:border-line-soft focus-visible:outline-2 focus-visible:outline-accent">API Reference</a>
+                <a href="#quickstart" className="inline-flex items-center rounded-full bg-accent px-4 py-2 text-sm font-medium text-ink hover:bg-[#5b52ea] focus-visible:outline-2 focus-visible:outline-accent">Get started</a>
+                <a href="#why-trazeiq" className="inline-flex items-center rounded-full border border-line bg-bg-panel px-4 py-2 text-sm text-ink hover:border-line-soft focus-visible:outline-2 focus-visible:outline-accent">Why TrazeIQ</a>
                 <button type="button" onClick={() => setSearchOpen(true)} className="inline-flex items-center rounded-full border border-line bg-transparent px-4 py-2 text-sm text-muted hover:border-line-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-accent">Press ⌘K to search</button>
               </div>
             </div>
 
             <div className="mt-12 flex flex-col gap-12">
+              {/* Product overview */}
+              <DocsProductOverview />
+              <DocsWhyTrazeIQ />
+              <DocsPricing />
+
               {/* Getting Started */}
               <DocsQuickstart />
               <DocsPipeline />
