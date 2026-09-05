@@ -372,3 +372,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     </div>
   );
 }
+
+
+//DashboardShell.displayName = "DashboardShell";
+// change 

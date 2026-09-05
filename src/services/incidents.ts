@@ -11,6 +11,7 @@ export type IncidentFilters = {
   status?: IncidentStatus;
   severity?: IncidentSeverity;
   project?: string;
+  search?: string;
 };
 
 export function listIncidents(
@@ -22,6 +23,9 @@ export function listIncidents(
   if (filters.severity) params.set("severity", filters.severity);
   if (filters.project !== undefined) {
     params.set("project", String(filters.project));
+  }
+  if (filters.search !== undefined && filters.search.trim() !== "") {
+    params.set("search", filters.search.trim().slice(0, 200));
   }
   const query = params.toString();
   return api<{ incidents: Incident[] }>(

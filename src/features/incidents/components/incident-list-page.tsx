@@ -4,7 +4,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FlashIcon } from "@hugeicons/core-free-icons";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Cancel01Icon, FlashIcon, Search01Icon } from "@hugeicons/core-free-icons";
 
 import { EmptyState } from "@/components/ui/empty-state";
 import { CodeBlock } from "@/components/ui/code-block";
@@ -24,6 +26,7 @@ import { BulkActionBar } from "./bulk-action-bar";
 import { BulkAssignModal } from "./bulk-assign-modal";
 import { BulkResolveModal } from "./bulk-resolve-modal";
 import { BulkStatusModal } from "./bulk-status-modal";
+import { highlightIncidentMatch } from "./incident-highlight";
 
 const SEVERITY_DOT: Record<IncidentSeverity, string> = {
   critical: "bg-sev-critical",
@@ -67,13 +70,23 @@ type Filters = {
   severity: IncidentSeverity | "";
 };
 
+const SEARCH_DEBOUNCE_MS = 300;
+
 export function IncidentListPage() {
   const { status: authStatus } = useAuth();
   const { selectedProjectId, selectedProject } = useProjectContext();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlSearch = searchParams.get("search") ?? "";
   const [filters, setFilters] = useState<Filters>({
     status: "",
     severity: "",
   });
+  // Immediate input value vs. debounced term sent to the API — keeps typing
+  // snappy without firing a request per keystroke.
+  const [searchInput, setSearchInput] = useState(urlSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState(urlSearch.trim());
   const [incidents, setIncidents] = useState<Incident[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -84,8 +97,45 @@ export function IncidentListPage() {
     "resolve" | "status" | "assign" | null
   >(null);
 
-  const hasFilters = filters.status !== "" || filters.severity !== "";
+  const hasFilters =
+    filters.status !== "" ||
+    filters.severity !== "" ||
+    debouncedSearch !== "";
+  const hasSearch = debouncedSearch !== "";
   const loading = incidents === null && error === null;
+
+  // Debounce the raw input into the term used for fetching.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSearch(searchInput.trim());
+    }, SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [searchInput]);
+
+  // External navigation (e.g. the header Command Center search) arrives via
+  // the URL — adopt it as the new input + debounced term.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- external URL is the source of truth for header-driven search
+    setSearchInput(urlSearch);
+    setDebouncedSearch(urlSearch.trim());
+  }, [urlSearch]);
+
+  // Keep the URL in sync with the applied term so header search, the list,
+  // and deep-links (`/incidents?search=foo`) all agree.
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (debouncedSearch === "") {
+      if (!params.has("search")) return;
+      params.delete("search");
+    } else {
+      if (params.get("search") === debouncedSearch) return;
+      params.set("search", debouncedSearch);
+    }
+    const query = params.toString();
+    router.replace(`${pathname}${query ? `?${query}` : ""}`, {
+      scroll: false,
+    });
+  }, [debouncedSearch, pathname, router, searchParams]);
 
   useEffect(() => {
     if (authStatus !== "authenticated") return;
@@ -97,6 +147,7 @@ export function IncidentListPage() {
         status: filters.status || undefined,
         severity: filters.severity || undefined,
         project: selectedProjectId ?? undefined,
+        search: debouncedSearch || undefined,
       },
       controller.signal,
     )
@@ -109,7 +160,7 @@ export function IncidentListPage() {
         setError(apiErrorMessage(err));
       });
     return () => controller.abort();
-  }, [authStatus, filters.status, filters.severity, selectedProjectId, attempt]);
+  }, [authStatus, filters.status, filters.severity, selectedProjectId, debouncedSearch, attempt]);
 
   // Phase 3B: live patch on Pusher events instead of refetching.
   useRealtimeEvents(
@@ -199,6 +250,39 @@ export function IncidentListPage() {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
+          <div className="relative">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted">
+              <HugeiconsIcon
+                icon={Search01Icon}
+                size={16}
+                color="currentColor"
+                strokeWidth={1.5}
+              />
+            </span>
+            <input
+              type="search"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              placeholder="Search titles, messages, services"
+              aria-label="Search incidents"
+              className="h-9 w-64 rounded-lg border border-line bg-surface pl-9 pr-8 text-sm text-ink outline-none transition-colors placeholder:text-muted focus:border-accent/60 focus:ring-1 focus:ring-accent/40 [&::-webkit-search-cancel-button]:hidden"
+            />
+            {searchInput !== "" ? (
+              <button
+                type="button"
+                onClick={() => setSearchInput("")}
+                aria-label="Clear search"
+                className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-muted transition-colors hover:bg-bg-panel hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
+                <HugeiconsIcon
+                  icon={Cancel01Icon}
+                  size={14}
+                  color="currentColor"
+                  strokeWidth={1.5}
+                />
+              </button>
+            ) : null}
+          </div>
           {hasData ? (
             <label className="flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-line bg-surface px-3 font-mono text-xs text-muted transition-colors hover:border-line-soft hover:text-ink">
               <input
@@ -275,7 +359,22 @@ export function IncidentListPage() {
       {loading ? <Spinner label="loading incidents" /> : null}
 
       {!loading && !error && incidents && incidents.length === 0 ? (
-        hasFilters ? (
+        hasSearch ? (
+          <EmptyState
+            icon={Search01Icon}
+            title={`No incidents match "${debouncedSearch}"`}
+            body="Try a different term, or widen the severity or status filter to see more."
+            action={
+              <button
+                type="button"
+                onClick={() => setSearchInput("")}
+                className="self-center rounded-lg border border-line bg-surface px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-line-soft hover:bg-bg-panel focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
+                Clear search
+              </button>
+            }
+          />
+        ) : hasFilters ? (
           <EmptyState
             icon={FlashIcon}
             title="No incidents match these filters"
@@ -335,10 +434,20 @@ export function IncidentListPage() {
                     />
                     <div className="min-w-0">
                       <h2 className="truncate text-[15px] font-medium tracking-tight text-ink">
-                        {incident.error_group.title}
+                        {hasSearch
+                          ? highlightIncidentMatch(
+                              incident.error_group.title,
+                              debouncedSearch,
+                            )
+                          : incident.error_group.title}
                       </h2>
                       <p className="mt-0.5 truncate font-mono text-xs text-muted">
-                        {incident.latest_event?.message}
+                        {hasSearch
+                          ? highlightIncidentMatch(
+                              incident.latest_event?.message,
+                              debouncedSearch,
+                            )
+                          : incident.latest_event?.message}
                       </p>
                     </div>
                   </div>

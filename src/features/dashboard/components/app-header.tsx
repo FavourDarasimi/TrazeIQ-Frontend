@@ -12,6 +12,7 @@ import { AddCircleIcon, ChevronDownIcon, ChevronUpIcon, Menu01Icon } from "@huge
 import { HeaderActions } from "@/components/ui/header-actions";
 import { ROUTES } from "@/constants";
 import { useProjectContext } from "@/features/app/components/project-context";
+import { GlobalIncidentSearch } from "@/features/dashboard/components/global-incident-search";
 
 function ProjectSwitcher() {
   const { status, projects, selectedProjectId, selectedProject, selectedOrganizationId, selectProject } = useProjectContext();
@@ -99,6 +100,7 @@ export function AppHeader({ onOpenMenu }: { onOpenMenu?: () => void }) {
         </button>
         <ProjectSwitcher />
       </div>
+      <GlobalIncidentSearch />
       <HeaderActions />
     </header>
   );

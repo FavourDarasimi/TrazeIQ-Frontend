@@ -38,7 +38,7 @@ GET /api/v1/events/{id}/ → 200 {data:{event}}  or 404 cross-org`}
         <DocsTable
           head={["Endpoint", "Purpose"]}
           rows={[
-            [<Code key="1">GET /api/v1/incidents/</Code>, "List incidents. Filters: ?status=open|investigating|resolved|ignored, ?severity=critical|high|medium|low, ?project=UUID"],
+            [<Code key="1">GET /api/v1/incidents/</Code>, "List incidents. Filters: ?status=open|investigating|resolved|ignored, ?severity=critical|high|medium|low, ?project=UUID, ?search= (substring across error-group title + event message/service/endpoint)"],
             [<Code key="2">GET /api/v1/incidents/{"{id}"}/</Code>, "Incident detail — {id, project:{id,name,environment}, error_group:{id,fingerprint,title,count,first_seen,last_seen}, severity, status, assigned_to:UUID|null, assigned_to_email:string|null, created_at, resolved_at, latest_event:{id,message,stacktrace,level,environment,service,endpoint,created_at}|null}"],
             [<Code key="3">GET /api/v1/incidents/{"{id}"}/timeline/</Code>, "Chronological feed (see Timeline section) — events, comments, status changes, AI analyses"],
             [<Code key="4">PATCH /api/v1/incidents/{"{id}"}/</Code>, "Update {status?, severity?, assigned_to?:UUID|null} — developer+; assigned_to must be in same org; appends status_change timeline entry; publishes incident.updated"],

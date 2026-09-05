@@ -655,3 +655,8 @@ function formatTick(iso: string, range: DashboardRange): string {
     day: "numeric",
   });
 }
+
+
+
+
+//TODO make the dahboard more responsive and mobile friendly. Currently the dashboard is not very responsive and does not look good on mobile devices. We need to make sure that the dashboard looks good on all screen sizes and is easy to use on mobile devices.
