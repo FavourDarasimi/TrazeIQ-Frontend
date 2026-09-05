@@ -302,6 +302,88 @@ export type ServicesHealthCatalog = {
   services: ServiceHealth[];
 };
 
+export type SLOStatus = "healthy" | "warning" | "critical" | "exhausted";
+
+export type SLOAlertKind = "warning" | "critical" | "exhausted";
+
+export type SLOBudgetSnapshot = {
+  id: string;
+  period_start: string;
+  period_end: string;
+  total_events: number;
+  bad_events: number;
+  success_rate: string;
+  budget_total: string;
+  budget_remaining_pct: string;
+  burn_rate_1h: string;
+  burn_rate_6h: string;
+  burn_rate_24h: string;
+  burn_rate_72h: string;
+  status: SLOStatus;
+  evaluated_at: string;
+};
+
+export type SLO = {
+  id: string;
+  project: {
+    id: string;
+    name: string;
+  };
+  name: string;
+  description: string;
+  target_pct: string;
+  window_days: number;
+  error_query: Record<string, string>;
+  alert_threshold_pct: string;
+  enabled: boolean;
+  created_at: string;
+  updated_at: string;
+  latest_snapshot: SLOBudgetSnapshot | null;
+};
+
+export type SLOInput = {
+  project: string;
+  name: string;
+  description?: string;
+  target_pct: string | number;
+  window_days?: number;
+  error_query?: Record<string, string>;
+  alert_threshold_pct?: string | number;
+  enabled?: boolean;
+};
+
+export type SLOPatch = Partial<Omit<SLOInput, "project">>;
+
+export type SLOBreachAlert = {
+  id: string;
+  slo: string;
+  kind: SLOAlertKind;
+  budget_remaining_pct: string;
+  message: string;
+  fired_at: string;
+  acknowledged_at: string | null;
+  acknowledged_by_email: string | null;
+};
+
+export type SLODependencyRow = {
+  slo_id: string;
+  name: string;
+  service: string;
+  status: SLOStatus | "unknown";
+  budget_remaining_pct: string | null;
+  burn_rate_1h: string;
+  burn_rate_24h: string;
+};
+
+export type SLODependencySummary = {
+  project_id: string;
+  evaluated_at: string;
+  total_slos: number;
+  breached_slos: number;
+  exhausted_slos: number;
+  slos: SLODependencyRow[];
+};
+
 export type AIAnalysis = {
   id: string;
   incident_id: string;
