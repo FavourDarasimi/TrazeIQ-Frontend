@@ -9,7 +9,6 @@ import {
   UserGroupIcon,
   UserSettings01Icon,
   Key01Icon,
-  Shield01Icon,
 } from "@hugeicons/core-free-icons";
 
 import { ROUTES } from "@/constants";
@@ -24,7 +23,6 @@ export type NavItem = {
 export const DASHBOARD_NAV: NavItem[] = [
   { href: ROUTES.dashboard, label: "Overview", icon: Home01Icon },
   { href: ROUTES.incidents, label: "Incidents", icon: Alert02Icon },
-  { href: ROUTES.slos, label: "SLOs", icon: Shield01Icon },
   { href: ROUTES.logs, label: "Logs", icon: FileSearchIcon },
   { href: ROUTES.services, label: "Services", icon: Layers02Icon },
   { href: ROUTES.settings, label: "Settings", icon: Settings02Icon },

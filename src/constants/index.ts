@@ -25,8 +25,6 @@ export const API_ROUTES = {
   notificationUnreadCount: "/notifications/unread-count/",
   notificationMarkRead: "/notifications/read/",
   alertPreferences: "/notifications/preferences/",
-  slos: "/slos/",
-  sloDependencies: "/slos/dependencies/",
 } as const;
 
 export const ROUTES = {
@@ -48,7 +46,6 @@ export const ROUTES = {
   settingsApiKeys: "/settings/api-keys",
   slackCallback: "/integrations/slack/callback",
   invite: "/invite",
-  slos: "/dashboard/slos",
 } as const;
 
 export function inviteAcceptUrl(token: string): string {
