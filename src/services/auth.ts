@@ -47,3 +47,36 @@ export function refreshSession(): Promise<AuthSession> {
 export function logout(): Promise<null> {
   return api<null>(API_ROUTES.logout, { method: "POST" });
 }
+
+export function requestPasswordReset(email: string): Promise<null> {
+  return api<null>(API_ROUTES.forgotPassword, {
+    method: "POST",
+    body: { email },
+  });
+}
+
+export type ResetPasswordBody = {
+  email: string;
+  otp: string;
+  new_password: string;
+};
+
+export function resetPassword(body: ResetPasswordBody): Promise<null> {
+  return api<null>(API_ROUTES.resetPassword, {
+    method: "POST",
+    body,
+  });
+}
+
+export type GoogleSignInBody = {
+  email: string;
+  id_token?: string;
+  name?: string;
+};
+
+export function googleSignIn(body: GoogleSignInBody): Promise<AuthSession> {
+  return api<AuthSession>(API_ROUTES.google, {
+    method: "POST",
+    body,
+  });
+}

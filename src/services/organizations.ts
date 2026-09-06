@@ -1,6 +1,7 @@
 import { API_ROUTES } from "@/constants";
 import { api } from "@/lib/api";
 import type {
+  Invite,
   InviteAcceptResult,
   InviteCreated,
   MembershipRole,
@@ -44,4 +45,14 @@ export function acceptInvite(token: string): Promise<InviteAcceptResult> {
   return api<InviteAcceptResult>(`${API_ROUTES.invites}${token}/accept/`, {
     method: "POST",
   });
+}
+
+export function listPendingInvites(
+  organizationId: string,
+  signal?: AbortSignal,
+): Promise<{ invites: Invite[] }> {
+  return api<{ invites: Invite[] }>(
+    `${API_ROUTES.organizations}${organizationId}/invites/`,
+    { signal },
+  );
 }

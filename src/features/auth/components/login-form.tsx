@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { InlineError, SubmitButton, TextField } from "@/components/ui/form";
@@ -8,6 +9,8 @@ import { ROUTES } from "@/constants";
 import { useAuth } from "@/providers/auth-provider";
 import { needsOnboarding } from "@/services/workspace";
 import { apiErrorMessage, apiFieldErrors } from "@/utils/errors";
+
+import { GoogleSignInButton } from "./google-sign-in-button";
 
 export function LoginForm({
   initialEmail = "",
@@ -74,6 +77,23 @@ export function LoginForm({
           Sign in
         </SubmitButton>
       </form>
+
+      <div className="mt-4">
+        <GoogleSignInButton email={email} />
+      </div>
+
+      <p className="mt-4 text-center text-sm text-muted">
+        <Link
+          href={
+            email.trim()
+              ? `${ROUTES.forgotPassword}?email=${encodeURIComponent(email.trim())}`
+              : ROUTES.forgotPassword
+          }
+          className="underline-offset-2 transition-colors hover:text-ink hover:underline"
+        >
+          Forgot your password?
+        </Link>
+      </p>
     </div>
   );
 }

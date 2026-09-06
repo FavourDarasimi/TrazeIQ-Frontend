@@ -15,9 +15,11 @@ import { GlassCard, Spinner } from "@/components/ui/glass-card";
 import { InlineError, SubmitButton, TextField } from "@/components/ui/form";
 import { inviteAcceptUrl } from "@/constants";
 import { useProjectContext } from "@/features/app/components/project-context";
+import { ApiError } from "@/lib/api";
 import { useAuth } from "@/providers/auth-provider";
-import { inviteMember, listMembers } from "@/services/organizations";
+import { inviteMember, listMembers, listPendingInvites } from "@/services/organizations";
 import type {
+  Invite,
   MembershipRole,
   OrganizationMembership,
 } from "@/types";
@@ -155,13 +157,74 @@ function RolePicker({
   );
 }
 
-export function TeamSettingsPage() {
-  const { selectedProject } = useProjectContext();
+function PendingInvitesCard({
+  invites,
+  resending,
+  onResend,
+}: {
+  invites: Invite[];
+  resending: string | null;
+  onResend: (invite: Invite) => void;
+}) {
+  return (
+    <GlassCard className="p-6">
+      <div className="flex items-center justify-between">
+        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
+          pending invites
+        </p>
+        <span className="font-mono text-[11px] text-muted">
+          {invites.length} open
+        </span>
+      </div>
+      {invites.length === 0 ? (
+        <p className="mt-3 text-sm leading-relaxed text-muted">
+          No outstanding invites. New invites appear here until they&apos;re
+          accepted or expire.
+        </p>
+      ) : (
+        <ul className="mt-4 flex flex-col divide-y divide-line/60">
+          {invites.map((invite) => (
+            <li
+              key={invite.id}
+              className="flex items-center justify-between gap-3 py-2.5"
+            >
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-ink">
+                  {invite.email}
+                </p>
+                <p className="mt-0.5 font-mono text-[11px] text-muted">
+                  {invite.role} · expires {formatRelativeTime(invite.expires_at)}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => onResend(invite)}
+                disabled={resending === invite.id}
+                title="Rotate the token and show a fresh accept link"
+                className="flex h-8 shrink-0 items-center gap-1.5 rounded-md border border-line bg-surface px-2.5 text-xs text-muted transition-colors hover:border-accent/50 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <HugeiconsIcon icon={MailSend01Icon} size={14} color="currentColor" strokeWidth={1.5} />
+                {resending === invite.id ? "Sending…" : "Resend"}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="mt-3 text-xs leading-relaxed text-muted">
+        Accept links are single-use. Resending rotates the token and shows a
+        fresh link above — share it with the teammate directly.
+      </p>
+    </GlassCard>
+  );
+}
+
+export function TeamSettingsPage() {  const { selectedProject } = useProjectContext();
   const { user, status: authStatus } = useAuth();
 
   const organizationId = selectedProject?.organization ?? null;
 
   const [members, setMembers] = useState<OrganizationMembership[] | null>(null);
+  const [pendingInvites, setPendingInvites] = useState<Invite[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
 
@@ -171,6 +234,7 @@ export function TeamSettingsPage() {
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteLink, setInviteLink] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [resendingId, setResendingId] = useState<string | null>(null);
 
   const loading = organizationId !== null && members === null && error === null;
 
@@ -185,6 +249,30 @@ export function TeamSettingsPage() {
       })
       .catch((err: unknown) => {
         if (err instanceof DOMException && err.name === "AbortError") return;
+        setError(apiErrorMessage(err));
+      });
+    return () => controller.abort();
+  }, [authStatus, organizationId, attempt]);
+
+  // Pending invites are manager-only (they expose outsider emails); the
+  // endpoint 403s for other roles, so only fetch when the caller can act.
+  useEffect(() => {
+    if (authStatus !== "authenticated") return;
+    if (organizationId === null) return;
+    const controller = new AbortController();
+    listPendingInvites(organizationId, controller.signal)
+      .then(({ invites: rows }) => {
+        setPendingInvites(rows);
+      })
+      .catch((err: unknown) => {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        // Viewers/developers get 403 here by design — silently treat as
+        // "no visible invites" rather than surfacing an error. Anything
+        // else joins the page-level error state.
+        if (err instanceof ApiError && err.status === 403) {
+          setPendingInvites([]);
+          return;
+        }
         setError(apiErrorMessage(err));
       });
     return () => controller.abort();
@@ -240,6 +328,26 @@ export function TeamSettingsPage() {
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
       // Clipboard unavailable — the link is still visible to copy manually.
+    }
+  }
+
+  async function handleResend(inv: Invite) {
+    if (organizationId === null) return;
+    setResendingId(inv.id);
+    setInviteError(null);
+    try {
+      // Re-inviting rotates the token server-side and returns the fresh
+      // one — the only moment the accept link exists in full.
+      const result = await inviteMember(organizationId, inv.email, inv.role);
+      setInviteLink(
+        `${window.location.origin}${inviteAcceptUrl(result.invite_token)}`,
+      );
+      setCopied(false);
+      setAttempt((value) => value + 1);
+    } catch (err) {
+      setInviteError(apiErrorMessage(err));
+    } finally {
+      setResendingId(null);
     }
   }
 
@@ -313,6 +421,7 @@ export function TeamSettingsPage() {
 
           <div className="flex flex-col gap-4">
             {canInvite ? (
+              <>
               <GlassCard className="p-6">
                 <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
                   invite a teammate
@@ -367,6 +476,14 @@ export function TeamSettingsPage() {
                   </div>
                 ) : null}
               </GlassCard>
+              {pendingInvites !== null ? (
+                <PendingInvitesCard
+                  invites={pendingInvites}
+                  resending={resendingId}
+                  onResend={(inv) => void handleResend(inv)}
+                />
+              ) : null}
+              </>
             ) : (
               <GlassCard className="p-6">
                 <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">

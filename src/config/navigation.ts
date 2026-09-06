@@ -51,10 +51,6 @@ export const SECTION_STUBS: Record<string, { title: string; body: string }> = {
     title: "Logs",
     body: "Structured, non-error log ingestion is optional scope and not wired up yet.",
   },
-  [ROUTES.aiAssistant]: {
-    title: "AI Assistant",
-    body: "The AI Incident Copilot lives on each incident's detail page — Phase 2 wires it to the analysis endpoints.",
-  },
   [ROUTES.settings]: {
     title: "Settings",
     body: "Team invites and roles live under Team; alert rules and Slack delivery live under Alerts.",
