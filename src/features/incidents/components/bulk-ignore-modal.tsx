@@ -1,4 +1,4 @@
-/* Hallmark · component: bulk-resolve-modal · genre: modern-minimal · theme: custom
+/* Hallmark · component: bulk-ignore-modal · genre: modern-minimal · theme: custom
  * states: default · hover · focus · active · disabled · loading · error · success
  * contrast: pass
  */
@@ -6,39 +6,39 @@
 
 import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { CheckmarkCircleIcon } from "@hugeicons/core-free-icons";
+import { Archive01Icon } from "@hugeicons/core-free-icons";
 
 import { Modal } from "@/components/ui/modal";
 import { InlineError } from "@/components/ui/form";
-import { bulkResolveIncidents, type BulkUpdateResult } from "@/services/incidents";
+import { bulkIgnoreIncidents, type BulkUpdateResult } from "@/services/incidents";
 import { apiErrorMessage } from "@/utils/errors";
 
-export type BulkResolveModalProps = {
+export type BulkIgnoreModalProps = {
   open: boolean;
   onClose: () => void;
   selectedIds: string[];
   onComplete: (result: BulkUpdateResult) => void;
 };
 
-export function BulkResolveModal({
+export function BulkIgnoreModal({
   open,
   onClose,
   selectedIds,
   onComplete,
-}: BulkResolveModalProps) {
+}: BulkIgnoreModalProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const count = selectedIds.length;
 
-  const handleResolve = async () => {
+  const handleIgnore = async () => {
     if (submitting) return;
 
     setSubmitting(true);
     setError(null);
 
     try {
-      const result = await bulkResolveIncidents(selectedIds);
+      const result = await bulkIgnoreIncidents(selectedIds);
       onComplete(result);
       onClose();
     } catch (err: unknown) {
@@ -52,13 +52,13 @@ export function BulkResolveModal({
     <Modal
       open={open}
       onClose={submitting ? () => {} : onClose}
-      title={`Resolve ${count} incident${count === 1 ? "" : "s"}`}
+      title={`Ignore ${count} incident${count === 1 ? "" : "s"}`}
     >
       <div className="flex flex-col gap-5">
         <div className="flex items-start gap-3.5">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-ok/30 bg-ok/10 text-ok">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-line bg-bg-panel text-muted">
             <HugeiconsIcon
-              icon={CheckmarkCircleIcon}
+              icon={Archive01Icon}
               size={20}
               color="currentColor"
               strokeWidth={1.5}
@@ -66,10 +66,10 @@ export function BulkResolveModal({
           </div>
           <div>
             <h2 className="text-lg font-semibold tracking-tight text-ink">
-              Resolve {count} incident{count === 1 ? "" : "s"}?
+              Ignore {count} incident{count === 1 ? "" : "s"}?
             </h2>
             <p className="mt-1 text-sm leading-relaxed text-muted">
-              This will mark {count === 1 ? "the selected incident" : `all ${count} selected incidents`} as resolved and record the resolution in the incident timeline.
+              This will archive {count === 1 ? "the selected incident" : `all ${count} selected incidents`} as ignored — {count === 1 ? "it leaves" : "they leave"} the active workflow without counting as fixed. You can reopen {count === 1 ? "it" : "them"} any time.
             </p>
           </div>
         </div>
@@ -87,17 +87,17 @@ export function BulkResolveModal({
           </button>
           <button
             type="button"
-            onClick={handleResolve}
+            onClick={handleIgnore}
             disabled={submitting}
-            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-ok/30 bg-ok/10 px-4 font-mono text-xs font-medium text-ok transition-colors hover:bg-ok/20 disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ok"
+            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-line bg-bg-panel px-4 font-mono text-xs font-medium text-ink transition-colors hover:border-line-soft hover:bg-surface disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             {submitting ? (
               <>
-                <span className="h-3 w-3 animate-spin rounded-full border-2 border-ok/30 border-t-ok" />
-                Resolving…
+                <span className="h-3 w-3 animate-spin rounded-full border-2 border-muted/30 border-t-muted" />
+                Ignoring…
               </>
             ) : (
-              `Resolve ${count} incident${count === 1 ? "" : "s"}`
+              `Ignore ${count} incident${count === 1 ? "" : "s"}`
             )}
           </button>
         </div>

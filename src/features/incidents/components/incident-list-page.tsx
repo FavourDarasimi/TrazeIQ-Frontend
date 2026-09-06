@@ -17,14 +17,16 @@ import { incidentDetailUrl } from "@/constants";
 import { useProjectContext } from "@/features/app/components/project-context";
 import { useAuth } from "@/providers/auth-provider";
 import { useRealtimeEvents } from "@/providers/realtime-provider";
-import { listIncidents } from "@/services/incidents";
+import { listIncidents, type BulkUpdateResult } from "@/services/incidents";
 import type { Incident, IncidentSeverity, IncidentStatus } from "@/types";
 import { apiErrorMessage } from "@/utils/errors";
 import { formatCount, formatRelativeTime } from "@/utils/format";
 
 import { BulkActionBar } from "./bulk-action-bar";
 import { BulkAssignModal } from "./bulk-assign-modal";
+import { BulkIgnoreModal } from "./bulk-ignore-modal";
 import { BulkResolveModal } from "./bulk-resolve-modal";
+import { BulkSeverityModal } from "./bulk-severity-modal";
 import { BulkStatusModal } from "./bulk-status-modal";
 import { highlightIncidentMatch } from "./incident-highlight";
 
@@ -94,8 +96,9 @@ export function IncidentListPage() {
   // Multi-select and bulk operations state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkModal, setBulkModal] = useState<
-    "resolve" | "status" | "assign" | null
+    "resolve" | "status" | "severity" | "ignore" | "assign" | null
   >(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const hasFilters =
     filters.status !== "" ||
@@ -216,13 +219,23 @@ export function IncidentListPage() {
     }
   };
 
-  const handleBulkComplete = (updatedList: Incident[]) => {
-    const updatedMap = new Map(updatedList.map((inc) => [inc.id, inc]));
+  const handleBulkComplete = (result: BulkUpdateResult) => {
+    const updatedMap = new Map(result.incidents.map((inc) => [inc.id, inc]));
     setIncidents((current) => {
       if (!current) return current;
       return current.map((inc) => updatedMap.get(inc.id) ?? inc);
     });
     setSelectedIds(new Set());
+    // Surface partially-skipped results (unknown/inaccessible IDs) — the
+    // backend echoes them indistinguishably by design, so the copy stays
+    // neutral about why they were skipped.
+    if (result.skipped_ids.length > 0) {
+      setNotice(
+        `${result.updated_count} updated, ${result.skipped_ids.length} skipped (not found or no access).`,
+      );
+    } else {
+      setNotice(null);
+    }
   };
 
   return (
@@ -473,9 +486,30 @@ export function IncidentListPage() {
         selectedCount={selectedIds.size}
         onResolve={() => setBulkModal("resolve")}
         onUpdateStatus={() => setBulkModal("status")}
+        onUpdateSeverity={() => setBulkModal("severity")}
+        onIgnore={() => setBulkModal("ignore")}
         onAssign={() => setBulkModal("assign")}
         onClear={() => setSelectedIds(new Set())}
       />
+
+      {notice ? (
+        <div className="flex items-center justify-between gap-3 rounded-lg border border-accent/30 bg-accent/10 px-4 py-2.5 font-mono text-xs text-accent">
+          <span>{notice}</span>
+          <button
+            type="button"
+            onClick={() => setNotice(null)}
+            aria-label="Dismiss notice"
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-accent/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            <HugeiconsIcon
+              icon={Cancel01Icon}
+              size={14}
+              color="currentColor"
+              strokeWidth={1.5}
+            />
+          </button>
+        </div>
+      ) : null}
 
       {/* Bulk operation modals */}
       <BulkResolveModal
@@ -487,6 +521,20 @@ export function IncidentListPage() {
 
       <BulkStatusModal
         open={bulkModal === "status"}
+        onClose={() => setBulkModal(null)}
+        selectedIds={Array.from(selectedIds)}
+        onComplete={handleBulkComplete}
+      />
+
+      <BulkSeverityModal
+        open={bulkModal === "severity"}
+        onClose={() => setBulkModal(null)}
+        selectedIds={Array.from(selectedIds)}
+        onComplete={handleBulkComplete}
+      />
+
+      <BulkIgnoreModal
+        open={bulkModal === "ignore"}
         onClose={() => setBulkModal(null)}
         selectedIds={Array.from(selectedIds)}
         onComplete={handleBulkComplete}

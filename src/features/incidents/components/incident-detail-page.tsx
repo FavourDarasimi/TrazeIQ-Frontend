@@ -8,6 +8,7 @@ import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Alert02Icon,
+  Archive01Icon,
   ArrowLeft01Icon,
   CheckmarkCircleIcon,
   FilterIcon,
@@ -25,12 +26,13 @@ import { useProjectContext } from "@/features/app/components/project-context";
 import { useAuth } from "@/providers/auth-provider";
 import { AIAnalysisPanel } from "@/features/incidents/components/ai-analysis-panel";
 import { BulkAssignModal } from "@/features/incidents/components/bulk-assign-modal";
+import { BulkIgnoreModal } from "@/features/incidents/components/bulk-ignore-modal";
 import { BulkResolveModal } from "@/features/incidents/components/bulk-resolve-modal";
 import { BulkSeverityModal } from "@/features/incidents/components/bulk-severity-modal";
 import { BulkStatusModal } from "@/features/incidents/components/bulk-status-modal";
 import { IncidentTimeline } from "@/features/incidents/components/incident-timeline";
 import { useRealtimeEvents } from "@/providers/realtime-provider";
-import { getIncident, updateIncident } from "@/services/incidents";
+import { getIncident, updateIncident, type BulkUpdateResult } from "@/services/incidents";
 import type { Incident } from "@/types";
 import { ApiError } from "@/lib/api";
 import { apiErrorMessage } from "@/utils/errors";
@@ -59,7 +61,7 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
 
   // Modal triggers matching the list page modals
   const [modal, setModal] = useState<
-    "resolve" | "status" | "severity" | "assign" | null
+    "resolve" | "status" | "severity" | "ignore" | "assign" | null
   >(null);
 
   useEffect(() => {
@@ -111,9 +113,9 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
     }
   };
 
-  const handleModalComplete = (updatedList: Incident[]) => {
-    if (updatedList.length > 0 && updatedList[0]) {
-      setIncident(updatedList[0]);
+  const handleModalComplete = (result: BulkUpdateResult) => {
+    if (result.incidents.length > 0 && result.incidents[0]) {
+      setIncident(result.incidents[0]);
     } else {
       setAttempt((v) => v + 1);
     }
@@ -283,6 +285,25 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
             />
             Assign
           </button>
+
+          {/* Ignore Modal Trigger */}
+          {incident.status !== "ignored" && incident.status !== "resolved" ? (
+            <button
+              type="button"
+              onClick={() => setModal("ignore")}
+              disabled={mutating}
+              title="Archive as ignored"
+              className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-line bg-bg-panel px-3 font-mono text-xs font-medium text-muted transition-colors hover:border-line-soft hover:bg-surface hover:text-ink disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              <HugeiconsIcon
+                icon={Archive01Icon}
+                size={14}
+                color="currentColor"
+                strokeWidth={1.5}
+              />
+              Ignore
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -362,6 +383,13 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
         onClose={() => setModal(null)}
         selectedIds={[incident.id]}
         organizationId={selectedProject?.organization ?? null}
+        onComplete={handleModalComplete}
+      />
+
+      <BulkIgnoreModal
+        open={modal === "ignore"}
+        onClose={() => setModal(null)}
+        selectedIds={[incident.id]}
         onComplete={handleModalComplete}
       />
     </div>

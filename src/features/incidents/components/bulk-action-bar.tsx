@@ -7,6 +7,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
+  Alert02Icon,
+  Archive01Icon,
   CheckmarkCircleIcon,
   Cancel01Icon,
   UserIcon,
@@ -17,6 +19,8 @@ export type BulkActionBarProps = {
   selectedCount: number;
   onResolve: () => void;
   onUpdateStatus: () => void;
+  onUpdateSeverity: () => void;
+  onIgnore: () => void;
   onAssign: () => void;
   onClear: () => void;
 };
@@ -25,6 +29,8 @@ export function BulkActionBar({
   selectedCount,
   onResolve,
   onUpdateStatus,
+  onUpdateSeverity,
+  onIgnore,
   onAssign,
   onClear,
 }: BulkActionBarProps) {
@@ -77,6 +83,34 @@ export function BulkActionBar({
                   strokeWidth={1.5}
                 />
                 Status
+              </button>
+
+              <button
+                type="button"
+                onClick={onUpdateSeverity}
+                className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-line bg-bg-panel px-3 font-mono text-xs font-medium text-ink transition-colors hover:border-line-soft hover:bg-surface active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
+                <HugeiconsIcon
+                  icon={Alert02Icon}
+                  size={14}
+                  color="currentColor"
+                  strokeWidth={1.5}
+                />
+                Severity
+              </button>
+
+              <button
+                type="button"
+                onClick={onIgnore}
+                className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-line bg-bg-panel px-3 font-mono text-xs font-medium text-muted transition-colors hover:border-line-soft hover:bg-surface hover:text-ink active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
+                <HugeiconsIcon
+                  icon={Archive01Icon}
+                  size={14}
+                  color="currentColor"
+                  strokeWidth={1.5}
+                />
+                Ignore
               </button>
 
               <button

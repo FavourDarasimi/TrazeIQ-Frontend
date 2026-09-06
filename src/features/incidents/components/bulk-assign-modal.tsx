@@ -12,9 +12,9 @@ import { Modal } from "@/components/ui/modal";
 import { InlineError } from "@/components/ui/form";
 import { Spinner } from "@/components/ui/glass-card";
 import { useAuth } from "@/providers/auth-provider";
-import { bulkAssignIncidents } from "@/services/incidents";
+import { bulkAssignIncidents, type BulkUpdateResult } from "@/services/incidents";
 import { listMembers } from "@/services/organizations";
-import type { Incident, OrganizationMembership } from "@/types";
+import type { OrganizationMembership } from "@/types";
 import { apiErrorMessage } from "@/utils/errors";
 
 export type BulkAssignModalProps = {
@@ -22,7 +22,7 @@ export type BulkAssignModalProps = {
   onClose: () => void;
   selectedIds: string[];
   organizationId: string | null;
-  onComplete: (updated: Incident[]) => void;
+  onComplete: (result: BulkUpdateResult) => void;
 };
 
 export function BulkAssignModal({
@@ -77,7 +77,7 @@ export function BulkAssignModal({
 
     try {
       const result = await bulkAssignIncidents(selectedIds, targetUser);
-      onComplete(result.incidents);
+      onComplete(result);
       onClose();
       setSelectedUserId(null);
     } catch (err: unknown) {

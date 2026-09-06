@@ -8,8 +8,8 @@ import { useState } from "react";
 
 import { Modal } from "@/components/ui/modal";
 import { InlineError } from "@/components/ui/form";
-import { bulkUpdateIncidents } from "@/services/incidents";
-import type { Incident, IncidentStatus } from "@/types";
+import { bulkUpdateIncidents, type BulkUpdateResult } from "@/services/incidents";
+import type { IncidentStatus } from "@/types";
 import { apiErrorMessage } from "@/utils/errors";
 
 const STATUS_OPTIONS: Array<{
@@ -48,7 +48,7 @@ export type BulkStatusModalProps = {
   open: boolean;
   onClose: () => void;
   selectedIds: string[];
-  onComplete: (updated: Incident[]) => void;
+  onComplete: (result: BulkUpdateResult) => void;
 };
 
 export function BulkStatusModal({
@@ -77,7 +77,7 @@ export function BulkStatusModal({
         incident_ids: selectedIds,
         status: selectedStatus,
       });
-      onComplete(result.incidents);
+      onComplete(result);
       onClose();
       setSelectedStatus(null);
     } catch (err: unknown) {

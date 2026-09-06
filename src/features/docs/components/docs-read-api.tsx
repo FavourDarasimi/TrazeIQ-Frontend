@@ -84,9 +84,13 @@ const { analysis } = await api(\`/incidents/\${id}/analysis/\`);`,
             [<Code key="a">POST /api/v1/incidents/bulk/</Code>, <Code key="b">{`{ids|incident_ids:[UUID], action|status|severity|assigned_to}`}</Code> + " — generic bulk (legacy)"],
             [<Code key="a">POST /api/v1/incidents/bulk-update/</Code>, <Code key="b">{`{incident_ids:[1..100], status?, severity?, assigned_to?:UUID|null}`}</Code> + " — at least one update required; writes audit incidents_bulk_updated"],
             [<Code key="a">POST /api/v1/incidents/bulk-resolve/</Code>, <Code key="b">{`{incident_ids:[UUID]}`}</Code>],
+            [<Code key="a">POST /api/v1/incidents/bulk-ignore/</Code>, <Code key="b">{`{incident_ids:[UUID]}`}</Code> + " — archive counterpart to resolve"],
             [<Code key="a">POST /api/v1/incidents/bulk-assign/</Code>, <Code key="b">{`{incident_ids:[], assigned_to:UUID|null}`}</Code>],
           ]}
         />
+        <Callout variant="note" title="Bulk responses">
+          Every bulk endpoint returns <Code>{`{updated_count, updated_ids:[UUID], skipped_ids:[UUID], incidents:[...]}`}</Code> — <Code>skipped_ids</Code> are requested IDs that don&apos;t exist or aren&apos;t visible to the caller (unknown and foreign IDs are indistinguishable by design). Audit entries list the touched incident IDs.
+        </Callout>
         <DocsCode
           label="bulk update"
           code={`curl -X POST https://api.trazeiq.io/api/v1/incidents/bulk-update/ \\

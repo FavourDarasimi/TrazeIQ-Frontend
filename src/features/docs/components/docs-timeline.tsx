@@ -94,7 +94,7 @@ export function DocsTimeline() {
   -d '{"status":"investigating","assigned_to":"<user-uuid>"}'
 # 200 {data:{incident:{...}}}
 // appends TimelineEntry(kind=status_change, content:"open → investigating", actor=you)
-# also PATCH /api/v1/incidents/bulk/ + /bulk-update/ + /bulk-resolve/ + /bulk-assign/ — same fields in bulk wrapper {incident_ids:[1..100], status?,severity?,assigned_to?}
+# also POST /api/v1/incidents/bulk/ + /bulk-update/ + /bulk-resolve/ + /bulk-ignore/ + /bulk-assign/ — same fields in bulk wrapper {incident_ids:[1..100], status?,severity?,assigned_to?}; responses carry {updated_count, updated_ids, skipped_ids, incidents}
 
 curl -X POST https://api.trazeiq.io/api/v1/incidents/<id>/resolve/ -H "Authorization: Bearer <jwt>"
 # 200 idempotent — flip to resolved, logs status_change, fires incident.resolved, writes AuditLog incident_resolved`}
@@ -104,6 +104,7 @@ curl -X POST https://api.trazeiq.io/api/v1/incidents/<id>/resolve/ -H "Authoriza
         rows={[
           [<Code key="a">POST /api/v1/incidents/{"{id}"}/resolve/</Code>, <>(no body — idempotent; repeat logs once)</>],
           [<Code key="a">POST /api/v1/incidents/bulk-resolve/</Code>, <Code key="b">{`{incident_ids:[UUID,...]}`}</Code>],
+          [<Code key="a">POST /api/v1/incidents/bulk-ignore/</Code>, <Code key="b">{`{incident_ids:[UUID,...]}`}</Code>],
           [<Code key="a">POST /api/v1/incidents/bulk-assign/</Code>, <Code key="b">{`{incident_ids:[], assigned_to:UUID|null}`}</Code>],
         ]}
       />

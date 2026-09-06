@@ -94,6 +94,8 @@ export type BulkUpdatePayload = {
 
 export type BulkUpdateResult = {
   updated_count: number;
+  updated_ids: string[];
+  skipped_ids: string[];
   incidents: Incident[];
 };
 
@@ -111,6 +113,15 @@ export function bulkResolveIncidents(
 ): Promise<BulkUpdateResult> {
   return api<BulkUpdateResult>(
     `${API_ROUTES.incidents}bulk-resolve/`,
+    { method: "POST", body: { incident_ids: incidentIds } },
+  );
+}
+
+export function bulkIgnoreIncidents(
+  incidentIds: string[],
+): Promise<BulkUpdateResult> {
+  return api<BulkUpdateResult>(
+    `${API_ROUTES.incidents}bulk-ignore/`,
     { method: "POST", body: { incident_ids: incidentIds } },
   );
 }
