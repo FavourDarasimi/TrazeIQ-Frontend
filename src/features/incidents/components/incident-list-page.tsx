@@ -16,7 +16,7 @@ import { StatusBadge } from "@/components/ui/incident-badges";
 import { incidentDetailUrl } from "@/constants";
 import { useProjectContext } from "@/features/app/components/project-context";
 import { useAuth } from "@/providers/auth-provider";
-import { useRealtimeEvents } from "@/providers/realtime-provider";
+import { useRealtimeEvents, RealtimeStatusBadge } from "@/providers/realtime-provider";
 import { listIncidents, type BulkUpdateResult } from "@/services/incidents";
 import type { Incident, IncidentSeverity, IncidentStatus } from "@/types";
 import { apiErrorMessage } from "@/utils/errors";
@@ -56,7 +56,7 @@ function StatCell({
     <div className="flex min-w-0 flex-col gap-1.5">
       <dt className="sr-only">{label}</dt>
       <dd
-        className={`font-mono text-3xl font-medium tabular-nums tracking-tight ${STAT_TONE[tone]}`}
+        className={`font-mono text-2xl sm:text-3xl font-medium tabular-nums tracking-tight ${STAT_TONE[tone]}`}
       >
         {value}
       </dd>
@@ -244,17 +244,11 @@ export function IncidentListPage() {
         <h1 className="text-2xl font-semibold tracking-tight text-ink">
           Incidents
         </h1>
-        <span className="flex items-center gap-1.5 rounded-full border border-ok/30 bg-ok/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ok">
-          <span
-            aria-hidden
-            className="h-1.5 w-1.5 animate-pulse rounded-full bg-ok [animation-duration:3s] motion-reduce:animate-none"
-          />
-          live
-        </span>
+        <RealtimeStatusBadge />
       </div>
 
       {!loading && !error && incidents ? (
-        <dl className="grid grid-cols-3 gap-6 border-b border-line pb-6">
+        <dl className="grid grid-cols-3 gap-3 sm:gap-6 border-b border-line pb-6">
           <StatCell value={openCount} label="open" tone="ink" />
           <StatCell value={criticalCount} label="critical" tone="critical" />
           <StatCell value={highCount} label="high" tone="high" />

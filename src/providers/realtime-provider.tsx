@@ -36,8 +36,11 @@ type RealtimeEventPayload = {
   analysis?: AIAnalysis;
 };
 
+export type RealtimeStatus = "live" | "connecting" | "degraded" | "off";
+
 type RealtimeContextValue = {
   subscribe: (listener: (event: RealtimeEvent) => void) => () => void;
+  status: RealtimeStatus;
 };
 
 const RealtimeContext = createContext<RealtimeContextValue | null>(null);
@@ -61,8 +64,7 @@ type Toast = {
   incident: Incident;
 };
 
-function ToastView({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }) {
-  return (
+function ToastView({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }) {  return (
     <motion.div
       initial={{ opacity: 0, x: 24 }}
       animate={{ opacity: 1, x: 0 }}
@@ -107,10 +109,66 @@ function ToastView({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }
   );
 }
 
+const STATUS_BADGE: Record<
+  RealtimeStatus,
+  { label: string; dot: string; text: string; pulse: boolean } | null
+> = {
+  live: {
+    label: "Live",
+    dot: "bg-ok shadow-[0_0_8px_rgba(16,185,129,0.5)]",
+    text: "text-muted",
+    pulse: true,
+  },
+  connecting: {
+    label: "Connecting",
+    dot: "bg-muted",
+    text: "text-muted",
+    pulse: true,
+  },
+  degraded: {
+    label: "Polling",
+    dot: "bg-sev-warning shadow-[0_0_8px_rgba(245,158,11,0.5)]",
+    text: "text-sev-warning",
+    pulse: false,
+  },
+  off: {
+    label: "Offline",
+    dot: "bg-muted",
+    text: "text-muted",
+    pulse: false,
+  },
+};
+
+/**
+ * Honest connection indicator. Replaces hardcoded "Live" pills: shows Live
+ * only while a subscription is actually succeeding, Polling while the
+ * polling fallback is refreshing, and Offline when realtime is unavailable.
+ * Hidden for logged-out/project-less states where there is nothing to sync.
+ */
+export function RealtimeStatusBadge() {
+  const { status: authStatus } = useAuth();
+  const { selectedProjectId } = useProjectContext();
+  const realtimeStatus = useRealtimeStatus();
+  if (authStatus !== "authenticated" || selectedProjectId === null) {
+    return null;
+  }
+  const meta = STATUS_BADGE[realtimeStatus];
+  if (!meta) return null;
+  return (
+    <span className="hidden shrink-0 items-center gap-1.5 rounded-full border border-line bg-bg-panel px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted sm:flex">
+      <span
+        className={`h-1.5 w-1.5 rounded-full ${meta.dot} ${meta.pulse ? "animate-[pulse_2s_ease-in-out_infinite] motion-reduce:animate-none" : ""}`}
+      />
+      <span className={meta.text}>{meta.label}</span>
+    </span>
+  );
+}
+
 export function RealtimeProvider({ children }: { children: ReactNode }) {
   const { status: authStatus } = useAuth();
   const { selectedProjectId } = useProjectContext();
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [connStatus, setConnStatus] = useState<RealtimeStatus>("off");
   const listenersRef = useRef<Set<(event: RealtimeEvent) => void>>(new Set());
   const selectedProjectRef = useRef(selectedProjectId);
   const toastIdRef = useRef(0);
@@ -125,12 +183,15 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (PUSHER_KEY === "" || authStatus !== "authenticated" || selectedProjectId === null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- connection availability is derived from external inputs
+      setConnStatus("off");
       return;
     }
 
     let pusher: import("pusher-js").default | null = null;
     let disposed = false;
     const channelName = `private-project-${selectedProjectId}`;
+    setConnStatus("connecting");
 
     async function connect() {
       // pusher-js touches browser globals at import time — load it lazily so
@@ -151,6 +212,11 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
             })
               .then(({ auth }) => callback(null, { auth }))
               .catch((err: unknown) => {
+                // Auth failures (e.g. the backend's 503 PUSHER_NOT_CONFIGURED
+                // when no Pusher creds are provisioned) mean this deployment
+                // can never go live — surface degraded immediately instead
+                // of retrying silently forever.
+                if (!disposed) setConnStatus("degraded");
                 callback(err as Error, null);
               });
           },
@@ -158,6 +224,22 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       });
 
       const channel = pusher.subscribe(channelName);
+
+      // Subscription outcome is the true liveness signal: the socket can be
+      // "connected" while every subscription 403s/503s (the unprovisioned-
+      // backend case). Only a successful subscribe means live.
+      channel.bind("pusher:subscription_succeeded", () => {
+        if (!disposed) setConnStatus("live");
+      });
+      channel.bind("pusher:subscription_error", () => {
+        if (!disposed) setConnStatus("degraded");
+      });
+      pusher.connection.bind("failed", () => {
+        if (!disposed) setConnStatus("degraded");
+      });
+      pusher.connection.bind("disconnected", () => {
+        if (!disposed) setConnStatus("degraded");
+      });
 
       const handle = (type: RealtimeEvent["type"]) => (payload: RealtimeEventPayload) => {
         if (disposed) return;
@@ -202,7 +284,10 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const value = useMemo(() => ({ subscribe }), [subscribe]);
+  const value = useMemo(
+    () => ({ subscribe, status: connStatus }),
+    [subscribe, connStatus],
+  );
 
   return (
     <RealtimeContext.Provider value={value}>
@@ -231,6 +316,10 @@ export function useRealtimeContext(): RealtimeContextValue {
     throw new Error("useRealtimeContext must be used within a RealtimeProvider");
   }
   return context;
+}
+
+export function useRealtimeStatus(): RealtimeStatus {
+  return useRealtimeContext().status;
 }
 
 export function useRealtimeEvents(

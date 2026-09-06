@@ -542,6 +542,11 @@ function AlertRuleForm({
     setFormError(null);
     setFieldErrors({});
 
+    if (!name.trim()) {
+      setBusy(false);
+      setFieldErrors({ name: ["Give the rule a name."] });
+      return;
+    }
     const condition = buildCondition();
     if (!severity && !status) {
       setBusy(false);
@@ -591,11 +596,13 @@ function AlertRuleForm({
         {formError ? <InlineError>{formError}</InlineError> : null}
 
         <TextField
-          label="Rule name"
+          label="Rule name *"
           placeholder="Critical production errors"
           value={name}
           onChange={(event) => setName(event.target.value)}
           error={fieldErrors.name?.[0]}
+          required
+          aria-required="true"
         />
 
         <div className="grid gap-4 sm:grid-cols-2">

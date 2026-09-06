@@ -37,6 +37,7 @@ import { useProjectContext } from "@/features/app/components/project-context";
 import { useAuth } from "@/providers/auth-provider";
 import {
   useRealtimeEvents,
+  RealtimeStatusBadge,
 } from "@/providers/realtime-provider";
 import { getDashboardOverview, getDashboardStats } from "@/services/dashboard";
 import type {
@@ -361,7 +362,10 @@ export function DashboardPage() {
 
               <div className="flex min-h-0 flex-1 flex-col border-t border-line/60 bg-bg/50">
                 {stats ? (
-                  <div className="w-full flex-1 min-h-0 pt-2 pb-0 [&_.recharts-responsive-container]:!h-full">
+                  // min-h gives the chart a floor on mobile, where the card
+                  // has no fixed height and the flex-1 chain would collapse
+                  // ResponsiveContainer to zero height.
+                  <div className="w-full flex-1 min-h-[260px] lg:min-h-0 pt-2 pb-0 [&_.recharts-responsive-container]:!h-full">
                     <div className="h-full w-full min-h-0">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={chartData} margin={{ top: 8, right: 12, left: -10, bottom: 0 }}>
@@ -473,10 +477,7 @@ export function DashboardPage() {
                         </p>
                       </div>
                     </div>
-                    <span className="hidden shrink-0 items-center gap-1.5 rounded-full border border-line bg-bg-panel px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted sm:flex">
-                      <span className="h-1.5 w-1.5 rounded-full bg-ok shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-[pulse_2s_ease-in-out_infinite] motion-reduce:animate-none" />
-                      Live
-                    </span>
+                    <RealtimeStatusBadge />
                   </div>
 
                   {visibleErrors.length === 0 ? (
@@ -658,5 +659,3 @@ function formatTick(iso: string, range: DashboardRange): string {
 
 
 
-
-//TODO make the dahboard more responsive and mobile friendly. Currently the dashboard is not very responsive and does not look good on mobile devices. We need to make sure that the dashboard looks good on all screen sizes and is easy to use on mobile devices.
