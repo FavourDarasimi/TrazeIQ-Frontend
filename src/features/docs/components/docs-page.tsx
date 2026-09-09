@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon, Menu01Icon } from "@hugeicons/core-free-icons";
 
@@ -16,6 +17,7 @@ import { DocsToc } from "./docs-toc";
 import { DocsSearch, SearchTrigger } from "./docs-search";
 import { allNavItems } from "./docs-nav-data";
 import { Code, DocsSection, DocsTable } from "./docs-shared";
+import { CodeLangProvider } from "./docs-code-context";
 
 import { DocsQuickstart } from "./docs-quickstart";
 import { DocsOrganizations } from "./docs-organizations";
@@ -230,6 +232,7 @@ export function DocsPage() {
   }, []);
 
   return (
+    <CodeLangProvider>
     <main className="bg-bg">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-line bg-bg/80 backdrop-blur-xl">
@@ -281,16 +284,30 @@ export function DocsPage() {
         </Container>
       </header>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer (≤200ms, settles; reduced-motion respected via CSS) */}
+      <AnimatePresence>
       {drawerOpen ? (
-        <div className="fixed inset-0 z-40 lg:hidden" id="docs-drawer">
+        <motion.div
+          className="fixed inset-0 z-40 lg:hidden"
+          id="docs-drawer"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+        >
           <button
             type="button"
             aria-label="Close navigation"
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setDrawerOpen(false)}
           />
-          <div className="absolute inset-y-0 left-0 flex w-[300px] max-w-[86vw] flex-col border-r border-line bg-bg shadow-xl">
+          <motion.div
+            className="absolute inset-y-0 left-0 flex w-[300px] max-w-[86vw] flex-col border-r border-line bg-bg shadow-xl"
+            initial={{ x: -24 }}
+            animate={{ x: 0 }}
+            exit={{ x: -24 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+          >
             <div className="flex h-16 shrink-0 items-center justify-between border-b border-line px-5">
               <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">Documentation</span>
               <button
@@ -315,9 +332,10 @@ export function DocsPage() {
                 <span className="ml-auto rounded bg-surface px-1.5 py-0.5 text-[10px]">⌘K</span>
               </button>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       ) : null}
+      </AnimatePresence>
 
       <DocsSearch open={searchOpen} onOpenChange={setSearchOpen} onNavigate={scrollTo} />
 
@@ -374,5 +392,6 @@ export function DocsPage() {
 
       <Footer />
     </main>
+    </CodeLangProvider>
   );
 }

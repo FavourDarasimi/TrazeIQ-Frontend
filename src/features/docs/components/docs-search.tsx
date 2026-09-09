@@ -16,6 +16,14 @@ export function DocsSearch({
 }) {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  // Skeleton shimmer: search is local/sync, but show a brief skeleton so
+  // first paint never flashes an empty list. Component unmounts on close,
+  // so `false` initial state is the reset — no sync setState in effect.
+  const [settled, setSettled] = useState(false);
+  useEffect(() => {
+    const t = window.setTimeout(() => setSettled(true), 120);
+    return () => window.clearTimeout(t);
+  }, [query]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -97,8 +105,15 @@ export function DocsSearch({
           </span>
         </div>
 
-        <ul className="max-h-[320px] overflow-y-auto p-2">
-          {filtered.length === 0 ? (
+        <ul className="max-h-[320px] overflow-y-auto p-2" aria-busy={!settled}>
+          {!settled ? (
+            [0, 1, 2].map((i) => (
+              <li key={i} className="flex flex-col gap-2 rounded-lg px-3 py-2.5">
+                <span className="h-4 w-2/3 animate-pulse rounded bg-surface" />
+                <span className="h-3 w-1/3 animate-pulse rounded bg-surface" />
+              </li>
+            ))
+          ) : filtered.length === 0 ? (
             <li className="px-3 py-6 text-center text-sm text-muted">
               No results for “{query}”.
             </li>

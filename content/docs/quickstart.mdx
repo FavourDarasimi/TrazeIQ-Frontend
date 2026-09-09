@@ -1,0 +1,32 @@
+---
+title: "Quickstart"
+description: "Send your first event in two minutes with a plain HTTPS POST."
+section: "Getting Started"
+order: 1
+---
+
+import { CodeGroup } from "@/features/docs/components/docs-code";
+import { Steps, Step } from "@/features/docs/components/docs-steps";
+import { Callout } from "@/features/docs/components/docs-callout";
+
+## Send your first event in two minutes
+
+No SDK to install. The integration is a plain HTTPS POST — copy the snippet into your app's error handler and you're done.
+
+<CodeGroup label="fire the first event" tabs={[{"lang": "curl", "label": "cURL", "code": "curl -X POST https://api.trazeiq.io/api/v1/events/ \\\n  -H \"Content-Type: application/json\" \\\n  -H \"X-API-Key: YOUR_API_KEY\" \\\n  -d '{\"environment\": \"production\", \"message\": \"Hello TrazeIQ\"}'"}, {"lang": "node", "label": "Node", "code": "try {\n  await processPayment(order)\n} catch (error) {\n  await fetch(\"https://api.trazeiq.io/api/v1/events/\", {\n    method: \"POST\",\n    headers: { \"Content-Type\": \"application/json\", \"X-API-Key\": \"YOUR_API_KEY\" },\n    body: JSON.stringify({ message: error.message, stacktrace: error.stack, service: \"payment-api\", environment: \"production\" }),\n  }).catch(() => {})\n  throw error // TrazeIQ observes, it doesn't swallow\n}"}, {"lang": "python", "label": "Python", "code": "import requests, traceback\ntry:\n    process_payment(order)\nexcept Exception as e:\n    requests.post(\n        \"https://api.trazeiq.io/api/v1/events/\",\n        headers={\"Content-Type\": \"application/json\", \"X-API-Key\": \"YOUR_API_KEY\"},\n        json={\"message\": str(e), \"stacktrace\": traceback.format_exc(), \"service\": \"payment-api\", \"environment\": \"production\"},\n        timeout=2,\n    )\n    raise"}, {"lang": "go", "label": "Go", "code": "package main\n\nimport (\n\t\"bytes\"\n\t\"encoding/json\"\n\t\"net/http\"\n)\n\nfunc report(err error) {\n\tbody, _ := json.Marshal(map[string]string{\"message\": err.Error(), \"environment\": \"production\"})\n\treq, _ := http.NewRequest(\"POST\", \"https://api.trazeiq.io/api/v1/events/\", bytes.NewReader(body))\n\treq.Header.Set(\"Content-Type\", \"application/json\")\n\treq.Header.Set(\"X-API-Key\", \"YOUR_API_KEY\")\n\thttp.DefaultClient.Do(req)\n}"}]} />
+
+<Steps>
+  <Step title="Create a project">
+    Sign in, create an Organization (you become owner), then create a Project. TrazeIQ generates an API key shown exactly once — copy it before you leave the page.
+  </Step>
+  <Step title="Drop the snippet into your error handler">
+    The snippet above is the whole integration. Wrap it in the catch block where you handle exceptions. The endpoint responds in milliseconds.
+  </Step>
+  <Step title="Watch incidents appear">
+    Repeated errors are deduplicated into a single ErrorGroup → one open Incident, with AI root-cause analysis and alert fan-out. No polling, no babysitting.
+  </Step>
+</Steps>
+
+<Callout variant="info" title="Two auth surfaces">
+  Dashboard reads use your session JWT (`Authorization: Bearer` or `trazeiq_access` cookie). Ingestion `POST /api/v1/events/` uses `X-API-Key` only. Don't send both — they authenticate different principals.
+</Callout>

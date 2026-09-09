@@ -1,6 +1,7 @@
 import { Callout } from "./docs-callout";
 import { DocsCode } from "./docs-code";
 import { DocsSection } from "./docs-shared";
+import { Step, Steps } from "./docs-steps";
 
 const curlSnippet = `curl -X POST https://api.trazeiq.io/api/v1/events/ \\
   -H "Content-Type: application/json" \\
@@ -24,6 +25,22 @@ const jsSnippet = `try {
     }),
   }).catch(() => {})
   throw error // TrazeIQ observes, it doesn't swallow
+}`;
+
+const goSnippet = `package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+)
+
+func report(err error) {
+	body, _ := json.Marshal(map[string]string{"message": err.Error(), "environment": "production"})
+	req, _ := http.NewRequest("POST", "https://api.trazeiq.io/api/v1/events/", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-API-Key", "YOUR_API_KEY")
+	http.DefaultClient.Do(req)
 }`;
 
 export function DocsQuickstart() {
@@ -60,36 +77,30 @@ except Exception as e:
               label: "Node",
               code: jsSnippet,
             },
+            {
+              lang: "go",
+              label: "Go",
+              code: goSnippet,
+            },
           ]}
         />
 
-        <ol className="flex flex-col gap-5">
-          {[
-            {
-              step: "01",
-              title: "Create a project",
-              body: "Sign in → create an Organization (you become owner) → create a Project. TrazeIQ generates an API key trazeiq_... shown exactly once with an integration snippet — copy it before you leave the page. Later reads show only api_key_prefix.",
-            },
-            {
-              step: "02",
-              title: "Drop the snippet into your error handler",
-              body: "The snippet above is the whole integration. In a real app, wrap it in the catch block where you handle exceptions. The endpoint responds in milliseconds.",
-            },
-            {
-              step: "03",
-              title: "Watch incidents appear",
-              body: "Repeated errors are deduplicated into a single ErrorGroup → one open Incident, AI proposes a root cause and fix (once per incident, cached 6h), and alert rules / Pusher / notifications fan out — no polling, no babysitting. Rotate the key anytime at POST /projects/{id}/rotate-key/.",
-            },
-          ].map(({ step, title, body }) => (
-            <li key={step} className="flex gap-4">
-              <span className="font-mono text-sm text-accent">{step}</span>
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-medium text-ink">{title}</p>
-                <p className="text-sm leading-relaxed text-muted">{body}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
+        <Steps>
+          <Step title="Create a project">
+            Sign in → create an Organization (you become owner) → create a Project. TrazeIQ generates an API key
+            shown exactly once with an integration snippet — copy it before you leave the page. Later reads show
+            only the key prefix.
+          </Step>
+          <Step title="Drop the snippet into your error handler">
+            The snippet above is the whole integration. In a real app, wrap it in the catch block where you handle
+            exceptions. The endpoint responds in milliseconds.
+          </Step>
+          <Step title="Watch incidents appear">
+            Repeated errors are deduplicated into a single ErrorGroup → one open Incident, AI proposes a root cause
+            and fix (once per incident, cached 6h), and alert rules / Pusher / notifications fan out — no polling,
+            no babysitting. Rotate the key anytime at <Code>POST /projects/{"{id}"}/rotate-key/</Code>.
+          </Step>
+        </Steps>
 
         <Callout variant="note" title="Two auth surfaces">
           Dashboard reads (all <Code>GET /api/v1/*</Code> except ingestion) use your session JWT (<Code>Authorization: Bearer</Code> or <Code>trazeiq_access</Code> cookie). Ingestion <Code>POST /api/v1/events/</Code> uses <Code>X-API-Key</Code> only. Don&apos;t send both — they authenticate different principals.

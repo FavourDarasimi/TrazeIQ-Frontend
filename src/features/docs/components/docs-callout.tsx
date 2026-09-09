@@ -8,7 +8,7 @@ import {
   InformationCircleIcon,
 } from "@hugeicons/core-free-icons";
 
-type Variant = "note" | "tip" | "warning";
+type Variant = "note" | "info" | "tip" | "warning" | "danger";
 
 const variantMap: Record<
   Variant,
@@ -19,6 +19,12 @@ const variantMap: Record<
     icon: InformationCircleIcon,
     iconColor: "text-accent",
     label: "Note",
+  },
+  info: {
+    border: "border-l-accent",
+    icon: InformationCircleIcon,
+    iconColor: "text-accent",
+    label: "Info",
   },
   tip: {
     border: "border-l-ok",
@@ -31,6 +37,12 @@ const variantMap: Record<
     icon: Alert02Icon,
     iconColor: "text-sev-warning",
     label: "Warning",
+  },
+  danger: {
+    border: "border-l-sev-critical",
+    icon: Alert02Icon,
+    iconColor: "text-sev-critical",
+    label: "Danger",
   },
 };
 

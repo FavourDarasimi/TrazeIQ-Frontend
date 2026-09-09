@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Copy01Icon, Tick01Icon } from "@hugeicons/core-free-icons";
+import { useCodeLang } from "./docs-code-context";
 
 export type DocsCodeTab = { lang: string; label: string; code: string };
 
@@ -21,8 +22,16 @@ export function DocsCode({
   const resolvedTabs: DocsCodeTab[] = hasTabs
     ? tabs!
     : [{ lang: "curl", label, code: code ?? "" }];
+  // Global sync: if this block offers the globally selected lang, follow it.
+  const { lang: globalLang, setLang: setGlobalLang } = useCodeLang();
+  const offersGlobal = resolvedTabs.some((t) => t.lang === globalLang);
   const initial = defaultLang ?? resolvedTabs[0]?.lang ?? "curl";
-  const [active, setActive] = useState(initial);
+  const [local, setLocal] = useState(initial);
+  const active = offersGlobal ? globalLang : local;
+  const setActive = (l: string) => {
+    setLocal(l);
+    if (resolvedTabs.some((t) => t.lang === l)) setGlobalLang(l);
+  };
   const [copied, setCopied] = useState(false);
 
   const activeTab =

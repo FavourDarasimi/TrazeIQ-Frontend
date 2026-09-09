@@ -1,0 +1,48 @@
+---
+title: "Authentication"
+description: "Dashboard sessions vs project API keys, OTP registration, and session endpoints."
+section: "API Reference"
+order: 2
+---
+
+import { CodeGroup } from "@/features/docs/components/docs-code";
+import { Callout } from "@/features/docs/components/docs-callout";
+import { ParamTable } from "@/features/docs/components/docs-reference-new";
+
+## Dashboard sessions vs project API keys
+
+TrazeIQ has two completely separate auth surfaces. Confusing them is the most common integration mistake.
+
+<ParamTable params={[{"name": "Authorization: Bearer", "type": "JWT in httpOnly cookies", "description": "Reading data — every GET/PATCH/POST under /api/v1/* except /events/ ingestion."}, {"name": "X-API-Key", "type": "HMAC-hashed project key", "required": true, "description": "Writing data — only POST /api/v1/events/ (ingestion)."}]} />
+
+<Callout variant="info" title="Envelope shape">
+  Every response is `{success, message, data}` or `{success:false, message, error:{code, fields?}}`. Branch on `error.code` — never parse human `message`.
+</Callout>
+
+## OTP registration
+
+The email is proven before a password is ever accepted. No User row exists until the final step succeeds.
+
+### Step 1 — request OTP
+
+<CodeGroup label="request — email to 6-digit code" tabs={[{"lang": "curl", "label": "cURL", "code": "curl -X POST https://api.trazeiq.io/api/v1/auth/register/request-otp/ \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"email\":\"you@company.com\"}'"}, {"lang": "node", "label": "Node", "code": "await fetch(\"https://api.trazeiq.io/api/v1/auth/register/request-otp/\", {\n  method: \"POST\",\n  headers: { \"Content-Type\": \"application/json\" },\n  body: JSON.stringify({ email: \"you@company.com\" }),\n  credentials: \"include\",\n});"}, {"lang": "python", "label": "Python", "code": "import requests\nrequests.post(\n  \"https://api.trazeiq.io/api/v1/auth/register/request-otp/\",\n  json={\"email\": \"you@company.com\"},\n)"}, {"lang": "go", "label": "Go", "code": "body := strings.NewReader(`{\"email\":\"you@company.com\"}`)\nhttp.Post(\"https://api.trazeiq.io/api/v1/auth/register/request-otp/\", \"application/json\", body)"}]} />
+
+<Callout variant="tip" title="Dev bypass">
+  When `AUTH_DEV_OTP` is set (default `000000` in dev), that code is accepted for any pending OTP until real email delivery is wired.
+</Callout>
+
+### Step 2 — verify OTP
+
+Returns `{data:{registration_token}}` — 64 hex chars, show once, hold in memory. Single-use, 15 min TTL; replaying it is `REGISTRATION_TOKEN_INVALID`.
+
+### Step 3 — complete registration
+
+<ParamTable params={[{"name": "registration_token", "type": "string", "required": true, "description": "The 64-hex from step 2."}, {"name": "password", "type": "string", "required": true, "description": "8+ chars + Django validators."}, {"name": "confirm_password", "type": "string", "required": true, "description": "Must match password."}]} />
+
+## Login, refresh, logout
+
+Short-lived access (15 min), long-lived refresh (7 days), both httpOnly. The client single-flights refresh on 401.
+
+<Callout variant="warning" title="Brute-force lockout">
+  Lockout is per `(IP, email)` pair — 5 failures lock for 15 min with `Retry-After: 900`. A successful login clears that pair's failures.
+</Callout>

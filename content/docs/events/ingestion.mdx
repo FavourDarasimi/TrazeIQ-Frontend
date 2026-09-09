@@ -1,0 +1,32 @@
+---
+title: "Event Ingestion"
+description: "POST /api/v1/events/ — fields, throttling, and response envelope."
+section: "API Reference"
+order: 3
+---
+
+import { CodeGroup } from "@/features/docs/components/docs-code";
+import { Callout } from "@/features/docs/components/docs-callout";
+import { ParamTable, ResponseExample } from "@/features/docs/components/docs-reference-new";
+
+## POST /api/v1/events/
+
+Authenticate with your project's API key in the `X-API-Key` header. The endpoint responds in milliseconds — AI analysis, alerting, and realtime delivery all happen asynchronously.
+
+<CodeGroup label="POST /api/v1/events/ — fire an event" tabs={[{"lang": "curl", "label": "cURL", "code": "curl -X POST https://api.trazeiq.io/api/v1/events/ \\\n  -H \"Content-Type: application/json\" \\\n  -H \"X-API-Key: trazeiq_...\" \\\n  -d '{\"message\": \"TypeError: Cannot read properties of undefined\", \"environment\": \"production\", \"service\": \"payment-api\"}'"}, {"lang": "node", "label": "Node", "code": "await fetch(\"https://api.trazeiq.io/api/v1/events/\", {\n  method: \"POST\",\n  headers: { \"Content-Type\": \"application/json\", \"X-API-Key\": \"trazeiq_...\" },\n  body: JSON.stringify({ message: err.message, stacktrace: err.stack, service: \"api\", environment: \"production\" }),\n}).catch(() => {});"}, {"lang": "python", "label": "Python", "code": "import requests\nrequests.post(\n    \"https://api.trazeiq.io/api/v1/events/\",\n    headers={\"Content-Type\": \"application/json\", \"X-API-Key\": \"trazeiq_...\"},\n    json={\"message\": str(exc), \"stacktrace\": traceback.format_exc(), \"environment\": \"production\"},\n    timeout=2,\n)"}, {"lang": "go", "label": "Go", "code": "body, _ := json.Marshal(map[string]string{\"message\": err.Error(), \"environment\": \"production\"})\nreq, _ := http.NewRequest(\"POST\", \"https://api.trazeiq.io/api/v1/events/\", bytes.NewReader(body))\nreq.Header.Set(\"Content-Type\", \"application/json\")\nreq.Header.Set(\"X-API-Key\", os.Getenv(\"TRAZEIQ_API_KEY\"))\nhttp.DefaultClient.Do(req)"}]} />
+
+## Fields
+
+<ParamTable params={[{"name": "message", "type": "string", "required": true, "description": "The error message. Stored post-redaction."}, {"name": "stacktrace", "type": "string", "description": "Full stack trace. Secrets scrubbed before storage or AI prompt."}, {"name": "level", "type": "enum", "description": "debug | info | warning | error | fatal — defaults to error."}, {"name": "environment", "type": "string", "description": "e.g. production, staging. Max 32 chars."}, {"name": "service", "type": "string", "description": "Which service threw it, e.g. payment-api. Max 64 chars."}, {"name": "metadata", "type": "object", "description": "Free-form JSON context. Default {}."}, {"name": "breadcrumbs", "type": "array", "description": "List — default []. Shown in timeline detail."}]} />
+
+<Callout variant="warning" title="Payload cap">
+  If `len(message)+len(stacktrace)` exceeds `EVENT_MAX_PAYLOAD_BYTES` (default 100 KB), the request is rejected with `413 PAYLOAD_TOO_LARGE` before any DB work.
+</Callout>
+
+## Responses
+
+<ResponseExample title="201 — event stored" status="201 Created" json='{\n  "success": true,\n  "data": {\n    "event": {\n      "id": "evt_9f2c",\n      "message": "TypeError: Cannot read properties of undefined",\n      "fingerprint": "fp_a41d",\n      "environment": "production"\n    }\n  }\n}' />
+
+<Callout variant="tip" title="Dedup is automatic">
+  Sending the same error 50 times produces exactly one `ErrorGroup` with `count=50` and one open `Incident` — the fingerprint normalizes line numbers and hashes error type + top frames.
+</Callout>
