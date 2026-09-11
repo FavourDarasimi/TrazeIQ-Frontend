@@ -6,6 +6,7 @@ import {
   Plug02Icon,
   Settings02Icon,
   Alert02Icon,
+  Shield01Icon,
   UserGroupIcon,
   UserSettings01Icon,
   Key01Icon,
@@ -18,6 +19,9 @@ export type NavItem = {
   label: string;
   icon: typeof Home01Icon;
   stub?: string;
+  // Staff-only entries (Platform admin) are hidden for non-staff users.
+  // The backend re-checks is_staff — this is display logic only.
+  staffOnly?: boolean;
 };
 
 export const DASHBOARD_NAV: NavItem[] = [
@@ -25,6 +29,7 @@ export const DASHBOARD_NAV: NavItem[] = [
   { href: ROUTES.incidents, label: "Incidents", icon: Alert02Icon },
   { href: ROUTES.logs, label: "Logs", icon: FileSearchIcon },
   { href: ROUTES.services, label: "Services", icon: Layers02Icon },
+  { href: ROUTES.admin, label: "Platform", icon: Shield01Icon, staffOnly: true },
   { href: ROUTES.settings, label: "Settings", icon: Settings02Icon },
 ];
 

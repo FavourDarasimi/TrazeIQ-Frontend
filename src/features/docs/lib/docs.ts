@@ -78,6 +78,72 @@ export function getPrevNext(slugString: string): { prev: DocMeta | null; next: D
   if (i === -1) return { prev: null, next: null };
   return { prev: docs[i - 1] ?? null, next: docs[i + 1] ?? null };
 }
+export type DocHeading = { id: string; text: string; depth: 2 | 3 };
+
+export type SearchEntry = {
+  slug: string;
+  anchor: string;
+  title: string;
+  section: string;
+  kind: "page" | "heading";
+};
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/`([^`]*)`/g, "$1")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+}
+
+/** Strip fenced code + imports so heading regexes only see prose. */
+function proseOnly(body: string): string {
+  return body
+    .split("\n")
+    .filter((line) => !line.trimStart().startsWith("import "))
+    .join("\n")
+    .replace(/```[\s\S]*?```/g, "");
+}
+
+/** h2/h3 headings of an MDX body (mirrors rehype-slug ids). */
+export function getHeadings(slugString: string): DocHeading[] {
+  const body = getDocBody(slugString);
+  if (!body) return [];
+  const out: DocHeading[] = [];
+  for (const line of proseOnly(body).split("\n")) {
+    const m = line.match(/^(#{2,3})\s+(.+?)\s*$/);
+    if (!m) continue;
+    const text = m[2].replace(/\*\*/g, "").trim();
+    if (!text) continue;
+    out.push({ id: slugify(text), text, depth: m[1].length === 2 ? 2 : 3 });
+  }
+  return out;
+}
+
+/** Page titles + headings index for the local cmd+K palette. */
+export function getSearchIndex(): SearchEntry[] {
+  const entries: SearchEntry[] = [];
+  for (const doc of getAllDocs()) {
+    entries.push({
+      slug: doc.slugString,
+      anchor: "",
+      title: doc.title,
+      section: doc.section,
+      kind: "page",
+    });
+    for (const h of getHeadings(doc.slugString)) {
+      entries.push({
+        slug: doc.slugString,
+        anchor: h.id,
+        title: h.text,
+        section: doc.section,
+        kind: "heading",
+      });
+    }
+  }
+  return entries;
+}
 export function getDocBody(slugString: string): string | null {
   const file = path.join(CONTENT_DIR, ...slugString.split("/")) + ".mdx";
   if (!fs.existsSync(file)) return null;

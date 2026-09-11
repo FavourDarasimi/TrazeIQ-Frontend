@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { DocShell } from "@/features/docs/components/docs-doc-shell";
-import { DocsIngestion } from "@/features/docs/components/docs-ingestion";
 import { getDocMeta } from "@/features/docs/lib/docs";
+import { MdxBody } from "@/features/docs/lib/mdx";
 
 const SLUG = "events/ingestion";
 
@@ -15,11 +15,11 @@ export function generateMetadata(): Metadata {
   };
 }
 
-export default function DocsIngestionPage() {
+export default async function DocsIngestionPage() {
   if (!getDocMeta(SLUG)) notFound();
   return (
     <DocShell slug={SLUG}>
-      <DocsIngestion />
+      <MdxBody slug={SLUG} />
     </DocShell>
   );
 }

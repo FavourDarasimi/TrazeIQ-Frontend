@@ -6,7 +6,9 @@ import { Logo } from "@/features/landing/components/navbar";
 import { Container } from "@/components/ui/shared";
 import { ROUTES } from "@/constants";
 import { CodeLangProvider } from "./docs-code-context";
-import { getDocGroups, getPrevNext } from "../lib/docs";
+import { DocsPageSearch } from "./docs-page-search";
+import { DocsPageToc } from "./docs-page-toc";
+import { getDocGroups, getHeadings, getPrevNext, getSearchIndex } from "../lib/docs";
 
 /**
  * Focused per-page docs shell. Sidebar is server-rendered from MDX
@@ -22,6 +24,8 @@ export function DocShell({
 }) {
   const groups = getDocGroups();
   const { prev, next } = getPrevNext(slug);
+  const headings = getHeadings(slug);
+  const searchIndex = getSearchIndex();
 
   return (
     <CodeLangProvider>
@@ -35,9 +39,10 @@ export function DocShell({
               </Link>
             </div>
             <div className="flex items-center gap-3">
+              <DocsPageSearch entries={searchIndex} />
               <Link
                 href={ROUTES.login}
-                className="rounded-sm text-sm text-muted transition-colors hover:text-ink"
+                className="hidden rounded-sm text-sm text-muted transition-colors hover:text-ink sm:inline"
               >
                 Sign in
               </Link>
@@ -140,6 +145,10 @@ export function DocShell({
               </nav>
             </Container>
           </div>
+
+          <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-60 shrink-0 overflow-y-auto py-10 pl-6 xl:block">
+            <DocsPageToc headings={headings} />
+          </aside>
         </div>
 
         <Footer />

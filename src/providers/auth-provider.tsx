@@ -18,7 +18,7 @@ export type AuthStatus = "loading" | "authenticated" | "unauthenticated";
 type AuthContextValue = {
   status: AuthStatus;
   user: AuthUser | null;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<AuthSession>;
   signOut: () => Promise<void>;
   applySession: (session: AuthSession) => void;
 };
@@ -72,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (email: string, password: string) => {
       const session = await loginService(email, password);
       applySession(session);
+      return session;
     },
     [applySession]
   );

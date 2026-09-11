@@ -5,6 +5,9 @@ export type AuthUser = {
   name: string;
   email_verified: boolean;
   auth_provider: AuthProvider;
+  // Drives the staff-gated Platform admin UI. The backend re-checks is_staff
+  // on every /api/v1/admin/* call — this flag is display logic only.
+  is_staff: boolean;
 };
 
 export type AuthSession = {
@@ -360,3 +363,83 @@ export type ApiSuccess<T> = {
 };
 
 export type ApiEnvelope<T> = ApiSuccess<T> | ApiFailure;
+
+// ---- Platform admin (staff-only monitoring, /api/v1/admin/*) ----
+
+export type PlatformOverview = {
+  users: number;
+  organizations: number;
+  projects: number;
+  events_24h: number;
+  open_incidents: number;
+  open_incidents_by_severity: Record<IncidentSeverity, number>;
+  ai_24h: Record<string, number>;
+  alerts_24h: number;
+  top_projects: Array<{
+    id: string;
+    name: string;
+    organization: string;
+    events_24h: number;
+    open_incidents: number;
+  }>;
+  recent_audit: Array<{
+    id: string;
+    action: string;
+    actor_email: string;
+    organization: string;
+    target: string;
+    created_at: string;
+  }>;
+};
+
+export type PlatformUser = {
+  id: string;
+  email: string;
+  name: string;
+  is_active: boolean;
+  is_staff: boolean;
+  email_verified: boolean;
+  auth_provider: AuthProvider;
+  date_joined: string;
+  org_count: number;
+};
+
+export type PlatformOrganization = {
+  id: string;
+  name: string;
+  owner_email: string;
+  member_count: number;
+  project_count: number;
+  created_at: string;
+};
+
+export type PlatformProject = {
+  id: string;
+  name: string;
+  organization: string;
+  environment: string;
+  api_key_prefix: string;
+  events_per_minute: number;
+  events_24h: number;
+  open_incidents: number;
+  created_at: string;
+};
+
+export type PlatformHealth = {
+  status: "ok" | "degraded" | string;
+  checks: Record<string, { status: string; latency_ms?: number }>;
+  metrics: {
+    events_24h?: number;
+    ai_analysis?: Record<string, number>;
+    alerts_24h?: Record<string, number>;
+  };
+};
+
+export type PlatformPageMeta = {
+  page: number;
+  page_size: number;
+  total: number;
+  pages: number;
+  has_next: boolean;
+  has_previous: boolean;
+};

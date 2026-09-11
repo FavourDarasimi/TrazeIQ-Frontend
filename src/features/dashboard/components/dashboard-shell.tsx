@@ -263,7 +263,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             </>
           ) : (
             <>
-              {DASHBOARD_NAV.filter((i) => i.href !== ROUTES.settings).map((item) => {
+              {DASHBOARD_NAV.filter(
+                (i) => i.href !== ROUTES.settings && (!i.staffOnly || user?.is_staff),
+              ).map((item) => {
             const active = isActive(pathname, item.href);
             return (
               <Link

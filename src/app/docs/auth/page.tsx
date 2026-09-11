@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { DocShell } from "@/features/docs/components/docs-doc-shell";
-import { DocsAuth } from "@/features/docs/components/docs-auth";
 import { getDocMeta } from "@/features/docs/lib/docs";
+import { MdxBody } from "@/features/docs/lib/mdx";
 
 const SLUG = "auth";
 
@@ -15,11 +15,11 @@ export function generateMetadata(): Metadata {
   };
 }
 
-export default function DocsAuthPage() {
+export default async function DocsAuthPage() {
   if (!getDocMeta(SLUG)) notFound();
   return (
     <DocShell slug={SLUG}>
-      <DocsAuth />
+      <MdxBody slug={SLUG} />
     </DocShell>
   );
 }

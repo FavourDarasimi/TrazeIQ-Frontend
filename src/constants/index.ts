@@ -28,6 +28,11 @@ export const API_ROUTES = {
   notificationUnreadCount: "/notifications/unread-count/",
   notificationMarkRead: "/notifications/read/",
   alertPreferences: "/notifications/preferences/",
+  platformOverview: "/admin/overview/",
+  platformUsers: "/admin/users/",
+  platformOrganizations: "/admin/organizations/",
+  platformProjects: "/admin/projects/",
+  platformHealth: "/admin/health/",
 } as const;
 
 export const ROUTES = {
@@ -48,6 +53,7 @@ export const ROUTES = {
   settingsIntegrations: "/settings/integrations",
   settingsPreferences: "/settings/preferences",
   settingsApiKeys: "/settings/api-keys",
+  admin: "/admin",
   slackCallback: "/integrations/slack/callback",
   invite: "/invite",
 } as const;

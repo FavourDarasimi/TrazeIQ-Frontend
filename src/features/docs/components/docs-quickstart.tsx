@@ -49,17 +49,42 @@ export function DocsQuickstart() {
       id="quickstart"
       label="Quickstart"
       title="Send your first event in two minutes"
-      sub="No SDK to install. The integration is a plain HTTPS POST — copy the snippet into your app's error handler and you're done."
+      sub="Use the trazeiq SDK (npm / PyPI, zero dependencies) or a plain HTTPS POST — copy the snippet into your app's error handler and you're done. See sdks/ in the repo for the SDK source."
     >
       <div className="flex flex-col gap-6">
         <DocsCode
           label="fire the first event"
           tabs={[
             { lang: "curl", label: "curl", code: curlSnippet },
+            {
+              lang: "js",
+              label: "JS SDK",
+              code: `npm install trazeiq
+import { init, captureException } from "trazeiq";
+init({ apiKey: "YOUR_API_KEY", environment: "production", service: "payment-api" });
+try {
+  await processPayment(order)
+} catch (error) {
+  await captureException(error) // never throws
+  throw error
+}`,
+            },
+            {
+              lang: "python",
+              label: "Python SDK",
+              code: `pip install trazeiq
+import trazeiq
+trazeiq.init(api_key="YOUR_API_KEY", environment="production", service="payment-api")
+try:
+    process_payment(order)
+except Exception:
+    trazeiq.capture_exception()  # never raises
+    raise`,
+            },
             { lang: "js", label: "JavaScript", code: jsSnippet },
             {
               lang: "python",
-              label: "Python",
+              label: "Python (raw)",
               code: `import requests, traceback
 try:
     process_payment(order)

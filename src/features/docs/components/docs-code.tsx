@@ -60,11 +60,11 @@ export function DocsCode({
               aria-label={label}
               className="flex items-center gap-1 rounded-md bg-surface p-1"
             >
-              {resolvedTabs.map((tab) => {
+              {resolvedTabs.map((tab, i) => {
                 const isActive = tab.lang === active;
                 return (
                   <button
-                    key={tab.lang}
+                    key={`${tab.lang}-${i}`}
                     role="tab"
                     type="button"
                     aria-selected={isActive}
