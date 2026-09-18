@@ -123,7 +123,12 @@ export function SettingsOverviewPage() {
   } | null>(null);
   const [ruleCount, setRuleCount] = useState<number | null>(null);
   const [recentLogs, setRecentLogs] = useState<
-    { rule: { name: string }; status: string; incident: { title: string } }[] | null
+    {
+      id: string;
+      rule: { name: string };
+      status: string;
+      incident: { title: string };
+    }[] | null
   >(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -320,7 +325,7 @@ export function SettingsOverviewPage() {
               <ul>
                 {recentLogs.map((log) => (
                   <li
-                    key={log.rule.name + log.incident.title + log.status}
+                    key={log.id}
                     className="flex items-center justify-between gap-4 border-b border-line px-5 py-3 last:border-b-0"
                   >
                     <p className="min-w-0 truncate font-mono text-xs text-ink">

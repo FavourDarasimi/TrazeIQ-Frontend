@@ -6,14 +6,13 @@ import { useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Activity01Icon,
+  ArrowLeft01Icon,
   Building02Icon,
   Layers02Icon,
   Shield01Icon,
   UserGroupIcon,
 } from "@hugeicons/core-free-icons";
 
-import { EmptyState } from "@/components/ui/empty-state";
-import { Spinner } from "@/components/ui/glass-card";
 import { ROUTES } from "@/constants";
 import { useAuth } from "@/providers/auth-provider";
 
@@ -22,9 +21,12 @@ import { AdminOrganizations } from "@/features/platform/components/admin-organiz
 import { AdminOverview } from "@/features/platform/components/admin-overview";
 import { AdminProjects } from "@/features/platform/components/admin-projects";
 import { AdminUsers } from "@/features/platform/components/admin-users";
+import { AdminLoading } from "@/features/platform/components/admin-ui";
 
-/* Hallmark · genre: modern-minimal · macrostructure: settings-app-family
- * design-system: Design.md · read-only monitoring surface, staff-gated
+/* Platform admin console — dark ops console that follows the page's dark mode.
+ * Staff-gated read-only surface (UX gate; every /api/v1/admin/*
+ * endpoint re-checks is_staff server-side). Same calm Stripe-style layout
+ * as the light reference, translated to --color-bg / --color-surface.
  */
 
 const TABS = [
@@ -37,6 +39,44 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
+function SidebarNav({
+  tab,
+  onSelect,
+}: {
+  tab: TabId;
+  onSelect: (t: TabId) => void;
+}) {
+  return (
+    <nav aria-label="Platform sections" className="flex flex-col gap-0.5">
+      {TABS.map((item) => {
+        const active = tab === item.id;
+        return (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => onSelect(item.id)}
+            aria-current={active ? "page" : undefined}
+            className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
+              active
+                ? "bg-white/[0.06] font-medium text-ink"
+                : "text-muted hover:bg-white/[0.04] hover:text-ink"
+            }`}
+          >
+            <HugeiconsIcon
+              icon={item.icon}
+              size={17}
+              color="currentColor"
+              strokeWidth={1.5}
+              className={active ? "text-ink" : "text-muted"}
+            />
+            {item.label}
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
 export function AdminPage() {
   const { status, user } = useAuth();
   const router = useRouter();
@@ -48,69 +88,104 @@ export function AdminPage() {
     }
   }, [status, router]);
 
-  if (status === "loading") return <Spinner label="Checking access…" />;
+  if (status === "loading" || status === "unauthenticated") {
+    return (
+      <div className="min-h-screen bg-bg">
+        <AdminLoading label={status === "loading" ? "Checking access…" : "Redirecting…"} />
+      </div>
+    );
+  }
 
-  if (status === "unauthenticated") return <Spinner label="Redirecting…" />;
-
-  // UX gate only — every /api/v1/admin/* endpoint re-checks is_staff
-  // server-side and returns 403 for non-staff callers.
   if (!user?.is_staff) {
     return (
-      <EmptyState
-        icon={Shield01Icon}
-        title="Restricted to staff"
-        body="Platform monitoring is available to TrazeIQ operators only. If you need access, ask an existing staff member to grant it."
-        action={
+      <div className="flex min-h-screen items-center justify-center bg-bg px-4">
+        <div className="w-full max-w-md rounded-xl border border-line bg-surface p-8 text-center">
+          <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg border border-line bg-bg text-muted">
+            <HugeiconsIcon icon={Shield01Icon} size={20} color="currentColor" strokeWidth={1.5} />
+          </span>
+          <h1 className="mt-4 text-base font-semibold text-ink">Restricted to staff</h1>
+          <p className="mt-1 text-sm text-muted">
+            Platform monitoring is available to TrazeIQ operators only. If you need
+            access, ask an existing staff member to grant it.
+          </p>
           <Link
             href={ROUTES.dashboard}
-            className="rounded-lg border border-line bg-surface px-4 py-2 text-sm text-muted transition-colors hover:border-line-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            className="mt-5 inline-flex items-center gap-1.5 rounded-lg border border-line bg-bg px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-line-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
+            <HugeiconsIcon icon={ArrowLeft01Icon} size={15} color="currentColor" strokeWidth={1.5} />
             Back to dashboard
           </Link>
-        }
-      />
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-muted">
-          Platform admin · read-only
-        </p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight text-ink">
-          Website monitoring
-        </h1>
-        <p className="mt-1 text-sm text-muted">
-          Site-wide usage, tenants, projects and pipeline health. This surface never mutates data.
-        </p>
-      </div>
-
-      <nav aria-label="Platform sections" className="flex items-center gap-6 overflow-x-auto border-b border-line">
-        {TABS.map((item) => {
-          const active = tab === item.id;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setTab(item.id)}
-              aria-current={active ? "page" : undefined}
-              className={`relative -mb-px inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 py-3 font-mono text-[11px] uppercase tracking-[0.28em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-                active ? "border-accent font-medium text-ink" : "border-transparent text-muted hover:text-ink"
-              }`}
+    <div className="min-h-screen bg-bg text-ink">
+      <div className="flex min-h-screen">
+        {/* Sidebar — sits on --color-bg-panel, same dark family as dashboard */}
+        <aside className="hidden w-60 shrink-0 flex-col border-r border-line bg-bg-panel lg:flex">
+          <div className="border-b border-line px-5 py-5">
+            <p className="text-[13px] font-semibold text-ink">
+              TrazeIQ <span className="font-normal text-muted">· Admin</span>
+            </p>
+            <p className="mt-0.5 text-xs text-muted">Platform operations</p>
+          </div>
+          <div className="flex-1 px-3 py-4">
+            <SidebarNav tab={tab} onSelect={setTab} />
+          </div>
+          <div className="border-t border-line px-5 py-4">
+            <p className="truncate text-xs text-muted">
+              Signed in as <span className="font-medium text-ink">{user.email}</span>
+            </p>
+            <Link
+              href={ROUTES.dashboard}
+              className="mt-2.5 inline-flex items-center gap-1.5 text-[13px] font-medium text-accent hover:text-accent/80"
             >
-              <HugeiconsIcon icon={item.icon} size={14} color="currentColor" strokeWidth={1.5} />
-              {item.label}
-            </button>
-          );
-        })}
-      </nav>
+              <HugeiconsIcon icon={ArrowLeft01Icon} size={14} color="currentColor" strokeWidth={1.5} />
+              Back to dashboard
+            </Link>
+          </div>
+        </aside>
 
-      {tab === "overview" ? <AdminOverview /> : null}
-      {tab === "users" ? <AdminUsers /> : null}
-      {tab === "organizations" ? <AdminOrganizations /> : null}
-      {tab === "projects" ? <AdminProjects /> : null}
-      {tab === "health" ? <AdminHealth /> : null}
+        {/* Main */}
+        <div className="min-w-0 flex-1">
+          {/* Mobile nav */}
+          <div className="border-b border-line bg-bg-panel px-4 py-3 lg:hidden">
+            <p className="mb-2 text-[13px] font-semibold text-ink">
+              TrazeIQ <span className="font-normal text-muted">· Admin</span>
+            </p>
+            <div className="flex gap-1 overflow-x-auto">
+              {TABS.map((item) => {
+                const active = tab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setTab(item.id)}
+                    aria-current={active ? "page" : undefined}
+                    className={`shrink-0 rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                      active
+                        ? "bg-white/[0.06] font-medium text-ink"
+                        : "text-muted hover:bg-white/[0.04] hover:text-ink"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-8" key={tab}>
+            {tab === "overview" ? <AdminOverview /> : null}
+            {tab === "users" ? <AdminUsers /> : null}
+            {tab === "organizations" ? <AdminOrganizations /> : null}
+            {tab === "projects" ? <AdminProjects /> : null}
+            {tab === "health" ? <AdminHealth /> : null}
+          </main>
+        </div>
+      </div>
     </div>
   );
 }

@@ -19,9 +19,9 @@ const feedLines = [
   },
   {
     time: "09:41:20",
-    tag: "AI",
+    tag: "ALERT",
     tagClass: "text-accent",
-    text: "payments-api  root cause: connection pool exhausted · high",
+    text: "payments-api  alert rule triggered → Slack channel #prod-alerts",
   },
   {
     time: "09:41:31",
@@ -45,7 +45,7 @@ export function Hero() {
       <Container className="relative flex flex-col items-center pb-20 pt-24 text-center sm:pt-32">
         <Reveal delay={0.05}>
           <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-muted">
-            AI incident response
+            Automated incident response
           </p>
         </Reveal>
 
@@ -58,7 +58,7 @@ export function Hero() {
         <Reveal delay={0.2}>
           <p className="mt-6 max-w-xl text-pretty text-base leading-relaxed text-muted sm:text-lg">
             TrazeIQ watches your production errors, groups the noise into a
-            single incident, and hands your team the root cause — before the
+            single incident, and alerts your team — before the
             first customer complains.
           </p>
         </Reveal>
@@ -80,7 +80,7 @@ export function Hero() {
 
         <Reveal delay={0.36}>
           <p className="mt-4 font-mono text-[11px] text-muted">
-            free tier for small teams · no credit card · set up in 2 minutes
+            free tier for small teams · zero-dep JS & Python SDKs (npm/PyPI) · set up in 2 minutes
           </p>
         </Reveal>
 
@@ -106,14 +106,6 @@ export function Hero() {
                   <span className="truncate text-ink/80">{line.text}</span>
                 </div>
               ))}
-              <div className="flex items-center gap-3 pt-1">
-                <span className="text-muted">09:41:33</span>
-                <span className="text-accent">ai</span>
-                <span className="flex-1 text-ink/80">
-                  analyzing pattern #2 …
-                </span>
-                <span className="h-4 w-2 animate-[caret-blink_1.1s_step-end_infinite] bg-accent" />
-              </div>
             </div>
           </Window>
           <p className="mt-3 text-center font-mono text-[10px] text-muted">

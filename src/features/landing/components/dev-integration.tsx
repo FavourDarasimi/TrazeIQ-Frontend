@@ -1,10 +1,81 @@
+"use client";
+
+import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { CheckmarkCircleIcon, TerminalIcon } from "@hugeicons/core-free-icons";
 
 import { Container, Eyebrow, GhostButton, Window } from "@/components/ui/shared";
 import { Reveal } from "@/components/ui/motion";
 
+const snippets = [
+  {
+    id: "js-sdk",
+    label: "JS / TS SDK",
+    title: "npm install trazeiq",
+    code: `// npm install trazeiq
+import { init, captureException } from "trazeiq";
+
+init({
+  apiKey: process.env.TRAZEIQ_API_KEY,
+  environment: "production",
+  service: "payment-api",
+});
+
+try {
+  await processPayment(order);
+} catch (error) {
+  await captureException(error); // never throws, 2s timeout max
+  throw error; // TrazeIQ observes, doesn't swallow
+}`,
+  },
+  {
+    id: "python-sdk",
+    label: "Python SDK",
+    title: "pip install trazeiq",
+    code: `# pip install trazeiq
+import trazeiq
+
+trazeiq.init(
+    api_key=os.getenv("TRAZEIQ_API_KEY"),
+    environment="production",
+    service="payment-api",
+)
+
+try:
+    process_payment(order)
+except Exception:
+    trazeiq.capture_exception()  # never raises, zero dependencies
+    raise`,
+  },
+  {
+    id: "raw-http",
+    label: "Plain Fetch / cURL",
+    title: "POST /api/v1/events/",
+    code: `// Any language / plain fetch
+try {
+  await processPayment(order);
+} catch (error) {
+  await fetch("https://api.trazeiq.io/api/v1/events/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-API-Key": process.env.TRAZEIQ_API_KEY,
+    },
+    body: JSON.stringify({
+      message: error.message,
+      stacktrace: error.stack,
+      service: "payment-api",
+      environment: "production",
+    }),
+  }).catch(() => {});
+  throw error;
+}`,
+  },
+];
+
 export function DevIntegration() {
+  const [activeTab, setActiveTab] = useState(0);
+
   return (
     <section
       id="developer-integration"
@@ -12,27 +83,24 @@ export function DevIntegration() {
     >
       <Container className="grid items-center gap-12 py-14 sm:py-28 lg:grid-cols-2">
         <Reveal className="min-w-0 flex flex-col gap-6">
-          <Eyebrow>Direct HTTP integration</Eyebrow>
+          <Eyebrow>SDKs & Direct Ingestion</Eyebrow>
           <h2 className="text-balance text-2xl font-semibold leading-tight tracking-tight text-ink sm:text-3xl lg:text-4xl">
-            Two minutes to integrate. Drop in the snippet.
+            Two minutes to integrate. Zero dependencies.
           </h2>
           <p className="text-pretty text-base leading-relaxed text-muted">
-            TrazeIQ observes — it never swallows your exceptions or blocks your
-            request. The ingestion path answers in milliseconds and delegates
-            AI and alerting to background workers.
+            TrazeIQ provides official lightweight SDKs for JavaScript/TypeScript
+            (<code className="font-mono text-accent">npm install trazeiq</code>) and Python
+            (<code className="font-mono text-accent">pip install trazeiq</code>), plus direct HTTP POST support for any language.
           </p>
           <ul className="flex flex-col gap-3 border-l border-line pl-5">
             <li className="text-sm leading-relaxed text-ink/80">
-              API key shown <span className="font-mono">once</span>, hashed at
-              rest, rotatable whenever you need.
+              <strong>Never crashes host app:</strong> Network and HTTP errors are caught and swallowed.
             </li>
             <li className="text-sm leading-relaxed text-ink/80">
-              Secrets scrubbed from stack traces before they touch storage or
-              the AI.
+              <strong>Non-blocking:</strong> 2-second default timeout with zero retries on the hot path.
             </li>
             <li className="text-sm leading-relaxed text-ink/80">
-              Payloads are capped and rate-limited — a misbehaving client
-              can&apos;t flood the store.
+              <strong>Server-side redaction:</strong> Passwords, tokens, and authorization headers scrubbed automatically.
             </li>
           </ul>
           <div className="mt-2 flex flex-wrap items-center gap-4">
@@ -43,7 +111,7 @@ export function DevIntegration() {
                 color="#10B981"
                 strokeWidth={1.5}
               />
-              returns in ~5ms
+              zero third-party dependencies
             </div>
             <div className="flex items-center gap-2 font-mono text-xs text-muted">
               <HugeiconsIcon
@@ -52,98 +120,41 @@ export function DevIntegration() {
                 color="#10B981"
                 strokeWidth={1.5}
               />
-              plain HTTPS — any language
+              returns in ~5ms
             </div>
           </div>
           <p className="font-mono text-[11px] text-muted">
-            no agent to install — your error handler POSTs directly
+            available on npm (trazeiq) & PyPI (trazeiq) · plain HTTPS supported in all languages
           </p>
         </Reveal>
 
         <Reveal className="min-w-0 lg:pl-6" delay={0.1}>
+          <div className="mb-3 flex flex-wrap gap-2">
+            {snippets.map((tab, idx) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(idx)}
+                className={`rounded-lg px-3 py-1.5 font-mono text-xs transition-colors ${
+                  activeTab === idx
+                    ? "bg-accent text-ink font-medium"
+                    : "bg-surface text-muted hover:text-ink hover:bg-surface/80"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
           <Window
-            title="error-handler.js · add this to your app"
+            title={snippets[activeTab].title}
             bodyClassName="bg-bg p-5 sm:p-6"
           >
             <pre className="whitespace-pre-wrap break-words font-mono text-[12.5px] leading-[1.7] text-ink/85">
-              <code>
-                <div>
-                  <span className="text-muted">
-                    {"// inside your error handler"}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-muted">try</span> {"{"}
-                </div>
-                <div>
-                  {"  "}
-                  <span className="text-muted">await</span>{" "}
-                  processPayment(order)
-                </div>
-                <div>
-                  {"}"} <span className="text-muted">catch</span> (error) {"{"}
-                </div>
-                <div>
-                  {"  "}
-                  <span className="text-accent">fetch</span>(
-                  {'"https://api.trazeiq.com/api/v1/events/"'}, {"{"}
-                </div>
-                <div>
-                  {"    "}method: {'"POST"'},
-                </div>
-                <div>
-                  {"    "}headers: {"{"}
-                </div>
-                <div>
-                  {"      "}
-                  {'"Content-Type": '}
-                  {'"application/json"'},
-                </div>
-                <div>
-                  {"      "}
-                  {'"X-API-Key": '}
-                  process.env.TRAZEIQ_API_KEY
-                </div>
-                <div>
-                  {"    "}
-                  {"}"},
-                </div>
-                <div>
-                  {"    "}body: JSON.stringify({"{"}
-                </div>
-                <div>
-                  {"      "}message: error.message,
-                </div>
-                <div>
-                  {"      "}stacktrace: error.stack,
-                </div>
-                <div>
-                  {"      "}service: {'"payment-api"'},
-                </div>
-                <div>
-                  {"      "}environment: {'"production"'}
-                </div>
-                <div>
-                  {"    "}
-                  {"}"})
-                </div>
-                <div>
-                  {"  "}
-                  {"}"})
-                </div>
-                <div>
-                  {"  "}
-                  <span className="text-muted">throw</span> error{" "}
-                  <span className="text-muted">
-                    {"// TrazeIQ observes it, doesn't swallow it"}
-                  </span>
-                </div>
-                <div>
-                  {"}"}
-                </div>
-              </code>
+              <code>{snippets[activeTab].code}</code>
             </pre>
           </Window>
+
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <p className="flex items-center gap-2 font-mono text-[11px] text-muted">
               <HugeiconsIcon
@@ -152,9 +163,9 @@ export function DevIntegration() {
                 color="#71717A"
                 strokeWidth={1.5}
               />
-              configured with X-API-Key — rotated server-side
+              configured with X-API-Key — rotated anytime
             </p>
-            <GhostButton href="#get-started">Get the snippet</GhostButton>
+            <GhostButton href="/docs#sdks">Explore SDK docs</GhostButton>
           </div>
         </Reveal>
       </Container>

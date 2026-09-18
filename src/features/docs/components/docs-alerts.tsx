@@ -8,7 +8,6 @@ const webhookPayload = `{
   "severity": "critical",
   "status": "open",
   "link": "https://app.trazeiq.io/incidents/2f1c0a1b-...-...",
-  "root_cause": "Redis connection pool exhausted — max clients reached",
   "occurrences": 42
 }`;
 
@@ -69,7 +68,7 @@ export function DocsAlerts() {
         id="alerts"
         label="Integrations & Alerts"
         title="Alert rules"
-        sub="A rule watches one project for matching incidents and dispatches on incident.created / incident.updated. Evaluation is async and never blocks ingestion."
+        sub="A rule watches one project for matching incidents and dispatches on incident.created / incident.updated. Evaluation runs inline (synchronously) but best-effort, so it never blocks ingestion."
       >
         <DocsTable
           head={["Endpoint", "Role", "Query / Body"]}
@@ -150,7 +149,7 @@ export function DocsAlerts() {
           ]}
         />
         <Callout variant="tip" title="Robustness">
-          A dead webhook or missing Slack workspace does not crash the worker — the rule&apos;s <Code>AlertLog</Code> is marked <Code>failed</Code> with the error, so the delivery history view surfaces it (verified: <Code>apps/alerts/services.py:61</Code> exception → <Code>status=failed</Code>).
+          A dead webhook or missing Slack workspace does not fail ingestion — the rule&apos;s <Code>AlertLog</Code> is marked <Code>failed</Code> with the error, so the delivery history view surfaces it (verified: <Code>apps/alerts/services.py</Code> catches dispatch exceptions → <Code>status=failed</Code>).
         </Callout>
       </DocsSection>
 
@@ -168,7 +167,6 @@ export function DocsAlerts() {
             [<Code key="a">severity</Code>, "enum", "critical|high|medium|low — from Incident"],
             [<Code key="a">status</Code>, "enum", "open|investigating|resolved|ignored"],
             [<Code key="a">link</Code>, "string (URL)", <><Code>{`{APP_BASE_URL}/incidents/{id}`}</Code> — default <Code>http://localhost:3000</Code> in dev</>],
-            [<Code key="a">root_cause</Code>, "string | null", "Latest ready AIAnalysis.root_cause, or null while pending"],
             [<Code key="a">occurrences</Code>, "int", <><Code>error_group.count</Code></>],
           ]}
         />
@@ -217,7 +215,7 @@ from urllib.parse import urlparse
 
 @app.post("/trazeiq-webhook")
 def hook():
-    body = request.json  # {title, severity, status, link, root_cause, occurrences}
+    body = request.json  # {title, severity, status, link, occurrences}
     incident_id = urlparse(body["link"]).path.split("/")[-1]
     r = requests.get(
         f"https://api.trazeiq.io/api/v1/incidents/{incident_id}/",

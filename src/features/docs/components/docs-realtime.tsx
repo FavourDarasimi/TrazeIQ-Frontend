@@ -57,7 +57,6 @@ const pusher = new Pusher(import.meta.env.VITE_PUSHER_KEY, {
 const ch = pusher.subscribe(\`private-project-\${projectId}\`);
 ch.bind("incident.created", (payload) => prependIncident(payload));
 ch.bind("incident.updated", (payload) => patchIncident(payload));
-ch.bind("ai_analysis.ready", (payload) => patchAnalysis(payload));
 ch.bind("incident.resolved", (payload) => markResolved(payload));`,
           },
           {
@@ -91,7 +90,6 @@ requests.post(
         rows={[
           [<Code key="a">incident.created</Code>, "New ErrorGroup → new Incident (ingestion)"],
           [<Code key="a">incident.updated</Code>, "Incident patched (severity/status/assignment) or new event for existing open incident; also on POST …/comments/"],
-          [<Code key="a">ai_analysis.ready</Code>, "Celery task analyze_incident completes with ready analysis + TimelineEntry"],
           [<Code key="a">incident.resolved</Code>, "POST …/resolve/ flips status + logs status_change"],
         ]}
       />

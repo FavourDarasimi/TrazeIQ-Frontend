@@ -7,7 +7,7 @@ const columns = [
     links: [
       { label: "Features", href: "#features" },
       { label: "Dashboard", href: "#dashboard" },
-      { label: "AI Assistant", href: "#ai-assistant" },
+      { label: "Integrations", href: "#developer-integration" },
       { label: "Security", href: "#security" },
     ],
   },
@@ -30,7 +30,7 @@ export function Footer() {
           <div className="max-w-xs">
             <Logo />
             <p className="mt-4 text-sm leading-relaxed text-muted">
-              The AI nervous system for your applications.
+              The error-management layer for your applications.
             </p>
           </div>
           <div className="flex flex-wrap gap-8 sm:gap-16">
@@ -57,11 +57,11 @@ export function Footer() {
         </div>
         <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-line pt-6 sm:flex-row sm:items-center">
           <p className="font-mono text-[11px] text-muted">
-            © {new Date().getFullYear()} TrazeIQ · error intelligence for
+            © {new Date().getFullYear()} TrazeIQ · error management for
             small teams
           </p>
           <p className="font-mono text-[11px] text-muted">
-            built on open-source free tiers — from the start
+            built for production scale — from the start
           </p>
         </div>
       </Container>

@@ -4,7 +4,7 @@ import {
   Alert01Icon,
   TerminalIcon,
   ServerStackIcon,
-  AiSearchIcon,
+  Comment01Icon,
   Settings01Icon,
   Search01Icon,
 } from "@hugeicons/core-free-icons";
@@ -17,7 +17,7 @@ const nav = [
   { label: "Incidents", Icon: Alert01Icon, active: true, badge: "12" },
   { label: "Logs", Icon: TerminalIcon, active: false },
   { label: "Services", Icon: ServerStackIcon, active: false },
-  { label: "AI Assistant", Icon: AiSearchIcon, active: false },
+  { label: "Timeline", Icon: Comment01Icon, active: false },
   { label: "Settings", Icon: Settings01Icon, active: false },
 ];
 
@@ -25,7 +25,7 @@ const metrics = [
   { label: "Open incidents", value: "24", delta: "↑ 12% this week" },
   { label: "Errors / min", value: "312", delta: "↓ 8% this week" },
   { label: "Resolved today", value: "1,283", delta: "38 min median MTTR" },
-  { label: "AI analyses", value: "96%", delta: "high-confidence" },
+  { label: "Error groups", value: "142", delta: "deduplicated fingerprints" },
 ];
 
 const rows = [

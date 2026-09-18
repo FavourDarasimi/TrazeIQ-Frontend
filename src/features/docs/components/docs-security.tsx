@@ -16,7 +16,7 @@ const items = [
   },
   {
     title: "Error content is untrusted",
-    body: "Stacktraces are rendered as data and the AI system prompt instructs the model to treat message+stacktrace strictly as DATA, never as instructions — a crafted \"ignore previous instructions\" payload stays in the strict {root_cause,suggested_fix,confidence} shape (parser retry once, then mark failed, never crash the worker).",
+    body: "Stacktraces are hostile input: secrets are scrubbed before storage, content is escaped before rendering, and nothing in an error payload is ever executed. A monitoring tool must never become the leak vector.",
   },
   {
     title: "Realtime uses private channels only",

@@ -1,7 +1,7 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   TerminalIcon,
-  AiSearchIcon,
+  FilterIcon,
   Notification03Icon,
 } from "@hugeicons/core-free-icons";
 
@@ -18,7 +18,7 @@ export function HowItWorks() {
         <SectionHeader
           eyebrow="How it works"
           title="Three steps between your app and a fix"
-          sub="The snippet observes, the AI diagnoses, your team acts — in that order, automatically."
+          sub="The snippet observes, the pipeline groups, your team acts — in that order, automatically."
         />
 
         <Stagger className="mt-14 grid gap-6 lg:grid-cols-3">
@@ -36,9 +36,7 @@ export function HowItWorks() {
             </div>
             <h3 className="mt-6 font-semibold text-ink">Your app sends the error</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              Drop the snippet into your error handler. TrazeIQ captures the
-              stack trace, redacts secrets, and returns before your app
-              notices.
+              Use our official zero-dep SDK (<code className="font-mono text-xs">trazeiq</code> on npm/PyPI) or drop a 1-line fetch snippet into your error handler. TrazeIQ captures the stack trace, redacts secrets, and returns before your app notices.
             </p>
           </StaggerItem>
 
@@ -47,7 +45,7 @@ export function HowItWorks() {
               <div className="flex items-center justify-between">
                 <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-line bg-surface">
                   <HugeiconsIcon
-                    icon={AiSearchIcon}
+                    icon={FilterIcon}
                     size={22}
                     color="#4F46E5"
                     strokeWidth={1.5}
@@ -55,31 +53,30 @@ export function HowItWorks() {
                 </span>
                 <span className="font-mono text-xs text-muted">step 02</span>
               </div>
-              <h3 className="mt-6 font-semibold text-ink">AI analyzes</h3>
+              <h3 className="mt-6 font-semibold text-ink">Errors grouped & deduplicated</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted">
-                A new pattern is enqueued for analysis. The model returns a
-                root cause and a fix; results are cached per fingerprint.
+                Incoming events are fingerprinted automatically. Thousands of repeat crash occurrences collapse into a single actionable incident.
               </p>
             </div>
             <div className="rounded-2xl border border-accent/30 bg-bg p-5 shadow-[0_0_30px_rgba(79,70,229,0.12)]">
               <div className="flex items-center gap-2">
                 <HugeiconsIcon
-                  icon={AiSearchIcon}
+                  icon={FilterIcon}
                   size={16}
                   color="#4F46E5"
                   strokeWidth={1.5}
                 />
                 <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-accent">
-                  AI analysis
+                  Fingerprint Aggregation
                 </span>
               </div>
               <p className="mt-3 font-mono text-xs leading-relaxed text-ink/80">
-                root cause: Redis connection pool exhausted
+                fingerprint: fp_a41d92c0
                 <br />
-                fix: raise maxclients, add backoff to retry path
+                occurrences: 4,012 events collapsed
                 <br />
-                <span className="text-muted">confidence:</span>{" "}
-                <span className="text-ok">high</span>
+                <span className="text-muted">status:</span>{" "}
+                <span className="text-ok">active incident #1281</span>
               </p>
             </div>
           </StaggerItem>
@@ -99,7 +96,7 @@ export function HowItWorks() {
             <h3 className="mt-6 font-semibold text-ink">Team gets notified</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted">
               The incident lands live on the dashboard, and alert rules page
-              the right channel — once, with the fix already attached.
+              the right channel — once, with stack trace details attached.
             </p>
           </StaggerItem>
         </Stagger>

@@ -20,7 +20,7 @@ import { API_ROUTES, incidentDetailUrl } from "@/constants";
 import { api } from "@/lib/api";
 import { useAuth } from "@/providers/auth-provider";
 import { useProjectContext } from "@/features/app/components/project-context";
-import type { AIAnalysis, Incident, IncidentSeverity } from "@/types";
+import type { Incident, IncidentSeverity } from "@/types";
 
 const PUSHER_KEY = process.env.NEXT_PUBLIC_PUSHER_KEY ?? "";
 const PUSHER_CLUSTER = process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? "mt1";
@@ -28,12 +28,10 @@ const PUSHER_CLUSTER = process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? "mt1";
 export type RealtimeEvent =
   | { type: "incident.created"; incident: Incident }
   | { type: "incident.updated"; incident: Incident }
-  | { type: "incident.resolved"; incident: Incident }
-  | { type: "ai_analysis.ready"; incident: Incident; analysis: AIAnalysis };
+  | { type: "incident.resolved"; incident: Incident };
 
 type RealtimeEventPayload = {
   incident?: Incident;
-  analysis?: AIAnalysis;
 };
 
 export type RealtimeStatus = "live" | "connecting" | "degraded" | "off";
@@ -254,17 +252,13 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
           }, 6000);
         }
 
-        const event: RealtimeEvent =
-          type === "ai_analysis.ready"
-            ? { type, incident, analysis: payload.analysis as AIAnalysis }
-            : { type, incident };
+        const event: RealtimeEvent = { type, incident };
         emit(event);
       };
 
       channel.bind("incident.created", handle("incident.created"));
       channel.bind("incident.updated", handle("incident.updated"));
       channel.bind("incident.resolved", handle("incident.resolved"));
-      channel.bind("ai_analysis.ready", handle("ai_analysis.ready"));
     }
 
     connect();

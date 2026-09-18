@@ -1,7 +1,7 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   FingerPrintIcon,
-  AiSearchIcon,
+  LockKeyIcon,
   ActivityIcon,
   Notification03Icon,
 } from "@hugeicons/core-free-icons";
@@ -16,9 +16,9 @@ const features = [
     body: "Fingerprinted at the edge. A crash loop collapses into one ErrorGroup — one row per pattern, not one per request.",
   },
   {
-    Icon: AiSearchIcon,
-    title: "AI root cause analysis",
-    body: "Every new incident gets a root cause and a concrete fix, written by a free-tier model and cached per fingerprint.",
+    Icon: LockKeyIcon,
+    title: "Secret scrubbing",
+    body: "Stack traces and error messages are automatically scrubbed of API keys, passwords, and tokens before storage.",
   },
   {
     Icon: ActivityIcon,
@@ -39,7 +39,7 @@ export function Features() {
         <SectionHeader
           eyebrow="Features"
           title="Everything a small team needs to sleep through the night"
-          sub="Four capabilities, no enterprise license. The parts of Datadog your team actually uses, rebuilt for teams of two to twenty."
+          sub="Four capabilities, no enterprise license. The parts of Datadog your team actually uses, rebuilt for fast engineering teams."
         />
         <Stagger className="mt-14 grid gap-4 sm:grid-cols-2">
           {features.map(({ title, body, Icon }) => (

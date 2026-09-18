@@ -28,7 +28,7 @@ export function Cta() {
         </h2>
         <p className="mt-5 max-w-xl text-pretty text-base leading-relaxed text-muted">
           Create a project, drop the snippet into your error handler, and
-          watch your first incident arrive with a fix already attached.
+          watch your first incident arrive live on the dashboard.
         </p>
         <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
           <PrimaryButton href="/register">

@@ -1,48 +1,58 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
-  Building02Icon,
-  Search01Icon,
-} from "@hugeicons/core-free-icons";
 
-import { EmptyState } from "@/components/ui/empty-state";
-import { GlassCard, Spinner } from "@/components/ui/glass-card";
 import { ApiError } from "@/lib/api";
 import { listPlatformOrganizations } from "@/services/platform";
 import type { PlatformOrganization, PlatformPageMeta } from "@/types";
 import { apiErrorMessage } from "@/utils/errors";
 import { formatDateTime } from "@/utils/format";
 
+import {
+  AdminCard,
+  AdminError,
+  AdminLoading,
+  AdminPagination,
+  AdminSearchInput,
+  AdminTableCard,
+  AdminTh,
+} from "@/features/platform/components/admin-ui";
+
 const PAGE_SIZE = 25;
+
+function initials(name: string): string {
+  return name
+    .split(/[\s-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() ?? "")
+    .join("");
+}
 
 export function AdminOrganizations() {
   const [orgs, setOrgs] = useState<PlatformOrganization[]>([]);
   const [pagination, setPagination] = useState<PlatformPageMeta | null>(null);
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [debounced, setDebounced] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search.trim());
+    const t = setTimeout(() => {
+      setDebounced(search.trim());
       setPage(1);
-    }, 400);
-    return () => clearTimeout(timer);
+    }, 350);
+    return () => clearTimeout(t);
   }, [search]);
 
   useEffect(() => {
-    const controller = new AbortController();
+    const c = new AbortController();
     listPlatformOrganizations({
-      search: debouncedSearch || undefined,
+      search: debounced || undefined,
       page,
       page_size: PAGE_SIZE,
-      signal: controller.signal,
+      signal: c.signal,
     })
       .then(({ organizations, pagination }) => {
         setOrgs(organizations);
@@ -54,112 +64,90 @@ export function AdminOrganizations() {
         setError(err instanceof ApiError ? apiErrorMessage(err) : "Couldn't load organizations.");
       })
       .finally(() => setLoading(false));
-    return () => controller.abort();
-  }, [debouncedSearch, page]);
+    return () => c.abort();
+  }, [debounced, page]);
+
+  if (error) return <AdminError message={error} />;
 
   return (
-    <GlassCard className="p-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
-          Organizations{pagination ? ` · ${pagination.total}` : ""}
-        </h3>
-        <label className="relative block sm:w-72">
-          <span className="sr-only">Search organizations by name</span>
-          <HugeiconsIcon
-            icon={Search01Icon}
-            size={16}
-            color="currentColor"
-            strokeWidth={1.5}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
-          />
-          <input
+    <div className="flex flex-col gap-4">
+      <div>
+        <h1 className="text-xl font-semibold text-ink">Organizations</h1>
+        <p className="mt-1 text-sm text-muted">Tenants and their owners.</p>
+      </div>
+
+      <AdminTableCard
+        title="Tenants"
+        count={pagination?.total ?? null}
+        search={
+          <AdminSearchInput
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
+            onChange={(v) => {
+              setSearch(v);
               setLoading(true);
             }}
             placeholder="Search by name…"
-            className="h-9 w-full rounded-lg border border-line bg-bg pl-9 pr-3 text-sm text-ink outline-none transition-colors placeholder:text-muted focus:border-accent/60 focus:ring-1 focus:ring-accent/40"
+            label="Search organizations by name"
           />
-        </label>
-      </div>
-
-      {error ? (
-        <p className="mt-4 text-sm text-sev-critical">{error}</p>
-      ) : loading && orgs.length === 0 ? (
-        <Spinner label="Loading organizations…" />
-      ) : orgs.length === 0 ? (
-        <div className="mt-4">
-          <EmptyState
-            icon={Building02Icon}
-            title="No organizations found"
-            body={debouncedSearch ? `Nothing matches "${debouncedSearch}".` : "No tenants exist yet."}
-          />
-        </div>
-      ) : (
-        <>
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left text-sm">
-              <thead>
-                <tr className="border-b border-line font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
-                  <th className="py-2 pr-4 font-medium">Name</th>
-                  <th className="py-2 pr-4 font-medium">Owner</th>
-                  <th className="py-2 pr-4 font-medium">Members</th>
-                  <th className="py-2 pr-4 font-medium">Projects</th>
-                  <th className="py-2 font-medium">Created</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {orgs.map((org) => (
-                  <tr key={org.id} className="align-top">
-                    <td className="py-2.5 pr-4 font-medium text-ink">{org.name}</td>
-                    <td className="py-2.5 pr-4 font-mono text-[12px] text-muted">{org.owner_email}</td>
-                    <td className="py-2.5 pr-4 font-mono text-[12px] text-muted">{org.member_count}</td>
-                    <td className="py-2.5 pr-4 font-mono text-[12px] text-muted">{org.project_count}</td>
-                    <td className="whitespace-nowrap py-2.5 font-mono text-[12px] text-muted">
-                      {formatDateTime(org.created_at)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {pagination && pagination.pages > 1 ? (
-            <div className="mt-4 flex items-center justify-between">
-              <p className="font-mono text-[11px] text-muted">
-                Page {pagination.page} of {pagination.pages} · {pagination.total} total
-              </p>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  disabled={!pagination.has_previous}
-                  onClick={() => {
-                    setLoading(true);
-                    setPage((p) => p - 1);
-                  }}
-                  aria-label="Previous page"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-line text-muted transition-colors hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <HugeiconsIcon icon={ArrowLeft01Icon} size={16} color="currentColor" strokeWidth={1.5} />
-                </button>
-                <button
-                  type="button"
-                  disabled={!pagination.has_next}
-                  onClick={() => {
-                    setLoading(true);
-                    setPage((p) => p + 1);
-                  }}
-                  aria-label="Next page"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-line text-muted transition-colors hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} color="currentColor" strokeWidth={1.5} />
-                </button>
+        }
+        head={
+          <>
+            <AdminTh>Tenant</AdminTh>
+            <AdminTh>Owner</AdminTh>
+            <AdminTh right>Members</AdminTh>
+            <AdminTh right>Projects</AdminTh>
+            <AdminTh>Created</AdminTh>
+          </>
+        }
+      >
+        {loading && orgs.length === 0 ? (
+          <tr>
+            <td colSpan={5} className="p-0">
+              <AdminLoading label="Loading organizations…" />
+            </td>
+          </tr>
+        ) : orgs.length === 0 ? (
+          <tr>
+            <td colSpan={5} className="p-0">
+              <div className="flex flex-col items-center px-6 py-12 text-center">
+                <p className="text-sm font-medium text-ink">No organizations found</p>
+                <p className="mt-1 text-sm text-muted">
+                  {debounced ? `Nothing matches "${debounced}".` : "No tenants exist yet."}
+                </p>
               </div>
-            </div>
-          ) : null}
-        </>
-      )}
-    </GlassCard>
+            </td>
+          </tr>
+        ) : (
+          orgs.map((org) => (
+            <tr key={org.id} className="hover:bg-white/[0.02]">
+              <td className="px-5 py-3">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line bg-bg text-xs font-medium text-ink">
+                    {initials(org.name) || "?"}
+                  </span>
+                  <p className="truncate text-sm font-medium text-ink">{org.name}</p>
+                </div>
+              </td>
+              <td className="max-w-[220px] truncate px-5 py-3 text-xs text-muted">{org.owner_email}</td>
+              <td className="px-5 py-3 text-right text-xs tabular-nums text-ink">{org.member_count}</td>
+              <td className="px-5 py-3 text-right text-xs tabular-nums text-ink">{org.project_count}</td>
+              <td className="whitespace-nowrap px-5 py-3 text-xs text-muted">{formatDateTime(org.created_at)}</td>
+            </tr>
+          ))
+        )}
+      </AdminTableCard>
+
+      {pagination && pagination.pages > 1 ? (
+        <AdminCard>
+          <AdminPagination
+            pagination={pagination}
+            onPage={(p) => {
+              setLoading(true);
+              setPage(p);
+            }}
+          />
+        </AdminCard>
+      ) : null}
+    </div>
   );
 }

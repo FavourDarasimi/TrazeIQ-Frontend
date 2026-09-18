@@ -5,7 +5,7 @@ import {
   ServerStackIcon,
   ZapIcon,
   NotificationSquareIcon,
-  AiSearchIcon,
+  CodeIcon,
 } from "@hugeicons/core-free-icons";
 
 import { Container, Eyebrow } from "@/components/ui/shared";
@@ -17,7 +17,7 @@ const stack = [
     role: "realtime dashboard & app",
     Icon: ActivityIcon,
   },
-{
+  {
     name: "Django REST",
     role: "ingestion API",
     Icon: ServerStackIcon,
@@ -28,8 +28,8 @@ const stack = [
     Icon: DatabaseIcon,
   },
   {
-    name: "Celery + Redis",
-    role: "async pipeline",
+    name: "Redis",
+    role: "cache & rate limits",
     Icon: ZapIcon,
   },
   {
@@ -38,9 +38,9 @@ const stack = [
     Icon: NotificationSquareIcon,
   },
   {
-    name: "OpenRouter",
-    role: "free-tier LLM analysis",
-    Icon: AiSearchIcon,
+    name: "Official SDKs",
+    role: "npm & PyPI packages",
+    Icon: CodeIcon,
   },
 ];
 
@@ -49,7 +49,7 @@ export function TechStack() {
     <section className="border-t border-line bg-bg-panel">
       <Container className="py-16 sm:py-20">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
-<Reveal className="md:max-w-xs">
+          <Reveal className="md:max-w-xs">
             <Eyebrow>Built on</Eyebrow>
             <h2 className="mt-4 text-2xl font-semibold tracking-tight text-ink">
               The stack behind the feed

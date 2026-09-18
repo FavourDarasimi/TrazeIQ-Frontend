@@ -15,12 +15,12 @@ const points = [
   {
     Icon: ZapIcon,
     title: "Millisecond ingestion",
-    body: "Events persist before you finish the request. AI and alerting run on Celery queues — never on the hot path.",
+    body: "Events persist before you finish the request. Deduplication and alerting run efficiently — never blocking your app.",
   },
   {
     Icon: FingerPrintIcon,
     title: "Fingerprint-first dedup",
-    body: "Normalize the error, hash the signature, increment the group. A crash loop can't multiply rows or AI calls.",
+    body: "Normalize the error, hash the signature, increment the group. A crash loop can't multiply database rows.",
   },
   {
     Icon: ServerStackIcon,
@@ -29,13 +29,13 @@ const points = [
   },
   {
     Icon: DatabaseSyncIcon,
-    title: "Cached AI analysis",
-    body: "Analysis is stored per fingerprint with a TTL. Repeats re-read the cache instead of re-paying the model.",
+    title: "Zero-dependency SDKs",
+    body: "Official lightweight SDKs for Node/TypeScript (trazeiq) and Python (trazeiq) with zero external dependencies.",
   },
   {
     Icon: Clock01Icon,
-    title: "Rate-limited queues",
-    body: "AI and alert work is throttled per queue. Bursts queue instead of bursting past free-tier limits.",
+    title: "Protected alert queues",
+    body: "Alert evaluations are throttled with cooldown windows. Repeats won't flood your Slack or webhook receivers.",
   },
   {
     Icon: ChartLineIcon,

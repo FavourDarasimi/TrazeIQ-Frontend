@@ -9,7 +9,7 @@ export function DocsReadApi() {
       <DocsSection
         id="read-api"
         label="Read API"
-        title="Pull data back out — events, incidents, analysis"
+        title="Pull data back out — events and incidents"
         sub="Read endpoints use your session (JWT), never the project API key, and are scoped to your organization — a cross-organization id resolves to 404 with no existence leak."
       >
         <SubHeading id="read-api-events">Events — GET /api/v1/events/</SubHeading>
@@ -40,15 +40,13 @@ GET /api/v1/events/{id}/ → 200 {data:{event}}  or 404 cross-org`}
           rows={[
             [<Code key="1">GET /api/v1/incidents/</Code>, "List incidents. Filters: ?status=open|investigating|resolved|ignored, ?severity=critical|high|medium|low, ?project=UUID, ?search= (substring across error-group title + event message/service/endpoint)"],
             [<Code key="2">GET /api/v1/incidents/{"{id}"}/</Code>, "Incident detail — {id, project:{id,name,environment}, error_group:{id,fingerprint,title,count,first_seen,last_seen}, severity, status, assigned_to:UUID|null, assigned_to_email:string|null, created_at, resolved_at, latest_event:{id,message,stacktrace,level,environment,service,endpoint,created_at}|null}"],
-            [<Code key="3">GET /api/v1/incidents/{"{id}"}/timeline/</Code>, "Chronological feed (see Timeline section) — events, comments, status changes, AI analyses"],
-            [<Code key="4">PATCH /api/v1/incidents/{"{id}"}/</Code>, "Update {status?, severity?, assigned_to?:UUID|null} — developer+; assigned_to must be in same org; appends status_change timeline entry; publishes incident.updated"],
+            [<Code key="3">GET /api/v1/incidents/{"{id}"}/timeline/</Code>, "Chronological feed (see Timeline section) — events, comments, status changes"],
+            [<Code key="4">PATCH /api/v1/incidents/{"{id}"}/</Code>, "Update {status?, severity?, assigned_to?:UUID|null} — developer+; assigned_to must be in same org; appends a status_change entry when the status actually changes; publishes incident.updated"],
             [<Code key="5">POST /api/v1/incidents/{"{id}"}/comments/</Code>, "Add comment {content:1–5000} — see Timeline"],
-            [<Code key="6">GET /api/v1/incidents/{"{id}"}/analysis/</Code>, "Latest AIAnalysis — {id, incident_id, status:pending|ready|failed, root_cause, suggested_fix, confidence:low|medium|high|\"\", model_used, created_at} or 404 if none yet"],
-            [<Code key="7">POST /api/v1/incidents/{"{id}"}/analyze/</Code>, "Manually re-run analysis, bypassing the 6h cache window — creates pending row and enqueues Celery task"],
           ]}
         />
         <DocsCode
-          label="incidents — list, detail, analysis"
+          label="incidents — list & detail"
           tabs={[
             {
               lang: "curl",
@@ -58,24 +56,16 @@ GET /api/v1/events/{id}/ → 200 {data:{event}}  or 404 cross-org`}
 # 200 {data:{incidents:[...]}}
 
 curl https://api.trazeiq.io/api/v1/incidents/<id>/ -H "Authorization: Bearer <jwt>"
-# 200 {data:{incident:{...}}}
-
-curl https://api.trazeiq.io/api/v1/incidents/<id>/analysis/ -H "Authorization: Bearer <jwt>"
-# 200 {data:{analysis:{status:"ready", root_cause:"...", suggested_fix:"...", confidence:"high"}}}
-# 404 {error:{code:"NOT_FOUND", message:"No analysis exists for this incident."}}`,
+# 200 {data:{incident:{...}}}`,
             },
             {
               lang: "js",
               label: "JavaScript",
               code: `const { incidents } = await api("/incidents/?status=open&severity=critical");
-const { incident } = await api(\`/incidents/\${id}/\`);
-const { analysis } = await api(\`/incidents/\${id}/analysis/\`);`,
+const { incident } = await api(\`/incidents/\${id}/\`);`,
             },
           ]}
         />
-        <Callout variant="note" title="Analysis cache">
-          Creating a new incident enqueues <Code>analyze_incident</Code> once. While an analysis is <Code>pending</Code>, re-enqueues are suppressed via a partial unique constraint; 20 more events for the same already-analyzed incident within <Code>AI_ANALYSIS_CACHE_HOURS=6</Code> trigger zero new LLM calls. <Code>POST …/analyze/</Code> bypasses that window.
-        </Callout>
 
         <SubHeading id="read-api-bulk">Bulk — POST /api/v1/incidents/bulk*/</SubHeading>
         <DocsTable

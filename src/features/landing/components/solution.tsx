@@ -1,5 +1,5 @@
 import { HugeiconsIcon } from "@hugeicons/react";
-import { TerminalIcon, AiSearchIcon, Notification03Icon, ArrowRight02Icon } from "@hugeicons/core-free-icons";
+import { TerminalIcon, FilterIcon, Notification03Icon, ArrowRight02Icon } from "@hugeicons/core-free-icons";
 
 import { Container, Eyebrow } from "@/components/ui/shared";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
@@ -11,9 +11,9 @@ const steps = [
     body: "Errors hit the ingestion endpoint and are fingerprinted on arrival — redacted, deduplicated, persisted in milliseconds.",
   },
   {
-    Icon: AiSearchIcon,
-    title: "Analyze",
-    body: "One AI call per new pattern, cached per fingerprint. It never runs on the request path.",
+    Icon: FilterIcon,
+    title: "Aggregate",
+    body: "Crash events are grouped by stack trace fingerprint into clean, single-incident tracking threads.",
   },
   {
     Icon: Notification03Icon,
@@ -32,9 +32,8 @@ export function Solution() {
             Same error. Handled once.
           </h2>
           <p className="text-pretty text-base leading-relaxed text-muted">
-            TrazeIQ is an error-intelligence layer for your backend. It turns
-            ten thousand identical pixels of noise into one incident with an
-            AI-written diagnosis attached.
+            TrazeIQ is an error-management layer for your backend. It turns
+            ten thousand identical items of log noise into one incident with complete stack traces attached.
           </p>
         </Reveal>
 
@@ -78,7 +77,7 @@ export function Solution() {
             className="rotate-90 sm:rotate-0"
           />
           <span className="text-ink">
-            → 1 incident · root cause · suggested fix
+            → 1 incident · full stack trace
           </span>
           <HugeiconsIcon
             icon={Notification03Icon}

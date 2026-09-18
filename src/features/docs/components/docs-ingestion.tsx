@@ -23,7 +23,7 @@ const ingestionTabs = [
     label: "curl",
     code: `curl -X POST https://api.trazeiq.io/api/v1/events/ \\
   -H "Content-Type: application/json" \\
-  -H "X-API-Key: trazeiq_...32-url-safe..." \\
+  -H "X-API-Key: <64-hex-api-key>" \\
   -d '${requestBody}'
 # 201 {success:true, data:{event:{id, project, error_group, message, stacktrace, level, environment, service, fingerprint, created_at}}}`,
   },
@@ -35,7 +35,7 @@ const ingestionTabs = [
 } catch (error) {
   fetch("https://api.trazeiq.io/api/v1/events/", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-API-Key": "trazeiq_..." },
+    headers: { "Content-Type": "application/json", "X-API-Key": "<64-hex-api-key>" },
     body: JSON.stringify({
       message: error.message,          // required
       stacktrace: error.stack ?? "",   // secrets auto-redacted
@@ -60,7 +60,7 @@ try:
 except Exception as exc:
     requests.post(
         "https://api.trazeiq.io/api/v1/events/",
-        headers={"Content-Type": "application/json", "X-API-Key": "trazeiq_..."},
+        headers={"Content-Type": "application/json", "X-API-Key": "<64-hex-api-key>"},
         json={
             "message": str(exc),
             "stacktrace": traceback.format_exc(),
@@ -99,7 +99,7 @@ export function DocsIngestion() {
       id="ingestion"
       label="Ingestion API"
       title="POST /api/v1/events/"
-      sub="Authenticate with your project's API key in the X-API-Key header. The endpoint responds in milliseconds — AI analysis, alerting, and realtime delivery all happen asynchronously, so reporting an error never blocks your app."
+      sub="Authenticate with your project's API key in the X-API-Key header. The endpoint responds in milliseconds — realtime and alert fan-out run inline but best-effort with short timeouts, so reporting an error never blocks your app long."
     >
       <div className="flex flex-col gap-6">
         <DocsCode label="POST /api/v1/events/ — fire an event" tabs={ingestionTabs} />
@@ -109,7 +109,7 @@ export function DocsIngestion() {
           head={["Field", "Type", "Required", "Notes"]}
           rows={[
             [<Code key="1">message</Code>, "string", <StatusBadge key="s" code="yes" tone="ok" />, "The error message. Stored post-redaction."],
-            [<Code key="2">stacktrace</Code>, "string", <StatusBadge key="s" code="no" tone="default" />, "Full stack trace. Secrets scrubbed before storage or AI prompt."],
+            [<Code key="2">stacktrace</Code>, "string", <StatusBadge key="s" code="no" tone="default" />, "Full stack trace. Secrets scrubbed before storage."],
             [<Code key="3">level</Code>, "enum", <StatusBadge key="s" code="no" tone="default" />, "debug | info | warning | error | fatal — defaults to error."],
             [<Code key="4">environment</Code>, "string", <StatusBadge key="s" code="no" tone="default" />, "e.g. production, staging. Max 32 chars."],
             [<Code key="5">service</Code>, "string", <StatusBadge key="s" code="no" tone="default" />, "Which service threw it, e.g. payment-api. Max 64 chars."],

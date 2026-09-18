@@ -15,8 +15,8 @@ export function DocsTimeline() {
       <DocsTable
         head={["Field", "Type", "Notes"]}
         rows={[
-          [<Code key="a">kind</Code>, "enum", "event | comment | status_change | ai_analysis"],
-          [<Code key="a">content</Code>, "string", "Comment body / status label / AI summary; empty for event kind"],
+            [<Code key="a">kind</Code>, "enum", "event | comment | status_change (ai_analysis is a reserved kind, currently unused — no AI worker)"],
+          [<Code key="a">content</Code>, "string", "Comment body / status label; empty for event kind"],
           [<Code key="a">actor_email</Code>, "string | null", "Who wrote it; system events have null"],
           [<Code key="a">level / message / environment / service</Code>, "string", "When kind=event: denormalized from the Event row; otherwise fallback empty string"],
           [<Code key="a">created_at</Code>, "ISO-8601", "Ordering is created_at, id — commit-history style"],
@@ -26,13 +26,12 @@ export function DocsTimeline() {
         label="timeline response"
         code={`GET /api/v1/incidents/2f1c.../timeline/ → 200 {data:{entries:[
   {id:"e1", kind:"event",          level:"error", message:"TypeError...", content:"", actor_email:null, created_at:"2026-09-01T10:02:00Z"},
-  {id:"a1", kind:"ai_analysis",    content:"Redis pool exhausted", actor_email:null, created_at:"2026-09-01T10:03:00Z"},
   {id:"c1", kind:"comment",        content:"looking into this", actor_email:"you@co.com", created_at:"2026-09-01T10:04:00Z"},
   {id:"s1", kind:"status_change",  content:"open → investigating", actor_email:"you@co.com", created_at:"2026-09-01T10:05:00Z"}
 ]}}`}
       />
       <p className="text-sm leading-relaxed text-muted">
-        The feed merges two sources: raw <Code>Event</Code> rows for the error group (<Code>kind=event</Code>) plus <Code>TimelineEntry</Code> rows. Render with a vertical line and per-kind dot/icon — per <Code>Design.md</Code> commit-history pattern: event = severity color, AI = accent-indigo, status_change/comment = muted.
+        The feed merges two sources: raw <Code>Event</Code> rows for the error group (<Code>kind=event</Code>) plus <Code>TimelineEntry</Code> rows. Render with a vertical line and per-kind dot/icon — per <Code>Design.md</Code> commit-history pattern: event = severity color, status_change/comment = muted.
       </p>
 
       <SubHeading id="timeline-comment">POST /api/v1/incidents/{"{id}"}/comments/</SubHeading>

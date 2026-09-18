@@ -16,7 +16,6 @@ import {
   Cancel01Icon,
   CheckmarkCircleIcon,
   FlashIcon,
-  SparklesIcon,
   TerminalIcon,
 } from "@hugeicons/core-free-icons";
 
@@ -57,7 +56,7 @@ const TOUR_STEPS: TourStep[] = [
       "Send error payloads and unhandled exceptions to /api/v1/events/ using your project's X-API-Key header. TrazeIQ automatically fingerprints stack traces and groups occurrences into deduplicated incidents.",
     highlightText: "Send your first event",
     snippet: `curl -X POST https://api.trazeiq.io/api/v1/events/ \\
-  -H "X-API-Key: trq_live_..." \\
+  -H "X-API-Key: <64-hex-api-key>" \\
   -H "Content-Type: application/json" \\
   -d '{"message": "DatabaseError: connection pool exhausted", "level": "error"}'`,
   },
@@ -73,15 +72,15 @@ const TOUR_STEPS: TourStep[] = [
     highlightText: "Live status & severity triage",
   },
   {
-    id: "ai-copilot",
+    id: "diagnostics",
     stepNumber: "03",
-    tag: "INTELLIGENCE",
-    icon: SparklesIcon,
-    title: "AI root-cause analysis",
-    subtitle: "Actionable diagnostics & fixes",
+    tag: "DIAGNOSTICS",
+    icon: TerminalIcon,
+    title: "Stack traces & debugging",
+    subtitle: "Actionable environment & error details",
     description:
-      "Every incident includes an AI Incident Copilot. It inspects stack traces, isolates underlying root causes (e.g. connection pool exhaustion, memory leak), and generates suggested fixes with confidence scores.",
-    highlightText: "Powered by Gemini 2.0 Flash",
+      "Every incident includes detailed stack traces, request metadata, environment context, and historical timelines so your team can pinpoint root causes fast.",
+    highlightText: "Full stack trace & timeline",
   },
   {
     id: "alerts",

@@ -24,7 +24,6 @@ import { StacktraceBlock } from "@/components/ui/stacktrace-block";
 import { ROUTES } from "@/constants";
 import { useProjectContext } from "@/features/app/components/project-context";
 import { useAuth } from "@/providers/auth-provider";
-import { AIAnalysisPanel } from "@/features/incidents/components/ai-analysis-panel";
 import { BulkAssignModal } from "@/features/incidents/components/bulk-assign-modal";
 import { BulkIgnoreModal } from "@/features/incidents/components/bulk-ignore-modal";
 import { BulkResolveModal } from "@/features/incidents/components/bulk-resolve-modal";
@@ -90,7 +89,6 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
   // Live updates
   useRealtimeEvents(
     (event) => {
-      if (event.type === "ai_analysis.ready") return;
       if (event.incident.id !== incidentId) return;
       setIncident((current) => (current ? { ...event.incident } : current));
     },
@@ -337,23 +335,18 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
         />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
-        <div className="flex min-w-0 flex-col gap-6">
-          {latest ? (
-            <StacktraceBlock
-              title="stacktrace"
-              message={latest.message}
-              stacktrace={latest.stacktrace}
-              level={latest.level}
-            />
-          ) : (
-            <p className="text-sm text-muted">No raw occurrence stored for this incident.</p>
-          )}
-          <IncidentTimeline incidentId={incident.id} severity={incident.severity} />
-        </div>
-        <div className="flex flex-col gap-6">
-          <AIAnalysisPanel key={incident.id} incidentId={incident.id} />
-        </div>
+      <div className="flex flex-col gap-6">
+        {latest ? (
+          <StacktraceBlock
+            title="stacktrace"
+            message={latest.message}
+            stacktrace={latest.stacktrace}
+            level={latest.level}
+          />
+        ) : (
+          <p className="text-sm text-muted">No raw occurrence stored for this incident.</p>
+        )}
+        <IncidentTimeline incidentId={incident.id} severity={incident.severity} />
       </div>
 
       {/* Shared Modals */}

@@ -20,7 +20,7 @@ const items = [
   {
     Icon: ShieldKeyIcon,
     title: "Secret redaction",
-    body: "SECRET_KEY=, tokens, and JWTs are scrubbed from stack traces before storage or AI.",
+    body: "SECRET_KEY=, database URLs, passwords, tokens, and JWTs are scrubbed from stack traces before anything is stored.",
   },
   {
     Icon: LockIcon,
@@ -39,8 +39,8 @@ const items = [
   },
   {
     Icon: AlienIcon,
-    title: "Prompt-injection defense",
-    body: "Error content is treated as data. Instructions buried in a stack trace don't execute.",
+    title: "Hostile input, safe output",
+    body: "Error content is treated as hostile data: scrubbed before storage, escaped before rendering, never executed.",
   },
 ];
 

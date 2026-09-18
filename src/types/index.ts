@@ -140,8 +140,7 @@ export type Incident = {
 export type IncidentTimelineKind =
   | "event"
   | "comment"
-  | "status_change"
-  | "ai_analysis";
+  | "status_change";
 
 export type IncidentTimelineEntry = {
   id: string;
@@ -154,10 +153,6 @@ export type IncidentTimelineEntry = {
   actor_email: string | null;
   created_at: string;
 };
-
-export type AnalysisStatus = "pending" | "ready" | "failed";
-
-export type AnalysisConfidence = "low" | "medium" | "high";
 
 export type DashboardRange = "24h" | "7d" | "30d";
 
@@ -305,17 +300,6 @@ export type ServicesHealthCatalog = {
   services: ServiceHealth[];
 };
 
-export type AIAnalysis = {
-  id: string;
-  incident_id: string;
-  status: AnalysisStatus;
-  root_cause: string;
-  suggested_fix: string;
-  confidence: AnalysisConfidence | "";
-  model_used: string;
-  created_at: string;
-};
-
 export type ErrorCode =
   | "EMAIL_TAKEN"
   | "INVALID_CREDENTIALS"
@@ -373,7 +357,6 @@ export type PlatformOverview = {
   events_24h: number;
   open_incidents: number;
   open_incidents_by_severity: Record<IncidentSeverity, number>;
-  ai_24h: Record<string, number>;
   alerts_24h: number;
   top_projects: Array<{
     id: string;
@@ -430,7 +413,6 @@ export type PlatformHealth = {
   checks: Record<string, { status: string; latency_ms?: number }>;
   metrics: {
     events_24h?: number;
-    ai_analysis?: Record<string, number>;
     alerts_24h?: Record<string, number>;
   };
 };

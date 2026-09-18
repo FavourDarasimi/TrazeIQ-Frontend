@@ -168,7 +168,6 @@ export function IncidentListPage() {
   // Phase 3B: live patch on Pusher events instead of refetching.
   useRealtimeEvents(
     (event) => {
-      if (event.type === "ai_analysis.ready") return;
       setIncidents((current) => {
         if (current === null) return current;
         if (event.type === "incident.created") {

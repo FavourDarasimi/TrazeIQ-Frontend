@@ -6,7 +6,6 @@ import { Solution } from "@/features/landing/components/solution";
 import { Features } from "@/features/landing/components/features";
 import { HowItWorks } from "@/features/landing/components/how-it-works";
 import { DashboardPreview } from "@/features/landing/components/dashboard-preview";
-import { AIAssistant } from "@/features/landing/components/ai-assistant";
 import { Timeline } from "@/features/landing/components/timeline";
 import { DevIntegration } from "@/features/landing/components/dev-integration";
 import { BuiltForScale } from "@/features/landing/components/built-for-scale";
@@ -29,7 +28,6 @@ export default function Home() {
       <Features />
       <HowItWorks />
       <DashboardPreview />
-      <AIAssistant />
       <Timeline />
       <DevIntegration />
       <BuiltForScale />

@@ -16,7 +16,6 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Alert02Icon,
   ChatIcon,
-  SparklesIcon,
   StatusIcon,
 } from "@hugeicons/core-free-icons";
 
@@ -68,8 +67,7 @@ type KindStyle = {
 };
 
 // Design.md: dot/icon color follows entry type — events take the severity
-// color, AI analysis the indigo accent, comments and status changes stay
-// secondary. Events label themselves by log level; the others by kind.
+// color, comments and status changes stay secondary. Events label themselves by log level; the others by kind.
 function kindStyle(
   entry: IncidentTimelineEntry,
   severity: IncidentSeverity,
@@ -89,14 +87,6 @@ function kindStyle(
         label: "Status change",
         labelClass: "text-muted",
         iconClass: "text-muted",
-        contentClass: "font-mono text-xs leading-relaxed text-muted",
-      };
-    case "ai_analysis":
-      return {
-        icon: SparklesIcon,
-        label: "AI analysis",
-        labelClass: "text-accent",
-        iconClass: "text-accent",
         contentClass: "font-mono text-xs leading-relaxed text-muted",
       };
     case "event":
@@ -270,11 +260,6 @@ export function IncidentTimeline({
   // a fresh AI analysis) — re-read the feed.
   useRealtimeEvents(
     (event) => {
-      if (event.type === "ai_analysis.ready") {
-        if (event.incident.id !== incidentId) return;
-        refresh();
-        return;
-      }
       if (event.incident.id !== incidentId) return;
       refresh();
     },

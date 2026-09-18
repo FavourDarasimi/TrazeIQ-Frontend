@@ -121,14 +121,21 @@ except Exception as e:
             exceptions. The endpoint responds in milliseconds.
           </Step>
           <Step title="Watch incidents appear">
-            Repeated errors are deduplicated into a single ErrorGroup → one open Incident, AI proposes a root cause
-            and fix (once per incident, cached 6h), and alert rules / Pusher / notifications fan out — no polling,
+            Repeated errors are deduplicated into a single ErrorGroup → one open Incident, and alert rules / Pusher / notifications fan out — no polling,
             no babysitting. Rotate the key anytime at <Code>POST /projects/{"{id}"}/rotate-key/</Code>.
           </Step>
         </Steps>
 
         <Callout variant="note" title="Two auth surfaces">
           Dashboard reads (all <Code>GET /api/v1/*</Code> except ingestion) use your session JWT (<Code>Authorization: Bearer</Code> or <Code>trazeiq_access</Code> cookie). Ingestion <Code>POST /api/v1/events/</Code> uses <Code>X-API-Key</Code> only. Don&apos;t send both — they authenticate different principals.
+        </Callout>
+
+        <Callout variant="note" title="Dashboard calls need ?project_id=">
+          <Code>GET /api/v1/dashboard/overview/</Code>, <Code>/stats/</Code> and <Code>/services/health/</Code> always require <Code>?project_id=&lt;uuid&gt;</Code> — without it they return <Code>400 VALIDATION_FAILED</Code> instead of silent zeros. Grab the id from <Code>GET /api/v1/projects/</Code>.
+        </Callout>
+
+        <Callout variant="note" title="Self-hosting or staging?">
+          The snippets above target the hosted API. Replace <Code>https://api.trazeiq.io</Code> with your own API host (scheme + host, e.g. <Code>http://localhost:8000</Code> in local evaluation) — otherwise your test events land in production. The snippet shown next to a newly created API key already targets the host you called.
         </Callout>
       </div>
     </DocsSection>

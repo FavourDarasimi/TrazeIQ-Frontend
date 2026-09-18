@@ -7,8 +7,8 @@ export function DocsLimits() {
     <DocsSection
       id="limits"
       label="Limits"
-      title="Payloads, rate limits, AI budget"
-      sub="These defaults keep ingestion fast and the free-tier AI pipeline inside its rate limits. If you hit a wall, the numbers below explain what's happening."
+      title="Payloads and rate limits"
+      sub="These defaults keep ingestion fast and system performance predictable under high load."
     >
       <DocsTable
         head={["Limit", "Default", "Enforced as"]}
@@ -16,13 +16,11 @@ export function DocsLimits() {
           ["Payload size", "100 KB per event (len(message)+len(stacktrace))", <StatusBadge key="s" code="413" tone="warn" />],
           ["Per-project rate", "1,000 events/minute (configurable per project via events_per_minute)", <StatusBadge key="s" code="429" tone="danger" />],
           ["Per-IP rate", "5,000 events/minute", <StatusBadge key="s" code="429" tone="danger" />],
-          ["AI analysis", "Once per new incident, cached 6 hours (AI_ANALYSIS_CACHE_HOURS)", "async, never blocks ingestion"],
-          ["AI queue", "ai_analysis queue 15/m", "Celery rate_limit + OpenRouter fallback chain"],
-          ["Ingestion latency", "Milliseconds, flat under load", "no inline AI / alert / realtime calls"],
+          ["Ingestion latency", "Milliseconds, flat under load", "fast edge ingestion"],
         ]}
       />
       <p className="text-sm leading-relaxed text-muted">
-        Throttled requests include a <Code>Retry-After</Code> header and the standard <Code>TOO_MANY_REQUESTS</Code> code. A crash loop sending the same error hundreds of times a second increments one <Code>ErrorGroup</Code> and reuses the open incident — the flood is deduplicated before it touches storage, the AI queue, or alert channels.
+        Throttled requests include a <Code>Retry-After</Code> header and the standard <Code>TOO_MANY_REQUESTS</Code> code. A crash loop sending the same error hundreds of times a second increments one <Code>ErrorGroup</Code> and reuses the open incident — the flood is deduplicated before it touches storage or alert channels.
       </p>
 
       <SubHeading id="limits-rate-details">Rate-limit internals</SubHeading>
@@ -36,7 +34,7 @@ export function DocsLimits() {
         ]}
       />
       <Callout variant="tip" title="Tuning">
-        Raise a single high-volume project&apos;s <Code>events_per_minute</Code> via <Code>PATCH /api/v1/projects/{"{id}"}/</Code> without touching the global cap. In prod, set <Code>DJANGO_REDIS_URL</Code> so throttles and per-email OTP caps share Redis across workers; without it, <Code>LocMemCache</Code> under-counts.
+        A single high-volume project&apos;s <Code>events_per_minute</Code> override lives on the project row (server-side — the project POST/PATCH endpoints don&apos;t accept it) so the global cap stays untouched. In prod, set <Code>DJANGO_REDIS_URL</Code> so throttles and per-email OTP caps share Redis across workers; without it, <Code>LocMemCache</Code> under-counts.
       </Callout>
     </DocsSection>
   );

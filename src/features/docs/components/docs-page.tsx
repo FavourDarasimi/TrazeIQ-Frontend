@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Cancel01Icon, Menu01Icon } from "@hugeicons/core-free-icons";
+import { Cancel01Icon, Menu01Icon, Search01Icon } from "@hugeicons/core-free-icons";
 
 import { Footer } from "@/features/landing/components/footer";
 import { Logo } from "@/features/landing/components/navbar";
@@ -14,12 +14,14 @@ import { useAuth } from "@/providers/auth-provider";
 
 import { DocsSidebar } from "./docs-sidebar";
 import { DocsToc } from "./docs-toc";
+import { DocsPrevNext } from "./docs-prev-next";
 import { DocsSearch, SearchTrigger } from "./docs-search";
 import { allNavItems } from "./docs-nav-data";
 import { Code, DocsSection, DocsTable } from "./docs-shared";
 import { CodeLangProvider } from "./docs-code-context";
 
 import { DocsQuickstart } from "./docs-quickstart";
+import { DocsSDKs } from "./docs-sdks";
 import { DocsOrganizations } from "./docs-organizations";
 import { DocsProjects } from "./docs-projects";
 import { DocsAlerts } from "./docs-alerts";
@@ -40,7 +42,7 @@ function DocsProductOverview() {
         {[
           { title: "Collect", body: "Capture errors from your backend, APIs, workers, and jobs in one place." },
           { title: "Group", body: "Merge repeated failures into a single incident so your team is not chasing duplicates." },
-          { title: "Analyze", body: "Use AI to highlight the likely root cause and suggested fix before the ticket escalates." },
+          { title: "Trace", body: "Review full stack traces, breadcrumbs, and contextual metadata for fast debugging." },
           { title: "Alert", body: "Send the right issue to Slack, notifications, and the dashboard without polling." },
         ].map((item) => (
           <div key={item.title} className="rounded-xl border border-line bg-bg-panel p-4">
@@ -71,8 +73,8 @@ function DocsWhyTrazeIQ() {
           ],
           [
             "Understand the likely cause",
-            "Teams manually inspect logs and stack traces.",
-            "AI produces a root-cause summary and fix suggestion before investigation deepens.",
+            "Teams manually inspect scattered logs.",
+            "Full stack traces, breadcrumbs, and request context highlight exact failure lines.",
           ],
           [
             "Keep the team aligned",
@@ -97,7 +99,7 @@ function DocsOnboardingChecklist() {
         {[
           { step: "01", title: "Create a project", body: "Create your organization, add a project, and generate a project API key for ingestion." },
           { step: "02", title: "Send one event", body: "Capture a production error with a single POST to the ingestion endpoint from your app." },
-          { step: "03", title: "Review the incident", body: "TrazeIQ groups repeats, surfaces the issue, and summarizes the likely root cause." },
+          { step: "03", title: "Review the incident", body: "TrazeIQ groups repeats into a single incident with full stack traces." },
           { step: "04", title: "Set alerts", body: "Connect Slack or notifications to trigger when issues cross the threshold your team cares about." },
         ].map((item) => (
           <div key={item.step} className="rounded-xl border border-line bg-bg-panel p-4">
@@ -125,7 +127,7 @@ function DocsPricing() {
           [
             <Code key="starter">Starter</Code>,
             "Early-stage SaaS teams with a few apps and services",
-            "Project-based monitoring, core alerts, incident timeline, basic AI summaries.",
+            "Project-based monitoring, core alerts, incident timeline, stack trace analysis.",
           ],
           [
             <Code key="growth">Growth</Code>,
@@ -150,6 +152,7 @@ export function DocsPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [activeId, setActiveId] = useState<string>(allNavItems[0]?.id ?? "quickstart");
+  const activeItem = allNavItems.find((i) => i.id === activeId);
   const { status: authStatus } = useAuth();
   const authReady = authStatus !== "loading";
   const authenticated = authStatus === "authenticated";
@@ -218,8 +221,7 @@ export function DocsPage() {
     return () => observer.disconnect();
   }, []);
 
-  const scrollTo = useCallback((id: string) => {
-    const el = document.getElementById(id);
+  const scrollTo = useCallback((id: string) => {    const el = document.getElementById(id);
     if (!el) return;
     // respect prefers-reduced-motion: check media query
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -345,6 +347,27 @@ export function DocsPage() {
 
         <div ref={mainRef} className="min-w-0 flex-1">
           <Container className="max-w-3xl py-10 sm:py-12">
+            {/* Breadcrumb + search */}
+            <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="flex min-w-0 items-center gap-1.5 font-mono text-xs text-muted">
+                <span>Docs</span>
+                <span aria-hidden className="text-muted/60">/</span>
+                <span className="truncate">{activeItem?.group ?? ""}</span>
+                <span aria-hidden className="text-muted/60">/</span>
+                <span className="truncate text-ink">{activeItem?.label ?? ""}</span>
+              </p>
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                aria-label="Search docs (Ctrl+K)"
+                className="inline-flex w-full items-center gap-2 rounded-full border border-line bg-bg-panel px-4 py-2 font-mono text-xs text-muted transition-colors hover:border-line-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-accent sm:w-[280px]"
+              >
+                <HugeiconsIcon icon={Search01Icon} size={14} color="currentColor" />
+                <span className="flex-1 text-left">Search Docs…</span>
+                <span className="rounded bg-surface px-1.5 py-0.5 text-[10px]">⌘K</span>
+              </button>
+            </div>
+
             {/* Hero */}
             <div className="flex flex-col gap-4">
               <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">documentation</p>
@@ -352,7 +375,7 @@ export function DocsPage() {
                 Monitor what breaks before customers do.
               </h1>
               <p className="max-w-2xl text-pretty text-base leading-relaxed text-muted sm:text-lg">
-                TrazeIQ helps product and engineering teams capture production errors, understand the likely root cause, and resolve incidents before they turn into noisy customer-facing outages.
+                TrazeIQ helps product and engineering teams capture production errors, group them into trackable incidents, and resolve them before they turn into noisy customer-facing outages.
               </p>
               <div className="flex flex-wrap gap-2 pt-2">
                 <a href="#quickstart" className="inline-flex items-center rounded-full bg-accent px-4 py-2 text-sm font-medium text-ink hover:bg-[#5b52ea] focus-visible:outline-2 focus-visible:outline-accent">Get started</a>
@@ -370,6 +393,7 @@ export function DocsPage() {
 
               {/* Getting Started */}
               <DocsQuickstart />
+              <DocsSDKs />
 
               {/* Account & Team */}
               <DocsOrganizations />
@@ -383,6 +407,8 @@ export function DocsPage() {
 
               {/* Security & Trust */}
               <DocsSecurity />
+
+              <DocsPrevNext activeId={activeId} onNavigate={scrollTo} />
             </div>
           </Container>
         </div>

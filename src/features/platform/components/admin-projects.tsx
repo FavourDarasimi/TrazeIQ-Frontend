@@ -1,48 +1,59 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
-  Layers02Icon,
-  Search01Icon,
-} from "@hugeicons/core-free-icons";
 
-import { EmptyState } from "@/components/ui/empty-state";
-import { GlassCard, Spinner } from "@/components/ui/glass-card";
 import { ApiError } from "@/lib/api";
 import { listPlatformProjects } from "@/services/platform";
 import type { PlatformPageMeta, PlatformProject } from "@/types";
 import { apiErrorMessage } from "@/utils/errors";
 import { formatDateTime } from "@/utils/format";
 
+import {
+  AdminCard,
+  AdminError,
+  AdminLoading,
+  AdminPagination,
+  AdminPill,
+  AdminSearchInput,
+  AdminTableCard,
+  AdminTh,
+} from "@/features/platform/components/admin-ui";
+
 const PAGE_SIZE = 25;
+
+function initials(name: string): string {
+  return name
+    .split(/[\s-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() ?? "")
+    .join("");
+}
 
 export function AdminProjects() {
   const [projects, setProjects] = useState<PlatformProject[]>([]);
   const [pagination, setPagination] = useState<PlatformPageMeta | null>(null);
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [debounced, setDebounced] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search.trim());
+    const t = setTimeout(() => {
+      setDebounced(search.trim());
       setPage(1);
-    }, 400);
-    return () => clearTimeout(timer);
+    }, 350);
+    return () => clearTimeout(t);
   }, [search]);
 
   useEffect(() => {
-    const controller = new AbortController();
+    const c = new AbortController();
     listPlatformProjects({
-      search: debouncedSearch || undefined,
+      search: debounced || undefined,
       page,
       page_size: PAGE_SIZE,
-      signal: controller.signal,
+      signal: c.signal,
     })
       .then(({ projects, pagination }) => {
         setProjects(projects);
@@ -54,131 +65,111 @@ export function AdminProjects() {
         setError(err instanceof ApiError ? apiErrorMessage(err) : "Couldn't load projects.");
       })
       .finally(() => setLoading(false));
-    return () => controller.abort();
-  }, [debouncedSearch, page]);
+    return () => c.abort();
+  }, [debounced, page]);
+
+  if (error) return <AdminError message={error} />;
 
   return (
-    <GlassCard className="p-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
-          Projects{pagination ? ` · ${pagination.total}` : ""}
-        </h3>
-        <label className="relative block sm:w-72">
-          <span className="sr-only">Search projects by name</span>
-          <HugeiconsIcon
-            icon={Search01Icon}
-            size={16}
-            color="currentColor"
-            strokeWidth={1.5}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
-          />
-          <input
+    <div className="flex flex-col gap-4">
+      <div>
+        <h1 className="text-xl font-semibold text-ink">Projects</h1>
+        <p className="mt-1 text-sm text-muted">Monitored services and their ingest load.</p>
+      </div>
+
+      <AdminTableCard
+        title="Projects"
+        count={pagination?.total ?? null}
+        minWidth={780}
+        search={
+          <AdminSearchInput
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
+            onChange={(v) => {
+              setSearch(v);
               setLoading(true);
             }}
             placeholder="Search by name…"
-            className="h-9 w-full rounded-lg border border-line bg-bg pl-9 pr-3 text-sm text-ink outline-none transition-colors placeholder:text-muted focus:border-accent/60 focus:ring-1 focus:ring-accent/40"
+            label="Search projects by name"
           />
-        </label>
-      </div>
-
-      {error ? (
-        <p className="mt-4 text-sm text-sev-critical">{error}</p>
-      ) : loading && projects.length === 0 ? (
-        <Spinner label="Loading projects…" />
-      ) : projects.length === 0 ? (
-        <div className="mt-4">
-          <EmptyState
-            icon={Layers02Icon}
-            title="No projects found"
-            body={debouncedSearch ? `Nothing matches "${debouncedSearch}".` : "No projects exist yet."}
-          />
-        </div>
-      ) : (
-        <>
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[760px] text-left text-sm">
-              <thead>
-                <tr className="border-b border-line font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
-                  <th className="py-2 pr-4 font-medium">Project</th>
-                  <th className="py-2 pr-4 font-medium">Key prefix</th>
-                  <th className="py-2 pr-4 font-medium">Events · 24h</th>
-                  <th className="py-2 pr-4 font-medium">Open</th>
-                  <th className="py-2 pr-4 font-medium">Cap/min</th>
-                  <th className="py-2 font-medium">Created</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {projects.map((project) => (
-                  <tr key={project.id} className="align-top">
-                    <td className="py-2.5 pr-4">
-                      <p className="font-medium text-ink">{project.name}</p>
-                      <p className="font-mono text-[11px] text-muted">
-                        {project.organization} · {project.environment}
-                      </p>
-                    </td>
-                    <td className="py-2.5 pr-4 font-mono text-[12px] text-muted">
-                      {project.api_key_prefix}…
-                    </td>
-                    <td className="py-2.5 pr-4 font-mono text-[12px] text-muted">{project.events_24h}</td>
-                    <td className="py-2.5 pr-4">
-                      {project.open_incidents > 0 ? (
-                        <span className="rounded-full border border-sev-critical/30 bg-sev-critical/10 px-2 py-0.5 font-mono text-[11px] text-sev-critical">
-                          {project.open_incidents} open
-                        </span>
-                      ) : (
-                        <span className="font-mono text-[12px] text-muted">—</span>
-                      )}
-                    </td>
-                    <td className="py-2.5 pr-4 font-mono text-[12px] text-muted">
-                      {project.events_per_minute}
-                    </td>
-                    <td className="whitespace-nowrap py-2.5 font-mono text-[12px] text-muted">
-                      {formatDateTime(project.created_at)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {pagination && pagination.pages > 1 ? (
-            <div className="mt-4 flex items-center justify-between">
-              <p className="font-mono text-[11px] text-muted">
-                Page {pagination.page} of {pagination.pages} · {pagination.total} total
-              </p>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  disabled={!pagination.has_previous}
-                  onClick={() => {
-                    setLoading(true);
-                    setPage((p) => p - 1);
-                  }}
-                  aria-label="Previous page"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-line text-muted transition-colors hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <HugeiconsIcon icon={ArrowLeft01Icon} size={16} color="currentColor" strokeWidth={1.5} />
-                </button>
-                <button
-                  type="button"
-                  disabled={!pagination.has_next}
-                  onClick={() => {
-                    setLoading(true);
-                    setPage((p) => p + 1);
-                  }}
-                  aria-label="Next page"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-line text-muted transition-colors hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} color="currentColor" strokeWidth={1.5} />
-                </button>
+        }
+        head={
+          <>
+            <AdminTh>Project</AdminTh>
+            <AdminTh>Key</AdminTh>
+            <AdminTh right>Events · 24h</AdminTh>
+            <AdminTh>Incidents</AdminTh>
+            <AdminTh right>Cap/min</AdminTh>
+            <AdminTh>Created</AdminTh>
+          </>
+        }
+      >
+        {loading && projects.length === 0 ? (
+          <tr>
+            <td colSpan={6} className="p-0">
+              <AdminLoading label="Loading projects…" />
+            </td>
+          </tr>
+        ) : projects.length === 0 ? (
+          <tr>
+            <td colSpan={6} className="p-0">
+              <div className="flex flex-col items-center px-6 py-12 text-center">
+                <p className="text-sm font-medium text-ink">No projects found</p>
+                <p className="mt-1 text-sm text-muted">
+                  {debounced ? `Nothing matches "${debounced}".` : "No projects exist yet."}
+                </p>
               </div>
-            </div>
-          ) : null}
-        </>
-      )}
-    </GlassCard>
+            </td>
+          </tr>
+        ) : (
+          projects.map((p) => (
+            <tr key={p.id} className="hover:bg-white/[0.02]">
+              <td className="px-5 py-3">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line bg-bg text-xs font-medium text-ink">
+                    {initials(p.name) || "?"}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-ink">{p.name}</p>
+                    <p className="truncate text-xs text-muted">
+                      {p.organization} · {p.environment}
+                    </p>
+                  </div>
+                </div>
+              </td>
+              <td className="whitespace-nowrap px-5 py-3 font-mono text-xs text-muted">
+                {p.api_key_prefix}
+                <span className="text-muted/50">…</span>
+              </td>
+              <td className="px-5 py-3 text-right text-xs tabular-nums text-ink">{p.events_24h}</td>
+              <td className="px-5 py-3">
+                {p.open_incidents > 0 ? (
+                  <AdminPill tone="red" dot="red">
+                    {p.open_incidents} open
+                  </AdminPill>
+                ) : (
+                  <AdminPill tone="green" dot="green">
+                    clear
+                  </AdminPill>
+                )}
+              </td>
+              <td className="px-5 py-3 text-right text-xs tabular-nums text-muted">{p.events_per_minute}</td>
+              <td className="whitespace-nowrap px-5 py-3 text-xs text-muted">{formatDateTime(p.created_at)}</td>
+            </tr>
+          ))
+        )}
+      </AdminTableCard>
+
+      {pagination && pagination.pages > 1 ? (
+        <AdminCard>
+          <AdminPagination
+            pagination={pagination}
+            onPage={(p) => {
+              setLoading(true);
+              setPage(p);
+            }}
+          />
+        </AdminCard>
+      ) : null}
+    </div>
   );
 }

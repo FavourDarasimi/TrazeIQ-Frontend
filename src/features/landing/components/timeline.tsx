@@ -1,7 +1,6 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   DangerIcon,
-  SparklesIcon,
   UserIcon,
   Comment01Icon,
   CheckmarkCircleIcon,
@@ -21,15 +20,6 @@ const entries = [
     body: "payments-api threw under load; 41 occurrences grouped into incident #1281.",
   },
   {
-    time: "10:02:01",
-    Icon: SparklesIcon,
-    color: "text-accent",
-    ring: "border-accent/40",
-    kind: "ai_analysis",
-    title: "AI analysis complete",
-    body: "Root cause identified: connection pool exhausted. Fix written, confidence high.",
-  },
-  {
     time: "10:05:31",
     Icon: UserIcon,
     color: "text-muted",
@@ -45,7 +35,7 @@ const entries = [
     ring: "border-line-soft",
     kind: "comment",
     title: "Comment — Priya",
-    body: "Pool exhaustion matches the batch job launch at 10:00. Applying the suggested fix first.",
+    body: "Pool exhaustion matches the batch job launch at 10:00. Applying connection pool scaling.",
   },
   {
     time: "10:09:40",
@@ -68,10 +58,10 @@ export function Timeline() {
               align="left"
               eyebrow="Incident timeline"
               title="A full story, not a stack overflow"
-              sub="Every incident carries its whole history: detections, AI findings, status changes, and comments — in order, with the person responsible next to each step."
+              sub="Every incident carries its whole history: error events, status changes, assignments, and team comments — in order, with full context at each step."
             />
             <p className="font-mono text-xs text-muted">
-              timeline types: event · ai_analysis · status_change · comment
+              timeline types: event · status_change · comment
             </p>
           </Reveal>
 

@@ -3,7 +3,7 @@ import { Code, DocsSection } from "./docs-shared";
 const steps = [
   {
     title: "Redact",
-    body: "Obvious secrets — SECRET_KEY=, DATABASE_URL=, password=, bearer tokens, JWTs — are scrubbed from the message and stacktrace before anything touches the database or the AI prompt.",
+    body: "Obvious secrets — SECRET_KEY=, DATABASE_URL=, password=, bearer tokens, JWTs — are scrubbed from the message and stacktrace before anything touches the database.",
   },
   {
     title: "Fingerprint",
@@ -16,10 +16,6 @@ const steps = [
   {
     title: "Incident",
     body: "Each group gets one open Incident — the trackable ticket: severity, status, assignment, comments, timeline. Resolve it and a later recurrence reopens a fresh incident against the same group.",
-  },
-  {
-    title: "Analyze",
-    body: "AI analysis runs once per new incident (cached for 6 hours), never per occurrence. A prompt-injection guard makes the model treat error text strictly as data.",
   },
   {
     title: "Deliver",

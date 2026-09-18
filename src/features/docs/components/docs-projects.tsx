@@ -23,7 +23,7 @@ export function DocsProjects() {
             [
               <Code key="a">POST /api/v1/projects/</Code>,
               "owner/admin",
-              <><Code>{`{name, organization?:UUID, environment?:string, events_per_minute?:int}`}</Code> — when <Code>organization</Code> omitted, uses caller&apos;s first org</>,
+              <><Code>{`{name, organization?:UUID, environment?:string}`}</Code> — when <Code>organization</Code> omitted, uses caller&apos;s first org</>,
             ],
             [
               <Code key="a">GET /api/v1/projects/{"{id}"}/</Code>,
@@ -33,7 +33,7 @@ export function DocsProjects() {
             [
               <Code key="a">PATCH /api/v1/projects/{"{id}"}/</Code>,
               "owner/admin",
-              <><Code>{`{name?, environment?, events_per_minute?}`}</Code> — partial, 1 ≤ events_per_minute ≤ 1_000_000</>,
+              <><Code>{`{name?, environment?}`}</Code> — partial; per-project throttle is tuned server-side (see field table)</>,
             ],
             [
               <Code key="a">DELETE /api/v1/projects/{"{id}"}/</Code>,
@@ -53,7 +53,7 @@ export function DocsProjects() {
   -H "Authorization: Bearer <access_jwt>" \\
   -d '{"name":"payment-api","environment":"production","events_per_minute":1000}'
 # 201 {data:{project:{id, organization, name, api_key_prefix, environment, events_per_minute, created_at},
-#            api_key:"trazeiq_...32-url-safe...", integration_snippet:"curl -X POST ... -H X-API-Key: ..."}}`,
+#            api_key:"<64-hex … 64 chars>", integration_snippet:"curl -X POST ... -H X-API-Key: ..."}}`,
             },
             {
               lang: "js",
@@ -80,8 +80,8 @@ api_key = resp.json()["data"]["api_key"]`,
           rows={[
             [<Code key="a">name</Code>, "string 1–120", "—"],
             [<Code key="a">environment</Code>, "string ≤32", 'default "production"'],
-            [<Code key="a">events_per_minute</Code>, "int 1–1_000_000", "Per-project throttle override; default 1000 (overrides EVENT_THROTTLE_KEY 1000/min)"],
-            [<Code key="a">api_key_prefix</Code>, "string 8 chars", 'First 8 of raw key, e.g. "trazeiq_" prefix slice; display-only'],
+            [<Code key="a">events_per_minute</Code>, "int 1–1_000_000", "Per-project throttle override; default 1000 (overrides EVENT_THROTTLE_KEY 1000/min). Returned on reads; tuned server-side, not via POST/PATCH."],
+            [<Code key="a">api_key_prefix</Code>, "string, 8 hex chars", "First 8 chars of the 64-hex raw key; display-only"],
             [<Code key="a">api_key_hash</Code>, "string (64 hex)", "HMAC-SHA256 over raw key keyed by API_KEY_HASH_SECRET|SECRET_KEY — never returned"],
           ]}
         />
@@ -92,7 +92,7 @@ api_key = resp.json()["data"]["api_key"]`,
 
         <SubHeading id="projects-rotate">Rotate API key — POST /api/v1/projects/{"{id}"}/rotate-key/</SubHeading>
         <p className="text-sm leading-relaxed text-muted">
-          Owner/admin only. Generates a fresh <Code>trazeiq_ + 32-url-safe</Code> key, stores its HMAC hash + new prefix, returns the raw key once, and invalidates the previous key immediately. An <Code>AuditLog</Code> row <Code>key_rotated</Code> is written with actor and timestamp.
+          Owner/admin only. Generates a fresh 64-hex key, stores its HMAC hash + new prefix, returns the raw key once, and invalidates the previous key immediately. An <Code>AuditLog</Code> row <Code>key_rotated</Code> is written with actor and timestamp.
         </p>
         <DocsCode
           label="rotate key"
@@ -102,7 +102,7 @@ api_key = resp.json()["data"]["api_key"]`,
               label: "curl",
               code: `curl -X POST https://api.trazeiq.io/api/v1/projects/<id>/rotate-key/ \\
   -H "Authorization: Bearer <owner_jwt>"
-# 200 {data:{project:{id, api_key_prefix:"newpref..."}, api_key:"trazeiq_new...", integration_snippet:"..."}}
+# 200 {data:{project:{id, api_key_prefix:"9f2c41ab"}, api_key:"<new 64-hex key>", integration_snippet:"..."}}
 # Old X-API-Key now 401 NOT_AUTHENTICATED on POST /api/v1/events/`,
             },
             {
