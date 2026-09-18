@@ -148,7 +148,7 @@ function BellDropdown() {
       {open ? (
         <div
           ref={panelRef}
-          className="absolute right-0 top-full z-40 mt-2 w-[22rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-line bg-surface shadow-xl"
+          className="absolute right-0 top-full z-40 mt-2 w-[22rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-line bg-surface"
         >
           <div className="flex items-center justify-between border-b border-line px-4 py-3">
             <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
@@ -262,7 +262,7 @@ function UserDropdown() {
       </button>
 
       {open ? (
-        <div className="absolute right-0 top-full z-40 mt-2 w-56 overflow-hidden rounded-xl border border-line bg-surface shadow-xl">
+        <div className="absolute right-0 top-full z-40 mt-2 w-56 overflow-hidden rounded-xl border border-line bg-surface">
           <div className="border-b border-line px-4 py-3">
             <p className="truncate text-sm font-medium tracking-tight text-ink">
               {user?.name || user?.email}

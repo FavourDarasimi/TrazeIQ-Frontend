@@ -95,7 +95,7 @@ export function InviteAcceptPage({ token }: { token: string }) {
         </div>
       ) : (
         <div>
-          <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-line bg-bg-panel text-muted">
+          <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-line bg-surface text-muted">
             <HugeiconsIcon icon={UserGroupIcon} size={24} color="currentColor" strokeWidth={1.5} />
           </span>
           <h1 className="mt-4 text-xl font-semibold tracking-tight text-ink">You&apos;ve been invited</h1>

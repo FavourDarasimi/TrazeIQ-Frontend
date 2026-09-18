@@ -46,7 +46,6 @@ function ProjectSwitcher() {
         className={`
           flex items-center gap-2 rounded-full border bg-bg pl-1 pr-1 py-1
           border-line
-          shadow-sm
           transition-all duration-150
           group-hover/project:border-line-soft group-hover/project:bg-surface
           group-focus-within/project:border-accent/50 group-focus-within/project:ring-1 group-focus-within/project:ring-accent/20
@@ -55,7 +54,7 @@ function ProjectSwitcher() {
           data-[state=error]:border-sev-critical/40 data-[state=error]:bg-sev-critical/5
         `}
       >
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface border border-line font-mono text-[11px] font-semibold text-ink shadow-sm group-hover/project:border-line-soft">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface border border-line font-mono text-[11px] font-semibold text-ink group-hover/project:border-line-soft">
           {(displayProject?.name ?? "?")[0]?.toUpperCase()}
         </span>
         <div className="hidden min-w-0 sm:block">
@@ -64,7 +63,7 @@ function ProjectSwitcher() {
           </p>
         </div>
         <span className="sm:hidden truncate text-sm font-medium text-ink max-w-[12ch]">{displayProject?.name ?? "—"}</span>
-        <span className="ml-0.5 flex h-6 w-6 shrink-0 flex-col items-center justify-center gap-0 rounded-full bg-surface border border-line py-0.5 text-muted shadow-sm transition-colors group-hover/project:border-accent/30 group-hover/project:text-ink group-hover/project:bg-bg-panel">
+        <span className="ml-0.5 flex h-6 w-6 shrink-0 flex-col items-center justify-center gap-0 rounded-full bg-surface border border-line py-0.5 text-muted transition-colors group-hover/project:border-accent/30 group-hover/project:text-ink group-hover/project:bg-bg-panel">
           <HugeiconsIcon icon={ChevronUpIcon} size={8} color="currentColor" strokeWidth={1.5} className="-mb-0.5" />
           <HugeiconsIcon icon={ChevronDownIcon} size={8} color="currentColor" strokeWidth={1.5} className="-mt-0.5" />
         </span>
@@ -86,15 +85,23 @@ function ProjectSwitcher() {
   );
 }
 
-export function AppHeader({ onOpenMenu }: { onOpenMenu?: () => void }) {
+export function AppHeader({
+  onOpenMenu,
+  className = "",
+}: {
+  onOpenMenu?: () => void;
+  className?: string;
+}) {
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center justify-between gap-4 border-b border-line bg-bg-panel/95 px-4 backdrop-blur sm:px-8">
-      <div className="flex items-center gap-3">
+    <header
+      className={`z-20 flex min-h-14 items-center justify-between gap-4 bg-transparent px-1 sm:px-2 ${className}`}
+    >
+      <div className="flex min-w-0 items-center gap-3">
         <button
           type="button"
           onClick={onOpenMenu}
           aria-label="Open menu"
-          className="flex h-10 w-10 items-center justify-center rounded-lg text-ink transition-colors hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent lg:hidden"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-ink transition-colors hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent xl:hidden"
         >
           <HugeiconsIcon icon={Menu01Icon} size={22} color="currentColor" strokeWidth={1.5} />
         </button>

@@ -6,7 +6,7 @@
  * v2: field card with ink avatar + workspace label + ok dot · companion project pill in header
  */
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -57,6 +57,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     return false;
   });
   const [hasMounted, setHasMounted] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
 
   function closeMenu() {
     setMenuOpen(false);
@@ -104,39 +105,46 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     router.replace(ROUTES.login);
   }
 
+  // The main panel scrolls independently (overflow-y-auto) instead of the
+  // viewport, so Next's scroll restoration won't reset it — do it here or
+  // every navigation lands at the previous scroll position.
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0 });
+  }, [pathname]);
+
   return (
-    <div className="flex min-h-screen">
+    <div className="grid h-screen grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-3 bg-bg p-3 xl:grid-cols-[auto_minmax(0,1fr)]">
       {menuOpen ? (
         <button
           type="button"
           aria-label="Close menu"
           data-overlay
           onClick={closeMenu}
-          className="fixed inset-0 z-40 cursor-default bg-black/60 backdrop-blur-[1px] lg:hidden"
+          className="fixed inset-0 z-40 cursor-default bg-black/60 backdrop-blur-[1px] xl:hidden"
         />
       ) : null}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-line bg-bg-panel shadow-[12px_0_40px_rgba(0,0,0,0.12)] ${hasMounted ? "transition-[width,transform] duration-200 ease-out" : ""} lg:translate-x-0 ${
-          collapsed ? "lg:w-[76px]" : "lg:w-64"
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-bg xl:bg-transparent ${hasMounted ? "transition-[width,translate,transform] duration-300 ease-out" : ""} xl:static xl:z-auto xl:row-span-2 xl:translate-x-0 ${
+          collapsed ? "xl:w-[76px]" : "xl:w-64"
         } ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div
-          className={`flex items-center justify-between border-b border-line px-4 pb-4 pt-4 ${
-            collapsed ? "lg:flex-col lg:gap-4" : ""
+          className={`flex items-center justify-between px-4 pb-4 pt-4 ${
+            collapsed ? "xl:flex-col xl:gap-4" : ""
           }`}
         >
           <Link
             href={ROUTES.dashboard}
             aria-label="TrazeIQ dashboard"
             className={`flex min-w-0 items-center gap-2.5 font-mono text-sm font-semibold tracking-tight text-ink ${
-              collapsed ? "lg:justify-center" : ""
+              collapsed ? "xl:justify-center" : ""
             }`}
           >
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent shadow-[0_0_18px_rgba(79,70,229,0.35)]">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent">
               <span className="h-1.5 w-1.5 rounded-full bg-ink" />
             </span>
-            <span className={collapsed ? "lg:hidden" : ""}>
+            <span className={collapsed ? "xl:hidden" : ""}>
             traze<span className="text-accent">iq</span>
             </span>
           </Link>
@@ -144,7 +152,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             type="button"
             onClick={closeMenu}
             aria-label="Close menu"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface hover:text-ink lg:hidden"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface hover:text-ink xl:hidden"
           >
             <HugeiconsIcon
               icon={Cancel01Icon}
@@ -160,7 +168,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           onClick={() => setCollapsed((value) => !value)}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="absolute right-0 top-5 z-10 hidden h-8 w-8 translate-x-1/2 items-center justify-center rounded-full border border-line bg-bg-panel text-muted shadow-[0_4px_16px_rgba(0,0,0,0.28)] transition-colors hover:border-accent/50 hover:bg-accent/10 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent lg:flex"
+          className="absolute right-0 top-5 z-10 hidden h-8 w-8 translate-x-1/2 items-center justify-center rounded-full border border-line bg-bg text-muted transition-colors hover:border-accent/50 hover:bg-accent/10 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent xl:flex"
         >
           <HugeiconsIcon
             icon={collapsed ? ChevronRightIcon : ChevronLeftIcon}
@@ -170,7 +178,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           />
         </button>
 
-        <div className={`px-3 pt-4 ${collapsed ? "lg:hidden" : ""}`}>
+        <div className={`px-3 pt-4 ${collapsed ? "xl:hidden" : ""}`}>
           {status === "loading" && organizations.length === 0 ? (
             <div className="h-[56px] animate-pulse rounded-lg border border-line bg-surface" aria-hidden="true" />
           ) : organizations.length === 0 ? (
@@ -186,8 +194,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             <>
               <p className="mb-1.5 px-1 font-mono text-[9px] uppercase tracking-[0.18em] text-muted">Workspace</p>
               <div className="group/org relative" data-state={status === "error" ? "error" : status === "loading" ? "loading" : undefined}>
-                <div className="flex items-center gap-3 rounded-lg border border-line bg-bg px-3 py-2.5 shadow-sm transition-colors group-hover/org:border-line-soft group-hover/org:bg-surface group-focus-within/org:border-accent/40 group-focus-within/org:ring-1 group-focus-within/org:ring-accent/20 group-active/org:translate-y-px data-[state=loading]:opacity-70 data-[state=error]:border-sev-critical/40 data-[state=error]:bg-sev-critical/5">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface text-bg shadow-sm">
+                <div className="flex items-center gap-3 rounded-lg border border-line bg-bg px-3 py-2.5 transition-colors group-hover/org:border-line-soft group-hover/org:bg-surface group-focus-within/org:border-accent/40 group-focus-within/org:ring-1 group-focus-within/org:ring-accent/20 group-active/org:translate-y-px data-[state=loading]:opacity-70 data-[state=error]:border-sev-critical/40 data-[state=error]:bg-sev-critical/5">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface text-bg">
                     <HugeiconsIcon icon={Building02Icon} size={14} color="white" strokeWidth={1.5} />
                   </span>
                   <div className="min-w-0 flex-1">
@@ -195,7 +203,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                       {selectedOrganization?.name ?? "Select workspace"}
                     </p>
                   </div>
-                  <span className="flex h-7 w-7 shrink-0 flex-col items-center justify-center gap-0 rounded-md border border-line bg-surface py-0.5 text-muted shadow-sm transition-colors group-hover/org:border-line-soft group-hover/org:text-ink group-hover/org:bg-bg-panel">
+                  <span className="flex h-7 w-7 shrink-0 flex-col items-center justify-center gap-0 rounded-md border border-line bg-surface py-0.5 text-muted transition-colors group-hover/org:border-line-soft group-hover/org:text-ink group-hover/org:bg-bg-panel">
                     <HugeiconsIcon icon={ChevronUpIcon} size={10} color="currentColor" strokeWidth={1.5} className="-mb-0.5" />
                     <HugeiconsIcon icon={ChevronDownIcon} size={10} color="currentColor" strokeWidth={1.5} className="-mt-0.5" />
                   </span>
@@ -236,7 +244,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 className="mb-3 flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted transition-colors hover:bg-accent/10 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
                 <HugeiconsIcon icon={ChevronLeftIcon} size={16} color="currentColor" strokeWidth={1.5} />
-                <span className={collapsed ? "lg:hidden" : ""}>Settings</span>
+                <span className={collapsed ? "xl:hidden" : ""}>Settings</span>
               </Link>
               <div className="mb-2 border-b border-line" />
               {[
@@ -253,10 +261,10 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                     href={item.href}
                     onClick={closeMenu}
                     title={collapsed ? item.label : undefined}
-                    className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${collapsed ? "lg:justify-center lg:px-0" : ""} ${active ? "bg-accent font-medium text-ink shadow-[0_0_20px_rgba(79,70,229,0.25)]" : "text-muted hover:bg-accent/10 hover:text-ink hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"}`}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${collapsed ? "xl:justify-center xl:px-0" : ""} ${active ? "bg-accent font-medium text-ink hover:bg-accent" : "text-muted hover:bg-accent/10 hover:text-ink"}`}
                   >
                     <HugeiconsIcon icon={item.icon} size={20} color="currentColor" strokeWidth={1.5} />
-                    <span className={collapsed ? "lg:hidden" : ""}>{item.label}</span>
+                    <span className={collapsed ? "xl:hidden" : ""}>{item.label}</span>
                   </Link>
                 );
               })}
@@ -274,11 +282,11 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 onClick={closeMenu}
                 title={collapsed ? item.label : undefined}
                 className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all ${
-                  collapsed ? "lg:justify-center lg:px-0" : ""
+                  collapsed ? "xl:justify-center xl:px-0" : ""
                 } ${
                   active
-                    ? "bg-accent font-medium text-ink shadow-[0_0_20px_rgba(79,70,229,0.25)] hover:bg-accent"
-                    : "text-muted hover:bg-accent/10 hover:text-ink hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
+                    ? "bg-accent font-medium text-ink hover:bg-accent"
+                    : "text-muted hover:bg-accent/10 hover:text-ink"
                 }`}
               >
                 <HugeiconsIcon
@@ -287,11 +295,11 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                   color="currentColor"
                   strokeWidth={1.5}
                 />
-                <span className={collapsed ? "lg:hidden" : ""}>{item.label}</span>
+                <span className={collapsed ? "xl:hidden" : ""}>{item.label}</span>
                 {item.stub ? (
                   <span
                     className={`ml-auto font-mono text-[10px] uppercase tracking-[0.2em] text-muted ${
-                      collapsed ? "lg:hidden" : ""
+                      collapsed ? "xl:hidden" : ""
                     }`}
                   >
                     {item.stub}
@@ -304,11 +312,11 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 href={ROUTES.settings}
                 onClick={closeMenu}
                 title={collapsed ? "Settings" : undefined}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted transition-all hover:bg-accent/10 hover:text-ink hover:shadow-[0_0_20px_rgba(79,70,229,0.15)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${collapsed ? "lg:justify-center lg:px-0" : ""}`}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted transition-all hover:bg-accent/10 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${collapsed ? "xl:justify-center xl:px-0" : ""}`}
               >
                 <HugeiconsIcon icon={DASHBOARD_NAV.find((item) => item.href === ROUTES.settings)!.icon} size={20} color="currentColor" strokeWidth={1.5} />
-                <span className={collapsed ? "lg:hidden" : ""}>Settings</span>
-                <HugeiconsIcon icon={ChevronRightIcon} size={16} color="currentColor" strokeWidth={1.5} className={collapsed ? "lg:hidden" : "ml-auto"} />
+                <span className={collapsed ? "xl:hidden" : ""}>Settings</span>
+                <HugeiconsIcon icon={ChevronRightIcon} size={16} color="currentColor" strokeWidth={1.5} className={collapsed ? "xl:hidden" : "ml-auto"} />
               </Link>
             </>
           )}
@@ -320,17 +328,17 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             href={ROUTES.docs}
             onClick={closeMenu}
             title={collapsed ? "Docs" : undefined}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted transition-all hover:bg-accent/10 hover:text-ink hover:shadow-[0_0_20px_rgba(79,70,229,0.15)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${collapsed ? "lg:justify-center lg:px-0" : ""}`}
+            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted transition-all hover:bg-accent/10 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${collapsed ? "xl:justify-center xl:px-0" : ""}`}
           >
             <HugeiconsIcon icon={BookOpen01Icon} size={20} color="currentColor" strokeWidth={1.5} />
-            <span className={collapsed ? "lg:hidden" : ""}>Docs</span>
+            <span className={collapsed ? "xl:hidden" : ""}>Docs</span>
           </Link>
         </div> : null}
 
         <div className="border-t border-line px-4 py-4">
           <div
             className={`flex items-center gap-2.5 ${
-              collapsed ? "lg:flex-col lg:justify-center lg:gap-2" : ""
+              collapsed ? "xl:flex-col xl:justify-center xl:gap-2" : ""
             }`}
           >
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line bg-surface font-mono text-xs uppercase text-muted">
@@ -338,7 +346,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             </span>
             <div
               className={`min-w-0 flex-1 ${
-                collapsed ? "lg:hidden" : ""
+                collapsed ? "xl:hidden" : ""
               }`}
             >
               <p className="truncate text-xs font-medium text-ink">
@@ -351,7 +359,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               onClick={handleLogout}
               aria-label="Log out"
               className={`flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface hover:text-ink ${
-                collapsed ? "lg:hidden" : ""
+                collapsed ? "xl:hidden" : ""
               }`}
             >
               <HugeiconsIcon icon={Logout01Icon} size={16} color="currentColor" strokeWidth={1.5} />
@@ -360,13 +368,15 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
+      <AppHeader
+        onOpenMenu={() => setMenuOpen(true)}
+        className="min-w-0 xl:col-start-2 xl:row-start-1"
+      />
       <main
-        className={`min-w-0 flex-1 ${hasMounted ? "transition-[margin] duration-200 ease-out" : ""} ${
-          collapsed ? "lg:ml-[76px]" : "lg:ml-64"
-        }`}
+        ref={mainRef}
+        className="min-h-0 min-w-0 overflow-y-auto rounded-3xl border border-line bg-bg-panel xl:col-start-2 xl:row-start-2"
       >
-        <AppHeader onOpenMenu={() => setMenuOpen(true)} />
-        <div className="mx-auto w-full max-w-[1500px] px-4 py-8 sm:px-8">
+        <div className="mx-auto w-full max-w-[1500px] p-6 sm:p-8">
           {children}
         </div>
       </main>

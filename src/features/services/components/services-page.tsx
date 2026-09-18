@@ -85,7 +85,7 @@ function HealthBand({
       : 100;
 
   return (
-    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border border-line bg-bg-panel px-4 py-3">
+    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border border-line bg-surface px-4 py-3">
       <span className="flex items-center gap-3">
         <span
           className={`h-2.5 w-2.5 rounded-full ${meta.orb} animate-[pulse_3s_ease-in-out_infinite]`}

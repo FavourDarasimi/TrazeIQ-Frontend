@@ -431,7 +431,7 @@ export function DashboardPage() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between gap-3 border-t border-line bg-bg-panel/30 px-6 py-3">
+              <div className="flex items-center justify-between gap-3 border-t border-line bg-bg/30 px-6 py-3">
                 <div className="flex items-center gap-4 font-mono text-[10px] uppercase tracking-wide text-muted">
                   <span className="flex items-center gap-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" /> Events
@@ -460,7 +460,7 @@ export function DashboardPage() {
                 <GlassCard className="flex min-w-0 flex-col overflow-hidden p-0 lg:h-[344px]">
                   <div className="flex items-start justify-between gap-3 px-6 pt-6">
                     <div className="flex min-w-0 gap-3">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line bg-bg-panel text-accent">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line bg-line text-accent">
                         <HugeiconsIcon
                           icon={FlashIcon}
                           size={16}
@@ -481,7 +481,7 @@ export function DashboardPage() {
                   </div>
 
                   {visibleErrors.length === 0 ? (
-                    <div className="mx-6 mt-6 flex flex-col items-center gap-3 rounded-xl border border-dashed border-line bg-bg-panel/40 px-6 py-10 text-center">
+                    <div className="mx-6 mt-6 flex flex-col items-center gap-3 rounded-xl border border-dashed border-line bg-bg/30 px-6 py-10 text-center">
                       <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-surface text-muted">
                         <HugeiconsIcon
                           icon={Search01Icon}
@@ -533,7 +533,7 @@ export function DashboardPage() {
                                 {error.title}
                               </p>
                               <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                                <span className="inline-flex items-center gap-1 rounded-md border border-line bg-bg-panel px-1.5 py-0.5 font-mono text-[10px] tracking-wide text-muted">
+                                <span className="inline-flex items-center gap-1 rounded-md border border-line bg-line px-1.5 py-0.5 font-mono text-[10px] tracking-wide text-muted">
                                   <HugeiconsIcon
                                     icon={FingerPrintIcon}
                                     size={12}
@@ -570,7 +570,7 @@ export function DashboardPage() {
                               </div>
                             </div>
                             <div className="flex shrink-0 flex-col items-end gap-1.5">
-                              <span className="rounded-md border border-line bg-bg-panel px-2 py-1 font-mono text-xs font-medium tabular-nums text-ink">
+                              <span className="rounded-md border border-line bg-line px-2 py-1 font-mono text-xs font-medium tabular-nums text-ink">
                                 ×{formatCount(error.count)}
                               </span>
                               <span className="hidden items-center gap-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted transition-colors group-hover:text-ink sm:inline-flex">
@@ -609,7 +609,7 @@ export function DashboardPage() {
                     </ul>
                   )}
 
-                  <div className="mt-auto flex items-center justify-between gap-3 border-t border-line bg-bg-panel/30 px-6 py-3">
+                  <div className="mt-auto flex items-center justify-between gap-3 border-t border-line bg-bg/30 px-6 py-3">
                     <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
                       {visibleErrors.length === 0
                         ? "0 patterns"

@@ -157,7 +157,7 @@ export function PreferencesSettingsPage() {
       {saved ? (
         <div
           role="status"
-          className="fixed bottom-5 right-5 z-50 rounded-lg border border-ok/30 bg-bg-panel px-4 py-3 text-sm text-ink shadow-[0_8px_30px_rgba(0,0,0,0.35)]"
+          className="fixed bottom-5 right-5 z-50 rounded-lg border border-ok/30 bg-bg-panel px-4 py-3 text-sm text-ink"
         >
           Preferences saved
         </div>

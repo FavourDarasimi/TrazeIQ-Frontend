@@ -72,7 +72,7 @@ function RoleStats({ members }: { members: OrganizationMembership[] }) {
   return (
     <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-4">
       {ROLE_LABELS.map(({ role, label }) => (
-        <div key={role} className="bg-bg-panel px-4 py-3">
+        <div key={role} className="bg-surface px-4 py-3">
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
             {label}
           </p>
@@ -107,7 +107,7 @@ function MemberRow({
   return (
     <li className="flex flex-col gap-2 border-b border-line px-5 py-3 transition-colors duration-150 last:border-b-0 hover:bg-bg-panel sm:flex-row sm:items-center sm:justify-between sm:gap-6">
       <div className="flex min-w-0 items-center gap-3">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line bg-bg-panel font-mono text-[11px] uppercase text-muted">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line bg-surface font-mono text-[11px] uppercase text-muted">
           {member.user.slice(0, 2)}
         </span>
         <div className="min-w-0">
@@ -458,7 +458,7 @@ export function TeamSettingsPage() {  const { selectedProject } = useProjectCont
                       Invite sent — share this link:
                     </p>
                     <div className="flex items-center gap-2">
-                      <code className="min-w-0 flex-1 truncate rounded-md border border-line bg-bg-panel px-2.5 py-1.5 font-mono text-xs text-muted">
+                      <code className="min-w-0 flex-1 truncate rounded-md border border-line bg-surface px-2.5 py-1.5 font-mono text-xs text-muted">
                         {inviteLink}
                       </code>
                       <button

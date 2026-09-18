@@ -13,7 +13,7 @@ export function GlassCard({
   return (
     <div
       ref={ref}
-      className={`rounded-2xl border border-line bg-surface shadow-xl ${className}`}
+      className={`rounded-2xl border border-line bg-surface ${className}`}
       {...rest}
     >
       {children}

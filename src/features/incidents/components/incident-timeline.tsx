@@ -118,7 +118,7 @@ function TimelineRow({
       />
       <span
         aria-hidden
-        className="relative z-10 mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line bg-bg-panel"
+        className="relative z-10 mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line bg-surface"
       >
         <HugeiconsIcon icon={style.icon} size={14} color="currentColor" strokeWidth={1.5} />
       </span>

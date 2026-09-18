@@ -166,19 +166,19 @@ function AlertStats({
 
   return (
     <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-line bg-line">
-      <div className="bg-bg-panel px-4 py-3">
+      <div className="bg-surface px-4 py-3">
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
           rules
         </p>
         <p className="mt-1 font-mono text-lg text-ink">{rules.length}</p>
       </div>
-      <div className="bg-bg-panel px-4 py-3">
+      <div className="bg-surface px-4 py-3">
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
           dispatched
         </p>
         <p className="mt-1 font-mono text-lg text-ink">{dispatched}</p>
       </div>
-      <div className="bg-bg-panel px-4 py-3">
+      <div className="bg-surface px-4 py-3">
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
           failed
         </p>
@@ -832,7 +832,7 @@ function SlackCard({
     <GlassCard className="p-6">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-bg-panel text-muted">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-surface text-muted">
             <HugeiconsIcon icon={SlackIcon} size={20} color="currentColor" strokeWidth={1.5} />
           </span>
           <div>

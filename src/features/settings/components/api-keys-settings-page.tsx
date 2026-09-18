@@ -74,7 +74,7 @@ export function ApiKeysSettingsPage() {
             </div>
             <HugeiconsIcon icon={Key01Icon} size={20} color="currentColor" strokeWidth={1.5} className="text-muted" />
           </div>
-          <div className="rounded-lg border border-line bg-bg-panel px-3.5 py-3 font-mono text-sm text-muted">
+          <div className="rounded-lg border border-line bg-surface px-3.5 py-3 font-mono text-sm text-muted">
             {selectedProject.api_key_prefix}••••••••••••
           </div>
           {confirming ? (

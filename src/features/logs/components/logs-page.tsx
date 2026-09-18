@@ -44,7 +44,7 @@ const LEVEL_STYLE: Record<EventLevel, { dot: string; badge: string }> = {
   },
   debug: {
     dot: "bg-muted",
-    badge: "border-line-soft bg-bg-panel text-muted",
+    badge: "border-line-soft bg-line text-muted",
   },
 };
 
@@ -390,7 +390,7 @@ export function LogsPage() {
                   {expanded ? (
                     <div
                       id={`event-detail-${event.id}`}
-                      className="border-t border-line-soft bg-bg-panel/50 px-5 py-4"
+                      className="border-t border-line-soft bg-bg/30 px-5 py-4"
                     >
                       <div className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] text-muted">
                         {event.project ? (
