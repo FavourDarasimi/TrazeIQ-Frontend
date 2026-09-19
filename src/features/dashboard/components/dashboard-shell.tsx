@@ -15,6 +15,7 @@ import {
   BookOpen01Icon,
   Building02Icon,
   Cancel01Icon,
+  CheckmarkCircleIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -33,10 +34,13 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function DashboardShell({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const { user, signOut } = useAuth();
+/**
+ * Workspace picker as a real menu instead of an invisible native `<select>`
+ * overlay — the OS renders native dropdown popups white and no CSS can
+ * theme them. Custom menu: dark surface, arrow-key navigation, Escape and
+ * outside-click to close.
+ */
+function WorkspaceSwitcher({ onPick }: { onPick?: () => void }) {
   const {
     status,
     organizations,
@@ -45,6 +49,152 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     selectOrganization,
     retry,
   } = useProjectContext();
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+      const items = menuRef.current?.querySelectorAll<HTMLElement>(
+        "[data-org-option]",
+      );
+      if (!items || items.length === 0) return;
+      event.preventDefault();
+      const idx = [...items].indexOf(document.activeElement as HTMLElement);
+      const next =
+        event.key === "ArrowDown"
+          ? (idx + 1) % items.length
+          : (idx - 1 + items.length) % items.length;
+      items[next].focus();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open ]);
+
+  if (status === "loading" && organizations.length === 0) {
+    return (
+      <div className="h-[56px] animate-pulse rounded-lg border border-line bg-surface" aria-hidden="true" />
+    );
+  }
+
+  if (organizations.length === 0) {
+    return (
+      <Link
+        href={ROUTES.onboarding}
+        onClick={onPick}
+        className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-line bg-surface px-3 font-mono text-xs uppercase tracking-wide text-muted transition-colors hover:border-accent/40 hover:text-ink hover:bg-accent/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      >
+        <HugeiconsIcon icon={AddCircleIcon} size={14} color="currentColor" strokeWidth={1.5} />
+        Create workspace
+      </Link>
+    );
+  }
+
+  const disabled = status === "loading";
+
+  return (
+    <>
+      <p className="mb-1.5 px-1 font-mono text-[9px] uppercase tracking-[0.18em] text-muted">Workspace</p>
+      <div
+        className="relative"
+        data-state={status === "error" ? "error" : status === "loading" ? "loading" : undefined}
+      >
+        <button
+          type="button"
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          aria-label="Select workspace"
+          disabled={disabled}
+          onClick={() => setOpen((value) => !value)}
+          className="flex w-full items-center gap-3 rounded-lg border border-line bg-bg px-3 py-2.5 text-left transition-colors hover:border-line-soft hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent focus-visible:border-accent/40 disabled:cursor-not-allowed data-[state=loading]:opacity-70 data-[state=error]:border-sev-critical/40 data-[state=error]:bg-sev-critical/5"
+        >
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface text-bg">
+            <HugeiconsIcon icon={Building02Icon} size={14} color="white" strokeWidth={1.5} />
+          </span>
+          <span className="min-w-0 flex-1 truncate text-sm font-semibold leading-none tracking-tight text-ink">
+            {selectedOrganization?.name ?? "Select workspace"}
+          </span>
+          <span className="flex h-7 w-7 shrink-0 flex-col items-center justify-center gap-0 rounded-md border border-line bg-surface py-0.5 text-muted">
+            <HugeiconsIcon icon={ChevronUpIcon} size={10} color="currentColor" strokeWidth={1.5} className="-mb-0.5" />
+            <HugeiconsIcon icon={ChevronDownIcon} size={10} color="currentColor" strokeWidth={1.5} className="-mt-0.5" />
+          </span>
+        </button>
+        {open ? (
+          <>
+            <button
+              type="button"
+              aria-label="Close workspace menu"
+              onClick={() => setOpen(false)}
+              className="fixed inset-0 z-40 cursor-default"
+            />
+            <ul
+              ref={menuRef}
+              role="listbox"
+              aria-label="Select workspace"
+              className="absolute inset-x-0 top-full z-50 mt-2 max-h-64 overflow-y-auto rounded-lg border border-line bg-surface p-1"
+            >
+              {organizations.map((org) => {
+                const selected = org.id === selectedOrganizationId;
+                return (
+                  <li key={org.id} role="none">
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={selected}
+                      data-org-option
+                      onClick={() => {
+                        selectOrganization(org.id);
+                        setOpen(false);
+                        onPick?.();
+                      }}
+                      className={`flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
+                        selected
+                          ? "bg-accent/10 font-medium text-ink"
+                          : "text-muted hover:bg-bg-panel hover:text-ink"
+                      }`}
+                    >
+                      <span className="min-w-0 flex-1 truncate">
+                        {org.name}
+                      </span>
+                      {selected ? (
+                        <HugeiconsIcon
+                          icon={CheckmarkCircleIcon}
+                          size={15}
+                          color="currentColor"
+                          strokeWidth={1.8}
+                          className="shrink-0 text-accent"
+                        />
+                      ) : null}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        ) : null}
+      </div>
+      {status === "error" ? (
+        <button
+          type="button"
+          onClick={retry}
+          className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md border border-sev-critical/20 bg-sev-critical/10 px-3 py-1.5 font-mono text-[11px] text-sev-critical transition-colors hover:bg-sev-critical/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          Couldn&apos;t load — retry
+        </button>
+      ) : null}
+    </>
+  );
+}
+
+export function DashboardShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { user, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     try {
@@ -179,60 +329,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         </button>
 
         <div className={`px-3 pt-4 ${collapsed ? "xl:hidden" : ""}`}>
-          {status === "loading" && organizations.length === 0 ? (
-            <div className="h-[56px] animate-pulse rounded-lg border border-line bg-surface" aria-hidden="true" />
-          ) : organizations.length === 0 ? (
-            <Link
-              href={ROUTES.onboarding}
-              onClick={closeMenu}
-              className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-line bg-surface px-3 font-mono text-xs uppercase tracking-wide text-muted transition-colors hover:border-accent/40 hover:text-ink hover:bg-accent/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-            >
-              <HugeiconsIcon icon={AddCircleIcon} size={14} color="currentColor" strokeWidth={1.5} />
-              Create workspace
-            </Link>
-          ) : (
-            <>
-              <p className="mb-1.5 px-1 font-mono text-[9px] uppercase tracking-[0.18em] text-muted">Workspace</p>
-              <div className="group/org relative" data-state={status === "error" ? "error" : status === "loading" ? "loading" : undefined}>
-                <div className="flex items-center gap-3 rounded-lg border border-line bg-bg px-3 py-2.5 transition-colors group-hover/org:border-line-soft group-hover/org:bg-surface group-focus-within/org:border-accent/40 group-focus-within/org:ring-1 group-focus-within/org:ring-accent/20 group-active/org:translate-y-px data-[state=loading]:opacity-70 data-[state=error]:border-sev-critical/40 data-[state=error]:bg-sev-critical/5">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface text-bg">
-                    <HugeiconsIcon icon={Building02Icon} size={14} color="white" strokeWidth={1.5} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold leading-none tracking-tight text-ink">
-                      {selectedOrganization?.name ?? "Select workspace"}
-                    </p>
-                  </div>
-                  <span className="flex h-7 w-7 shrink-0 flex-col items-center justify-center gap-0 rounded-md border border-line bg-surface py-0.5 text-muted transition-colors group-hover/org:border-line-soft group-hover/org:text-ink group-hover/org:bg-bg-panel">
-                    <HugeiconsIcon icon={ChevronUpIcon} size={10} color="currentColor" strokeWidth={1.5} className="-mb-0.5" />
-                    <HugeiconsIcon icon={ChevronDownIcon} size={10} color="currentColor" strokeWidth={1.5} className="-mt-0.5" />
-                  </span>
-                </div>
-                <select
-                  value={selectedOrganizationId ?? ""}
-                  onChange={(event) => selectOrganization(event.target.value)}
-                  disabled={organizations.length === 0 || status === "loading"}
-                  aria-label="Select workspace"
-                  className="absolute inset-0 h-full w-full cursor-pointer appearance-none rounded-lg opacity-0 focus:outline-none disabled:cursor-not-allowed"
-                >
-                  {organizations.map((org) => (
-                    <option key={org.id} value={org.id}>
-                      {org.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {status === "error" ? (
-                <button
-                  type="button"
-                  onClick={retry}
-                  className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md border border-sev-critical/20 bg-sev-critical/10 px-3 py-1.5 font-mono text-[11px] text-sev-critical transition-colors hover:bg-sev-critical/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                >
-                  Couldn&apos;t load — retry
-                </button>
-              ) : null}
-            </>
-          )}
+          <WorkspaceSwitcher onPick={closeMenu} />
         </div>
 
         <nav className="mt-6 flex flex-1 flex-col gap-0.5 overflow-y-auto px-3">

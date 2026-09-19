@@ -5,9 +5,10 @@
  */
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { AddCircleIcon, ChevronDownIcon, ChevronUpIcon, Menu01Icon } from "@hugeicons/core-free-icons";
+import { AddCircleIcon, CheckmarkCircleIcon, ChevronDownIcon, ChevronUpIcon, Menu01Icon } from "@hugeicons/core-free-icons";
 
 import { HeaderActions } from "@/components/ui/header-actions";
 import { ROUTES } from "@/constants";
@@ -20,6 +21,35 @@ function ProjectSwitcher() {
   const projectsForOrg = selectedOrganizationId
     ? projects.filter((p) => p.organization === selectedOrganizationId)
     : projects;
+
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+      const items = menuRef.current?.querySelectorAll<HTMLElement>(
+        "[data-project-option]",
+      );
+      if (!items || items.length === 0) return;
+      event.preventDefault();
+      const idx = [...items].indexOf(document.activeElement as HTMLElement);
+      const next =
+        event.key === "ArrowDown"
+          ? (idx + 1) % items.length
+          : (idx - 1 + items.length) % items.length;
+      items[next].focus();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open ]);
+
+  const displayProject = selectedProject ?? projectsForOrg.find((p) => p.id === selectedProjectId) ?? projectsForOrg[0];
 
   if (status === "loading" && projects.length === 0) {
     return <div className="flex h-8 w-32 animate-pulse rounded-full border border-line bg-surface sm:w-44" aria-hidden="true" />;
@@ -38,18 +68,22 @@ function ProjectSwitcher() {
     );
   }
 
-  const displayProject = selectedProject ?? projectsForOrg.find((p) => p.id === selectedProjectId) ?? projectsForOrg[0];
-
   return (
     <div className="group/project relative flex" data-state={status === "error" ? "error" : status === "loading" ? "loading" : undefined}>
-      <div
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label="Select project"
+        disabled={status === "loading"}
+        onClick={() => setOpen((value) => !value)}
         className={`
           flex items-center gap-2 rounded-full border bg-bg pl-1 pr-1 py-1
           border-line
           transition-all duration-150
-          group-hover/project:border-line-soft group-hover/project:bg-surface
-          group-focus-within/project:border-accent/50 group-focus-within/project:ring-1 group-focus-within/project:ring-accent/20
-          group-active/project:translate-y-px
+          hover:border-line-soft hover:bg-surface
+          focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent focus-visible:border-accent/50
+          disabled:cursor-not-allowed
           data-[state=loading]:opacity-70
           data-[state=error]:border-sev-critical/40 data-[state=error]:bg-sev-critical/5
         `}
@@ -67,20 +101,62 @@ function ProjectSwitcher() {
           <HugeiconsIcon icon={ChevronUpIcon} size={8} color="currentColor" strokeWidth={1.5} className="-mb-0.5" />
           <HugeiconsIcon icon={ChevronDownIcon} size={8} color="currentColor" strokeWidth={1.5} className="-mt-0.5" />
         </span>
-      </div>
-      <select
-        value={displayProject?.id ?? selectedProjectId ?? ""}
-        onChange={(e) => selectProject(e.target.value)}
-        disabled={status === "loading"}
-        aria-label="Select project"
-        className="absolute inset-0 h-full w-full cursor-pointer appearance-none rounded-full opacity-0 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {projectsForOrg.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.name} · {p.environment}
-          </option>
-        ))}
-      </select>
+      </button>
+      {open ? (
+        <>
+          <button
+            type="button"
+            aria-label="Close project menu"
+            onClick={() => setOpen(false)}
+            className="fixed inset-0 z-40 cursor-default"
+          />
+          <ul
+            ref={menuRef}
+            role="listbox"
+            aria-label="Select project"
+            className="absolute left-0 top-full z-50 mt-2 max-h-64 w-64 overflow-y-auto rounded-lg border border-line bg-surface p-1"
+          >
+            {projectsForOrg.map((p) => {
+              const selected = p.id === displayProject?.id;
+              return (
+                <li key={p.id} role="none">
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={selected}
+                    data-project-option
+                    onClick={() => {
+                      selectProject(p.id);
+                      setOpen(false);
+                    }}
+                    className={`flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
+                      selected
+                        ? "bg-accent/10 font-medium text-ink"
+                        : "text-muted hover:bg-bg-panel hover:text-ink"
+                    }`}
+                  >
+                    <span className="min-w-0 flex-1 truncate">
+                      {p.name}
+                      <span className="ml-2 font-mono text-[11px] text-muted">
+                        {p.environment}
+                      </span>
+                    </span>
+                    {selected ? (
+                      <HugeiconsIcon
+                        icon={CheckmarkCircleIcon}
+                        size={15}
+                        color="currentColor"
+                        strokeWidth={1.8}
+                        className="shrink-0 text-accent"
+                      />
+                    ) : null}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      ) : null}
     </div>
   );
 }
