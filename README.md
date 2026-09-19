@@ -1,36 +1,134 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TrazeIQ
+
+TrazeIQ helps engineering teams track, manage, and resolve application errors before customers complain. It groups noisy crash loops into single incidents and provides real-time dashboards so developers can pinpoint root causes instantly without digging through endless logs.
+
+## System Architecture
+
+```mermaid
+flowchart LR
+  Client["Web Dashboard"]
+  API["TrazeIQ Backend"]
+  Realtime["Pusher Channels"]
+
+  Client -- "Fetch data" --> API
+  API -- "Publish events" --> Realtime
+  Realtime -- "Live updates" --> Client
+
+  style Client fill:#1e1b4b,stroke:#6366f1,stroke-width:2px,color:#fff
+  style API fill:#2e1065,stroke:#8b5cf6,stroke-width:2px,color:#fff
+  style Realtime fill:#451a03,stroke:#f59e0b,stroke-width:2px,color:#fff
+```
 
 ## Getting Started
 
-First, run the development server:
+Follow these steps to set up the TrazeIQ frontend on your local machine.
 
+1. Clone the Repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/FavourDarasimi/TrazeIQ-Frontend.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Navigate into the project directory:
+```bash
+cd TrazeIQ-Frontend
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Install the dependencies:
+```bash
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Configure your environment variables. Create a `.env.local` file in the root directory and add your external service keys:
+```bash
+NEXT_PUBLIC_PUSHER_KEY=your_pusher_key
+NEXT_PUBLIC_PUSHER_CLUSTER=your_pusher_cluster
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
+```
 
-## Learn More
+5. Start the development server:
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Open `http://localhost:3000` in your browser to view the application.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Usage
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Once the application is running, create an organization and your first project through the onboarding flow. The dashboard will provide you with a unique project API key.
 
-## Deploy on Vercel
+You can then send test events directly to your backend ingestion API using a standard HTTP client. The dashboard will instantly update to show the new incident, deduplicating any repeated events automatically. Navigate to the incidents tab to assign the issue to a team member, change its severity, or mark it as resolved.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Features
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* **Incident Deduplication and Grouping**
+  Incoming crash events are fingerprinted and aggregated automatically. Thousands of repeat occurrences collapse into a single actionable incident to keep your workspace clean.
+
+* **Real-time Monitoring Dashboard**
+  The command center pushes live updates directly to the browser. As new errors occur, the UI updates instantly without requiring a page refresh.
+
+```mermaid
+sequenceDiagram
+  actor System
+  participant Dashboard
+  participant API
+  participant Realtime
+
+  System->>API: Send error payload
+  API->>API: Deduplicate and group
+  API->>Realtime: Broadcast new incident
+  Realtime->>Dashboard: Push event over socket
+  Dashboard->>Dashboard: Update live feed
+```
+
+* **Advanced Stack Trace Visualization**
+  Every incident includes fully parsed stack traces, request metadata, and environmental context. This allows engineering teams to identify the exact line of code causing the failure.
+
+* **Bulk Incident Management**
+  Select multiple incidents at once to quickly resolve, ignore, assign, or adjust severities in a single click.
+
+```mermaid
+sequenceDiagram
+  actor User
+  participant Dashboard
+  participant API
+
+  User->>Dashboard: Select multiple incidents
+  User->>Dashboard: Click Resolve
+  Dashboard->>API: POST /incidents/bulk-resolve
+  API->>API: Update database records
+  API->>Dashboard: Return updated incidents
+  Dashboard->>Dashboard: Clear selection and update UI
+```
+
+* **Platform Administration Console**
+  Staff operators have access to a dedicated admin portal to monitor platform health, track workspace creation, and review global event ingestion metrics across all tenants.
+
+## Technologies Used
+
+| Category | Technology |
+| :--- | :--- |
+| **Framework** | Next.js |
+| **UI Library** | React |
+| **Language** | TypeScript |
+| **Styling** | Tailwind CSS |
+| **Animations** | Framer Motion |
+| **Data Visualization** | Recharts |
+| **Real-time Sync** | Pusher |
+
+## Contributing
+
+Contributions are always welcome. To contribute, please fork the repository, create a new branch for your feature or bug fix, and submit a pull request for review. Ensure your code follows the existing style conventions and passes all linting checks.
+
+## Author Info
+
+* X (Twitter): https://x.com/code_with_dara
+
+<br />
+
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
+
+[![Readme was generated by Dokugen](https://img.shields.io/badge/Readme%20was%20generated%20by-Dokugen-brightgreen)](https://dokugen.samueltuoyo.com)
