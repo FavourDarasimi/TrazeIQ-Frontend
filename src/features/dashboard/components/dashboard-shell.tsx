@@ -374,7 +374,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       />
       <main
         ref={mainRef}
-        className="min-h-0 min-w-0 overflow-y-auto rounded-3xl border border-line bg-bg-panel xl:col-start-2 xl:row-start-2"
+        className="no-scrollbar min-h-0 min-w-0 overflow-y-auto rounded-3xl border border-line bg-bg-panel lg:col-start-2 lg:row-start-2"
       >
         <div className="mx-auto w-full max-w-[1500px] p-6 sm:p-8">
           {children}

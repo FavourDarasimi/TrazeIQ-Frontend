@@ -21,6 +21,14 @@
   --font-mono: var(--font-jetbrains);
 }
 
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 :root {
   color-scheme: dark;
 }
