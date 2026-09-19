@@ -28,7 +28,7 @@ export function DocsAnalytics() {
           label="dashboard overview & stats"
           code={`curl "https://api.trazeiq.io/api/v1/dashboard/overview/?project_id=<proj>" \\
   -H "Authorization: Bearer <jwt>"
-# 200 {data:{overview:{open_incidents:{total:4, by_severity:{critical:1,high:1,medium:0,low:0}}, events_24h:128, event_trend:{percent_change:12,trend:"up"}, resolved_24h:2, top_errors:[{fingerprint,title,count,last_seen,incident_id,severity}], health:"critical"}}}
+# 200 {data:{overview:{open_incidents:{total:4, by_severity:{critical:1,high:1,medium:0,low:0}}, events_24h:128, event_trend:{percent_change:12,trend:"up"}, resolved_24h:2, top_errors:[{fingerprint,title,count,last_seen,incident_id,severity,status}], health:"critical"}}}
 
 curl "https://api.trazeiq.io/api/v1/dashboard/stats/?project_id=<proj>&range=7d" \\
   -H "Authorization: Bearer <jwt>"

@@ -18,12 +18,10 @@ import {
   YAxis,
 } from "recharts";
 import {
+  Alert02Icon,
   ArrowRight01Icon,
+  Cancel01Icon,
   CheckmarkCircleIcon,
-  ChevronRightIcon,
-  Clock01Icon,
-  FingerPrintIcon,
-  FlashIcon,
   Layers02Icon,
   Search01Icon,
 } from "@hugeicons/core-free-icons";
@@ -63,11 +61,11 @@ const SEVERITY_DOT: Record<IncidentSeverity, string> = {
   low: "bg-sev-low",
 };
 
-const SEVERITY_BAR: Record<IncidentSeverity, string> = {
-  critical: "bg-sev-critical",
-  high: "bg-sev-high",
-  medium: "bg-sev-warning",
-  low: "bg-sev-low",
+const SEVERITY_RING: Record<IncidentSeverity, string> = {
+  critical: "border-sev-critical/40 text-sev-critical",
+  high: "border-sev-high/40 text-sev-high",
+  medium: "border-sev-warning/40 text-sev-warning",
+  low: "border-sev-low/40 text-sev-low",
 };
 
 const SEVERITY_LABEL: Record<IncidentSeverity, string> = {
@@ -110,6 +108,31 @@ const TREND_COLOR: Record<DashboardOverview["event_trend"]["trend"], string> = {
   flat: "text-muted",
 };
 
+/** Dark tooltip pill: `{label} | {events} events · {incidents} incidents`. */
+function ChartTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{ value?: number | string; dataKey?: string }>;
+  label?: string;
+}) {
+  if (!active || !payload || payload.length === 0) return null;
+  const byKey = Object.fromEntries(
+    payload.map((entry) => [entry.dataKey, entry.value]),
+  );
+  return (
+    <div className="flex items-center gap-2 rounded-lg bg-ink px-3 py-1.5 font-mono text-xs text-bg">
+      <span>{label}</span>
+      <span aria-hidden className="h-3 w-px bg-bg/30" />
+      <span className="font-semibold tabular-nums">
+        {byKey.events ?? 0} events · {byKey.incidents ?? 0} incidents
+      </span>
+    </div>
+  );
+}
+
 function StatCard({
   label,
   value,
@@ -120,7 +143,7 @@ function StatCard({
   footer?: ReactNode;
 }) {
   return (
-    <GlassCard className="p-6 transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(79,70,229,0.12)]">
+    <GlassCard className="p-6 transition-transform duration-200 hover:-translate-y-1">
       <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
         {label}
       </p>
@@ -331,7 +354,7 @@ export function DashboardPage() {
               <div className="flex flex-col gap-3 px-6 pt-5 sm:flex-row sm:items-end sm:justify-between">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-accent shadow-[0_0_10px_rgba(79,70,229,0.35)]" aria-hidden="true" />
+                    <span className="h-2 w-2 rounded-full bg-ink" aria-hidden="true" />
                     <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Error volume</p>
                     <span className="hidden h-3 w-px bg-line sm:block" aria-hidden="true" />
                     <span className="hidden font-mono text-[11px] tabular-nums text-muted sm:inline">
@@ -369,13 +392,7 @@ export function DashboardPage() {
                     <div className="h-full w-full min-h-0">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={chartData} margin={{ top: 8, right: 12, left: -10, bottom: 0 }}>
-                        <defs>
-                          <linearGradient id="eventsFill" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="var(--color-accent)" stopOpacity={0.22} />
-                            <stop offset="100%" stopColor="var(--color-accent)" stopOpacity={0} />
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid stroke="var(--color-line)" strokeDasharray="0" vertical={false} opacity={0.6} />
+                        <CartesianGrid stroke="var(--color-line)" strokeDasharray="2 4" vertical={false} opacity={0.7} />
                         <XAxis
                           dataKey="label"
                           tick={{ fill: "var(--color-muted)", fontSize: 11, fontFamily: "var(--font-mono)" }}
@@ -391,33 +408,26 @@ export function DashboardPage() {
                           width={36}
                         />
                         <Tooltip
-                          cursor={{ stroke: "var(--color-line-soft)" }}
-                          contentStyle={{
-                            background: "var(--color-surface)",
-                            border: "1px solid var(--color-line)",
-                            borderRadius: 10,
-                            fontSize: 12,
-                            fontFamily: "var(--font-mono)",
-                          }}
-                          labelStyle={{ color: "var(--color-ink)" }}
-                          itemStyle={{ color: "var(--color-muted)" } as never}
+                          cursor={{ stroke: "var(--color-line-soft)", strokeWidth: 1 }}
+                          content={<ChartTooltip />}
                         />
                         <Area
-                          type="stepAfter"
+                          type="monotone"
                           dataKey="events"
-                          stroke="var(--color-accent)"
-                          strokeWidth={1.5}
-                          fill="url(#eventsFill)"
+                          stroke="var(--color-ink)"
+                          strokeWidth={2}
+                          fill="none"
                           name="Events"
                           dot={false}
-                          activeDot={{ r: 3, fill: "var(--color-accent)", stroke: "var(--color-surface)", strokeWidth: 2 } as never}
+                          activeDot={false}
                         />
                         <Line
-                          type="stepAfter"
+                          type="monotone"
                           dataKey="incidents"
                           stroke="var(--color-sev-warning)"
                           strokeWidth={1.25}
                           dot={false}
+                          activeDot={false}
                           name="Incidents"
                         />
                       </AreaChart>
@@ -448,36 +458,32 @@ export function DashboardPage() {
 
             {(() => {
               const visibleErrors = overview.top_errors.slice(0, 2);
-              const maxCount = Math.max(
-                ...visibleErrors.map((e) => e.count),
-                1,
-              );
-              const totalEvents = visibleErrors.reduce(
-                (sum, e) => sum + e.count,
-                0,
-              );
               return (
                 <GlassCard className="flex min-w-0 flex-col overflow-hidden p-0 lg:h-[344px]">
                   <div className="flex items-start justify-between gap-3 px-6 pt-6">
-                    <div className="flex min-w-0 gap-3">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line bg-line text-accent">
+                    <div className="min-w-0">
+                      <h2 className="text-[13px] font-semibold tracking-tight text-ink">
+                        Top recurring errors
+                      </h2>
+                      <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
+                        Last 7 days · fingerprint ranked
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <RealtimeStatusBadge />
+                      <Link
+                        href={ROUTES.incidents}
+                        className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 font-mono text-xs font-medium text-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                      >
+                        View all
                         <HugeiconsIcon
-                          icon={FlashIcon}
-                          size={16}
+                          icon={ArrowRight01Icon}
+                          size={14}
                           color="currentColor"
                           strokeWidth={1.5}
                         />
-                      </span>
-                      <div className="min-w-0">
-                        <h2 className="text-[13px] font-semibold tracking-tight text-ink">
-                          Top recurring errors
-                        </h2>
-                        <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
-                          Last 7 days · fingerprint ranked
-                        </p>
-                      </div>
+                      </Link>
                     </div>
-                    <RealtimeStatusBadge />
                   </div>
 
                   {visibleErrors.length === 0 ? (
@@ -501,94 +507,72 @@ export function DashboardPage() {
                       </div>
                     </div>
                   ) : (
-                    <ul className="mt-5 flex flex-col divide-y divide-line/60">
-                      {visibleErrors.map((error, idx) => {
-                        const barPct = Math.max(
-                          8,
-                          Math.round((error.count / maxCount) * 100),
-                        );
+                    <ul className="relative mt-5 flex flex-col">
+                      {visibleErrors.length > 1 ? (
+                        <span
+                          aria-hidden
+                          className="absolute bottom-8 left-[35px] top-8 w-px bg-line"
+                        />
+                      ) : null}
+                      {visibleErrors.map((error) => {
                         const sev =
                           error.severity as IncidentSeverity | null;
-                        const barColor = sev
-                          ? SEVERITY_BAR[sev]
-                          : "bg-accent";
-                        const dotColor = sev
-                          ? SEVERITY_DOT[sev]
-                          : "bg-accent";
-                        const rank = String(idx + 1).padStart(2, "0");
+                        const ring = sev
+                          ? SEVERITY_RING[sev]
+                          : "border-line text-muted";
+                        const status = error.status;
+                        const StatusIcon =
+                          status === "resolved"
+                            ? CheckmarkCircleIcon
+                            : status === "ignored"
+                              ? Cancel01Icon
+                              : Alert02Icon;
+                        const statusTone =
+                          status === "resolved"
+                            ? "text-ok"
+                            : status === "investigating"
+                              ? "text-sev-warning"
+                              : status === "ignored"
+                                ? "text-muted"
+                                : "text-sev-critical";
                         const rowContent = (
-                          <div className="flex items-start gap-3">
-                            <span className="hidden pt-[3px] font-mono text-[11px] tabular-nums leading-none tracking-wide text-muted/40 sm:block">
-                              {rank}
-                            </span>
+                          <div className="flex items-center gap-3.5">
                             <span
-                              className={`mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full ${dotColor} ${sev ? "" : "shadow-[0_0_8px_rgba(79,70,229,0.45)]"}`}
-                            />
+                              className={`relative z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border bg-bg ${ring}`}
+                            >
+                              <HugeiconsIcon
+                                icon={StatusIcon}
+                                size={13}
+                                color="currentColor"
+                                strokeWidth={1.8}
+                              />
+                            </span>
                             <div className="min-w-0 flex-1">
                               <p
-                                className="min-w-0 break-words text-[13px] font-medium leading-snug text-ink"
-                                style={{ overflowWrap: "anywhere" }}
+                                className="truncate text-[13px] font-semibold leading-snug text-ink"
                                 title={error.title}
                               >
                                 {error.title}
                               </p>
-                              <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                                <span className="inline-flex items-center gap-1 rounded-md border border-line bg-line px-1.5 py-0.5 font-mono text-[10px] tracking-wide text-muted">
-                                  <HugeiconsIcon
-                                    icon={FingerPrintIcon}
-                                    size={12}
-                                    color="currentColor"
-                                    strokeWidth={1.5}
-                                  />
-                                  {error.fingerprint.slice(0, 8)}
-                                </span>
-                                <span className="inline-flex items-center gap-1 font-mono text-[11px] text-muted">
-                                  <HugeiconsIcon
-                                    icon={Clock01Icon}
-                                    size={12}
-                                    color="currentColor"
-                                    strokeWidth={1.5}
-                                  />
-                                  {formatRelativeTime(error.last_seen)}
-                                </span>
-                                {sev ? (
-                                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted">
-                                    · {SEVERITY_LABEL[sev]}
-                                  </span>
-                                ) : null}
-                              </div>
-                              <div className="mt-3 flex items-center gap-2">
-                                <div className="h-1 max-w-[96px] flex-1 overflow-hidden rounded-full bg-line">
-                                  <div
-                                    className={`h-full rounded-full ${barColor} transition-[width] duration-500`}
-                                    style={{ width: `${barPct}%` }}
-                                  />
-                                </div>
-                                <span className="font-mono text-[10px] text-muted">
-                                  {barPct}% of max
-                                </span>
-                              </div>
+                              <p className="mt-0.5 truncate font-mono text-[11px] text-muted">
+                                {error.fingerprint.slice(0, 8)} · ×
+                                {formatCount(error.count)} ·{" "}
+                                {formatRelativeTime(error.last_seen)}
+                                {sev ? ` · ${SEVERITY_LABEL[sev]}` : null}
+                              </p>
                             </div>
-                            <div className="flex shrink-0 flex-col items-end gap-1.5">
-                              <span className="rounded-md border border-line bg-line px-2 py-1 font-mono text-xs font-medium tabular-nums text-ink">
-                                ×{formatCount(error.count)}
-                              </span>
-                              <span className="hidden items-center gap-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted transition-colors group-hover:text-ink sm:inline-flex">
-                                Open
-                                <HugeiconsIcon
-                                  icon={ChevronRightIcon}
-                                  size={12}
-                                  color="currentColor"
-                                  strokeWidth={1.5}
-                                />
-                              </span>
-                            </div>
+                            <span className={`shrink-0 text-xs font-medium ${statusTone}`}>
+                              {status
+                                ? status.charAt(0).toUpperCase() +
+                                  status.slice(1)
+                                : "–"}
+                            </span>
                           </div>
                         );
                         return (
                           <li
                             key={error.fingerprint}
-                            className="group px-6 py-4 transition-colors hover:bg-surface/50"
+                            className="relative border-b border-line/60 px-6 py-4 transition-colors last:border-b-0 hover:bg-surface/50"
                           >
                             {error.incident_id ? (
                               <Link
@@ -608,28 +592,6 @@ export function DashboardPage() {
                       })}
                     </ul>
                   )}
-
-                  <div className="mt-auto flex items-center justify-between gap-3 border-t border-line bg-bg/30 px-6 py-3">
-                    <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
-                      {visibleErrors.length === 0
-                        ? "0 patterns"
-                        : `${visibleErrors.length} patterns · Σ ${formatCount(totalEvents)} events`}
-                    </p>
-                    {visibleErrors.length > 0 ? (
-                      <Link
-                        href={ROUTES.incidents}
-                        className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 font-mono text-xs font-medium text-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                      >
-                        View all
-                        <HugeiconsIcon
-                          icon={ArrowRight01Icon}
-                          size={14}
-                          color="currentColor"
-                          strokeWidth={1.5}
-                        />
-                      </Link>
-                    ) : null}
-                  </div>
                 </GlassCard>
               );
             })()}

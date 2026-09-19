@@ -176,6 +176,7 @@ export type DashboardOverview = {
     last_seen: string;
     incident_id: string | null;
     severity: IncidentSeverity | null;
+    status: IncidentStatus | null;
   }>;
   health: DashboardHealth;
 };
