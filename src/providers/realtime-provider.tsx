@@ -320,13 +320,17 @@ export function useRealtimeEvents(
   listener: (event: RealtimeEvent) => void,
   deps: DependencyList,
 ) {
-  const { subscribe } = useRealtimeContext();
+  // Nullable on purpose: auth-shell pages (login, register, invite) render
+  // outside any RealtimeProvider, and must not crash for it — they simply
+  // never receive live events (badge updates on open/actions instead).
+  const context = useContext(RealtimeContext);
   const listenerRef = useRef(listener);
   useEffect(() => {
     listenerRef.current = listener;
   });
   useEffect(() => {
-    return subscribe((event) => listenerRef.current(event));
+    if (!context) return;
+    return context.subscribe((event) => listenerRef.current(event));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }

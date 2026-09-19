@@ -14,6 +14,7 @@ import {
 import { ROUTES } from "@/constants";
 import { SeverityBadge } from "@/components/ui/incident-badges";
 import { useAuth } from "@/providers/auth-provider";
+import { useRealtimeEvents } from "@/providers/realtime-provider";
 import {
   fetchUnreadCount,
   listNotifications,
@@ -21,8 +22,6 @@ import {
 } from "@/services/notifications";
 import type { AppNotification } from "@/types";
 import { formatRelativeTime } from "@/utils/format";
-
-const POLL_INTERVAL_MS = 45_000;
 
 function BellDropdown() {
   const { status: authStatus } = useAuth();
@@ -33,7 +32,10 @@ function BellDropdown() {
   const router = useRouter();
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // Poll the unread counter so the badge stays live while the page is open.
+  // Badge stays live via Pusher incident events (created/updated/resolved
+  // all fan out to notification rows server-side) — no polling. The initial
+  // fetch covers paint; opening the dropdown refreshes on demand. When
+  // realtime is off, the badge updates on open and on read actions below.
   useEffect(() => {
     if (authStatus !== "authenticated") return;
     let cancelled = false;
@@ -42,15 +44,16 @@ function BellDropdown() {
         if (!cancelled) setUnread(count.unread_count);
       })
       .catch(() => undefined);
-    const interval = window.setInterval(() => {
-      fetchUnreadCount()
-        .then((count) => setUnread(count.unread_count))
-        .catch(() => undefined);
-    }, POLL_INTERVAL_MS);
     return () => {
       cancelled = true;
-      window.clearInterval(interval);
     };
+  }, [authStatus]);
+
+  useRealtimeEvents(() => {
+    if (authStatus !== "authenticated") return;
+    fetchUnreadCount()
+      .then((count) => setUnread(count.unread_count))
+      .catch(() => undefined);
   }, [authStatus]);
 
   const refresh = useCallback(() => {
