@@ -4,6 +4,7 @@ import type { AuthSession } from "@/types";
 
 export type RegisterCredential = {
   registration_token: string;
+  username: string;
   password: string;
   confirm_password: string;
 };
@@ -29,10 +30,10 @@ export function completeRegistration(body: RegisterCredential): Promise<AuthSess
   });
 }
 
-export function login(email: string, password: string): Promise<AuthSession> {
+export function login(identifier: string, password: string): Promise<AuthSession> {
   return api<AuthSession>(API_ROUTES.login, {
     method: "POST",
-    body: { email, password },
+    body: { identifier, password },
   });
 }
 

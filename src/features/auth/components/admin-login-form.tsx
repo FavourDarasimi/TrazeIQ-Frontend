@@ -12,7 +12,7 @@ import { apiErrorMessage, apiFieldErrors } from "@/utils/errors";
 export function AdminLoginForm() {
   const { signIn } = useAuth();
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +24,7 @@ export function AdminLoginForm() {
     setError(null);
     setFieldErrors({});
     try {
-      const session = await signIn(email, password);
+      const session = await signIn(identifier.trim().toLowerCase(), password);
       if (session.user.is_staff) {
         router.replace(ROUTES.admin);
       } else {
@@ -48,13 +48,13 @@ export function AdminLoginForm() {
         {error ? <InlineError>{error}</InlineError> : null}
 
         <TextField
-          label="Email"
-          type="email"
-          autoComplete="email"
+          label="Email or username"
+          type="text"
+          autoComplete="username"
           placeholder="admin@trazeiq.com"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          error={fieldErrors.email?.[0]}
+          value={identifier}
+          onChange={(event) => setIdentifier(event.target.value)}
+          error={fieldErrors.identifier?.[0] ?? fieldErrors.email?.[0]}
         />
         <TextField
           label="Password"

@@ -34,6 +34,7 @@ export function RegisterFlow() {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [registrationToken, setRegistrationToken] = useState<string | null>(null);
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -48,6 +49,7 @@ export function RegisterFlow() {
     setStep("email");
     setOtp("");
     setRegistrationToken(null);
+    setUsername("");
     setPassword("");
     setConfirmPassword("");
   }
@@ -105,6 +107,15 @@ export function RegisterFlow() {
     // Client-side guard: give instant feedback and avoid consuming server
     // rate-limit / token state on obviously invalid input (dev HMR can also
     // drop the in-memory token if the module reloads mid-flow).
+    const normalizedUsername = username.trim().toLowerCase();
+    if (!/^[a-z0-9._-]{3,30}$/.test(normalizedUsername)) {
+      setFieldErrors({
+        username: [
+          "3–30 chars: lowercase letters, digits, dot, underscore, hyphen.",
+        ],
+      });
+      return;
+    }
     if (password.length < 8) {
       setFieldErrors({ password: ["Password must be at least 8 characters."] });
       return;
@@ -119,6 +130,7 @@ export function RegisterFlow() {
     try {
       const session = await completeRegistration({
         registration_token: registrationToken,
+        username: normalizedUsername,
         password,
         confirm_password: confirmPassword,
       });
@@ -139,6 +151,13 @@ export function RegisterFlow() {
         if (err.code === "EMAIL_TAKEN") {
           setFlippedToLogin(true);
           setError("An account was already created for this email. Sign in to continue.");
+          return;
+        }
+        if (err.code === "USERNAME_TAKEN") {
+          setFieldErrors({
+            username: ["This username is already taken."],
+          });
+          setError("This username is already taken.");
           return;
         }
       }
@@ -173,8 +192,10 @@ export function RegisterFlow() {
   function useDifferentEmail() {
     setFlippedToLogin(false);
     setEmail("");
+    setUsername("");
     setLoginPassword("");
     setError(null);
+    setFieldErrors({});
     setStep("email");
   }
 
@@ -303,6 +324,22 @@ export function RegisterFlow() {
 
             {step === "password" ? (
               <>
+                <TextField
+                  label="Username"
+                  type="text"
+                  autoComplete="username"
+                  placeholder="e.g. ada_lovelace"
+                  value={username}
+                  onChange={(event) => {
+                    setUsername(event.target.value);
+                    if (fieldErrors.username) {
+                      const next = { ...fieldErrors };
+                      delete next.username;
+                      setFieldErrors(next);
+                    }
+                  }}
+                  error={fieldErrors.username?.[0]}
+                />
                 <TextField
                   label="Password"
                   type="password"

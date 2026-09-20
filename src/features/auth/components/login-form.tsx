@@ -21,7 +21,7 @@ export function LoginForm({
 }) {
   const { signIn } = useAuth();
   const router = useRouter();
-  const [email, setEmail] = useState(initialEmail);
+  const [identifier, setIdentifier] = useState(initialEmail);
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export function LoginForm({
     setError(null);
     setFieldErrors({});
     try {
-      await signIn(email, password);
+      await signIn(identifier.trim().toLowerCase(), password);
       router.replace(
         (await needsOnboarding()) ? ROUTES.onboarding : next ?? ROUTES.dashboard,
       );
@@ -55,13 +55,13 @@ export function LoginForm({
         {error ? <InlineError>{error}</InlineError> : null}
 
         <TextField
-          label="Email"
-          type="email"
-          autoComplete="email"
-          placeholder="you@company.com"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          error={fieldErrors.email?.[0]}
+          label="Email or username"
+          type="text"
+          autoComplete="username"
+          placeholder="you@company.com or your-handle"
+          value={identifier}
+          onChange={(event) => setIdentifier(event.target.value)}
+          error={fieldErrors.identifier?.[0] ?? fieldErrors.email?.[0]}
         />
         <TextField
           label="Password"
@@ -79,14 +79,14 @@ export function LoginForm({
       </form>
 
       <div className="mt-4">
-        <GoogleSignInButton email={email} />
+        <GoogleSignInButton email={identifier.includes("@") ? identifier : ""} />
       </div>
 
       <p className="mt-4 text-center text-sm text-muted">
         <Link
           href={
-            email.trim()
-              ? `${ROUTES.forgotPassword}?email=${encodeURIComponent(email.trim())}`
+            identifier.trim().includes("@") && identifier.trim()
+              ? `${ROUTES.forgotPassword}?email=${encodeURIComponent(identifier.trim())}`
               : ROUTES.forgotPassword
           }
           className="underline-offset-2 transition-colors hover:text-ink hover:underline"

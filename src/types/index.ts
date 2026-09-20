@@ -2,6 +2,7 @@ export type AuthProvider = "email" | "google";
 
 export type AuthUser = {
   email: string;
+  username: string;
   name: string;
   email_verified: boolean;
   auth_provider: AuthProvider;
@@ -303,6 +304,7 @@ export type ServicesHealthCatalog = {
 
 export type ErrorCode =
   | "EMAIL_TAKEN"
+  | "USERNAME_TAKEN"
   | "INVALID_CREDENTIALS"
   | "EMAIL_NOT_VERIFIED"
   | "ALREADY_VERIFIED"
@@ -379,6 +381,7 @@ export type PlatformOverview = {
 export type PlatformUser = {
   id: string;
   email: string;
+  username: string;
   name: string;
   is_active: boolean;
   is_staff: boolean;

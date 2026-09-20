@@ -13,7 +13,8 @@ export function DocsErrors() {
         head={["error.code", "HTTP", "Emitted where"]}
         rows={[
           [<Code key="a">EMAIL_TAKEN</Code>, <StatusBadge key="s" code="409" tone="danger" />, "POST register/request-otp/ when address has an account; POST register/complete/ race between step 2 and 3"],
-          [<Code key="a">INVALID_CREDENTIALS</Code>, <StatusBadge key="s" code="401" tone="danger" />, "POST /auth/login/ — wrong email or password (also counts toward axes lockout)"],
+          [<Code key="a">USERNAME_TAKEN</Code>, <StatusBadge key="s" code="409" tone="danger" />, "POST register/complete/ — username already taken (including lost-race IntegrityError)"],
+          [<Code key="a">INVALID_CREDENTIALS</Code>, <StatusBadge key="s" code="401" tone="danger" />, "POST /auth/login/ — wrong identifier (email or username) or password (also counts toward axes lockout)"],
           [<Code key="a">EMAIL_NOT_VERIFIED</Code>, <StatusBadge key="s" code="403" tone="danger" />, "POST /auth/login/ — account exists but email_verified or is_active is false"],
           [<Code key="a">OTP_INVALID</Code>, <StatusBadge key="s" code="400" tone="warn" />, "POST register/verify-otp/ + reset-password — code does not match (including hashed compare via secrets.compare_digest)"],
           [<Code key="a">OTP_EXPIRED</Code>, <StatusBadge key="s" code="400" tone="warn" />, "OTP past AUTH_OTP_TTL_MINUTES (default 10 min)"],

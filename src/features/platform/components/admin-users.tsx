@@ -88,8 +88,8 @@ export function AdminUsers() {
               setSearch(v);
               setLoading(true);
             }}
-            placeholder="Search by email…"
-            label="Search users by email"
+            placeholder="Search by email or username…"
+            label="Search users by email or username"
           />
         }
         head={
@@ -130,7 +130,9 @@ export function AdminUsers() {
                   </span>
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-ink">{u.email}</p>
-                    <p className="truncate text-xs text-muted">{u.name || "—"}</p>
+                    <p className="truncate text-xs text-muted">
+                      @{u.username || u.name || "—"}
+                    </p>
                   </div>
                 </div>
               </td>

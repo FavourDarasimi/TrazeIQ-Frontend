@@ -18,7 +18,7 @@ export type AuthStatus = "loading" | "authenticated" | "unauthenticated";
 type AuthContextValue = {
   status: AuthStatus;
   user: AuthUser | null;
-  signIn: (email: string, password: string) => Promise<AuthSession>;
+  signIn: (identifier: string, password: string) => Promise<AuthSession>;
   signOut: () => Promise<void>;
   applySession: (session: AuthSession) => void;
 };
@@ -69,8 +69,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = useCallback(
-    async (email: string, password: string) => {
-      const session = await loginService(email, password);
+    async (identifier: string, password: string) => {
+      const session = await loginService(identifier, password);
       applySession(session);
       return session;
     },

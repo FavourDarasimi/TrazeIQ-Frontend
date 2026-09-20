@@ -67,7 +67,7 @@ const completeTabs = [
     label: "curl",
     code: `curl -X POST https://api.trazeiq.io/api/v1/auth/register/complete/ \\
   -H "Content-Type: application/json" \\
-  -d '{"registration_token":"64-hex-token","password":"correct-horse-...","confirm_password":"correct-horse-..."}' \\
+  -d '{"registration_token":"64-hex-token","username":"ada_lovelace","password":"correct-horse-...","confirm_password":"correct-horse-..."}' \\
   -c cookies.txt`,
   },
   {
@@ -76,7 +76,7 @@ const completeTabs = [
     code: `await fetch("/api/v1/auth/register/complete/", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ registration_token, password, confirm_password }),
+  body: JSON.stringify({ registration_token, username, password, confirm_password }),
   credentials: "include", // sets trazeiq_access + trazeiq_refresh
 });`,
   },
@@ -87,6 +87,7 @@ const completeTabs = [
   "https://api.trazeiq.io/api/v1/auth/register/complete/",
   json={
     "registration_token": token,
+    "username": "ada_lovelace",
     "password": "correct-horse-...",
     "confirm_password": "correct-horse-...",
   },
@@ -138,7 +139,7 @@ export function DocsAuth() {
           code={`curl https://api.trazeiq.io/api/v1/auth/me/ \\
   -H "Authorization: Bearer <access_jwt>"   # or rely on the trazeiq_access cookie
 
-// 200 {success:true, data:{user:{email, name, email_verified, auth_provider}}}
+// 200 {success:true, data:{user:{email, username, name, email_verified, auth_provider}}}
 // 401 {success:false, error:{code:"NOT_AUTHENTICATED"}}`}
         />
       </DocsSection>
@@ -198,19 +199,21 @@ export function DocsAuth() {
           head={["Field", "Type", "Required", "Notes"]}
           rows={[
             [<Code key="a">registration_token</Code>, "string", <StatusBadge key="s" code="yes" tone="ok" />, "The 64-hex from step 2"],
+            [<Code key="a">username</Code>, "string", <StatusBadge key="s" code="yes" tone="ok" />, "3–30 chars: lowercase a-z 0-9 . _ -"],
             [<Code key="a">password</Code>, "string", <StatusBadge key="s" code="yes" tone="ok" />, "≥8 chars + Django validators"],
             [<Code key="a">confirm_password</Code>, "string", <StatusBadge key="s" code="yes" tone="ok" />, "Must match password"],
           ]}
         />
-        <DocsCode label="complete — token + password → signed in" tabs={completeTabs} />
+        <DocsCode label="complete — token + username + password → signed in" tabs={completeTabs} />
         <DocsTable
           head={["Status", "Code", "Meaning"]}
           rows={[
-            [<StatusBadge key="a" code="200" tone="ok" />, <Code key="b">—</Code>, <><Code>{`{data:{user:{email,name,email_verified,auth_provider}}}`}</Code> + sets both cookies; redirect to onboarding.</>],
+            [<StatusBadge key="a" code="200" tone="ok" />, <Code key="b">—</Code>, <><Code>{`{data:{user:{email,username,name,email_verified,auth_provider}}}`}</Code> + sets both cookies; redirect to onboarding.</>],
             [<StatusBadge key="a" code="400" tone="warn" />, <Code key="b">REGISTRATION_TOKEN_INVALID</Code>, "Bad or already used token."],
             [<StatusBadge key="a" code="400" tone="warn" />, <Code key="b">REGISTRATION_TOKEN_EXPIRED</Code>, "15 min window elapsed (AUTH_REGISTRATION_TOKEN_TTL_MINUTES)."],
-            [<StatusBadge key="a" code="400" tone="warn" />, <Code key="b">VALIDATION_FAILED</Code>, <><Code>error.fields.password</Code> / <Code>confirm_password</Code></>],
+            [<StatusBadge key="a" code="400" tone="warn" />, <Code key="b">VALIDATION_FAILED</Code>, <><Code>error.fields.username</Code> / <Code>password</Code> / <Code>confirm_password</Code></>],
             [<StatusBadge key="a" code="409" tone="danger" />, <Code key="b">EMAIL_TAKEN</Code>, "Race: email registered between step 2 and 3."],
+            [<StatusBadge key="a" code="409" tone="danger" />, <Code key="b">USERNAME_TAKEN</Code>, "Username already taken (pre-check + race-safe IntegrityError)."],
             [<StatusBadge key="a" code="429" tone="danger" />, <Code key="b">TOO_MANY_REQUESTS</Code>, "20/min per IP."],
           ]}
         />
@@ -226,7 +229,7 @@ export function DocsAuth() {
         <DocsTable
           head={["Field", "Type", "Required"]}
           rows={[
-            [<Code key="a">email</Code>, "email", <StatusBadge key="s" code="yes" tone="ok" />],
+            [<Code key="a">identifier</Code>, "string (email or username)", <StatusBadge key="s" code="yes" tone="ok" />],
             [<Code key="a">password</Code>, "string", <StatusBadge key="s" code="yes" tone="ok" />],
           ]}
         />
@@ -238,7 +241,8 @@ export function DocsAuth() {
               label: "curl",
               code: `curl -X POST https://api.trazeiq.io/api/v1/auth/login/ \\
   -H "Content-Type: application/json" \\
-  -d '{"email":"you@company.com","password":"..."}' -c cookies.txt
+  -d '{"identifier":"you@company.com","password":"..."}' -c cookies.txt
+# identifier also accepts a username: '{"identifier":"ada_lovelace","password":"..."}'
 # 200 {data:{user}} + Set-Cookie: trazeiq_access (15m, /) + trazeiq_refresh (7d, /api/v1/auth/)`,
             },
             {
@@ -246,24 +250,24 @@ export function DocsAuth() {
               label: "JavaScript",
               code: `await fetch("/api/v1/auth/login/", {
   method: "POST", headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ email, password }),
+  body: JSON.stringify({ identifier, password }),
   credentials: "include",
 });`,
             },
-            { lang: "python", label: "Python", code: `requests.post("https://api.trazeiq.io/api/v1/auth/login/", json={"email": email, "password": pw})` },
+            { lang: "python", label: "Python", code: `requests.post("https://api.trazeiq.io/api/v1/auth/login/", json={"identifier": identifier, "password": pw})` },
           ]}
         />
         <DocsTable
           head={["Status", "Code", "Notes"]}
           rows={[
             [<StatusBadge key="a" code="200" tone="ok" />, <Code key="b">—</Code>, "Returns user + sets cookies."],
-            [<StatusBadge key="a" code="401" tone="danger" />, <Code key="b">INVALID_CREDENTIALS</Code>, "Wrong email or password. Counts toward axes lockout."],
+            [<StatusBadge key="a" code="401" tone="danger" />, <Code key="b">INVALID_CREDENTIALS</Code>, "Wrong identifier or password. Counts toward axes lockout."],
             [<StatusBadge key="a" code="403" tone="danger" />, <Code key="b">EMAIL_NOT_VERIFIED</Code>, "Unverified or inactive account."],
-            [<StatusBadge key="a" code="429" tone="danger" />, <Code key="b">TOO_MANY_REQUESTS</Code>, "Per-IP 60/min + account lockout after 5 failures per (IP,email) for 15 min (axes). Includes Retry-After."],
+            [<StatusBadge key="a" code="429" tone="danger" />, <Code key="b">TOO_MANY_REQUESTS</Code>, "Per-IP 60/min + account lockout after 5 failures per (IP,account) for 15 min (axes). Includes Retry-After."],
           ]}
         />
         <Callout variant="warning" title="Brute-force lockout">
-          Lockout is per <Code>(IP, email)</Code> pair, not per IP alone (<Code>AXES_USERNAME_FORM_FIELD=email</Code>). A successful login clears that pair&apos;s failures; the 429 includes <Code>Retry-After: 900</Code>.
+          Lockout is per <Code>(IP, account)</Code> pair, not per IP alone (<Code>AXES_USERNAME_FORM_FIELD=email</Code> + identifier resolved to the account email). Email- and username-based attempts share one bucket; a successful login clears that pair&apos;s failures; the 429 includes <Code>Retry-After: 900</Code>.
         </Callout>
 
         <SubHeading id="auth-session-refresh">POST /api/v1/auth/refresh/</SubHeading>
@@ -284,7 +288,7 @@ export function DocsAuth() {
 # 204 No Content — blacklists refresh, clears both cookies
 
 curl https://api.trazeiq.io/api/v1/auth/me/ -b cookies.txt
-# 200 {data:{user:{email, name, email_verified, auth_provider:"email"|"google"}}}
+# 200 {data:{user:{email, username, name, email_verified, auth_provider:"email"|"google"}}}
 # 401 {error:{code:"NOT_AUTHENTICATED"}} — missing/expired access JWT`}
         />
         <DocsTable
@@ -340,7 +344,8 @@ curl https://api.trazeiq.io/api/v1/auth/me/ -b cookies.txt
           <Code>https://oauth2.googleapis.com/tokeninfo?id_token=...</Code>, checks <Code>aud == CLIENT_ID</Code> and{" "}
           <Code>email_verified</Code>, then uses the token payload&apos;s <Code>email/sub/name</Code>. Find-or-create by{" "}
           <Code>google_sub</Code> then by <Code>email</Code>; existing accounts are promoted to{" "}
-          <Code>auth_provider=google, email_verified=true</Code>.
+          <Code>auth_provider=google, email_verified=true</Code>. New Google accounts get an auto-derived{" "}
+          <Code>username</Code> (email prefix, suffixed on collision); usernames are immutable for now — no edit endpoint.
         </p>
         <DocsTable
           head={["Status", "Code"]}

@@ -178,7 +178,7 @@ function SeverityChips({
 }
 
 export function DashboardPage() {
-  const { status: authStatus } = useAuth();
+  const { status: authStatus, user } = useAuth();
   const { selectedProjectId, status: projectStatus } = useProjectContext();
  const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -253,6 +253,9 @@ export function DashboardPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
+          <p className="text-sm text-muted">
+            Welcome back, {user?.username || user?.name || user?.email}
+          </p>
           <h1 className="text-2xl font-semibold tracking-tight text-ink">
             Overview
           </h1>
