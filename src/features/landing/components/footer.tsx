@@ -6,19 +6,13 @@ const columns = [
     heading: "Product",
     links: [
       { label: "Features", href: "#features" },
+      { label: "How it works", href: "#how-it-works" },
       { label: "Dashboard", href: "#dashboard" },
-      { label: "Integrations", href: "#developer-integration" },
-      { label: "Security", href: "#security" },
     ],
   },
   {
     heading: "Resources",
-    links: [
-      { label: "Docs", href: "/docs" },
-      { label: "GitHub", href: "#" },
-      { label: "Status", href: "#" },
-      { label: "Contact", href: "#" },
-    ],
+    links: [{ label: "Docs", href: "/docs" }],
   },
 ];
 

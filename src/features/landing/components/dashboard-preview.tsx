@@ -74,7 +74,7 @@ export function DashboardPreview() {
         <SectionHeader
           eyebrow="Dashboard preview"
           title="The command center your on-call actually wants"
-          sub="Status, severity, and history on one screen. Everything below is the real product — sample data."
+          sub="Status, severity, and history on one screen. Illustrative sample data."
         />
 
         <Reveal className="min-w-0 mt-14">

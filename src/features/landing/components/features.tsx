@@ -62,6 +62,11 @@ export function Features() {
             </StaggerItem>
           ))}
         </Stagger>
+        <p className="mt-8 text-center text-sm leading-relaxed text-muted">
+          Security is built in, not bolted on: secrets are scrubbed before
+          storage, API keys are hashed, and every query is scoped to your
+          organization.
+        </p>
       </Container>
     </section>
   );

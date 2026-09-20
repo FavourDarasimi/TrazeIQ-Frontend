@@ -34,10 +34,26 @@ export function HowItWorks() {
               </span>
               <span className="font-mono text-xs text-muted">step 01</span>
             </div>
-            <h3 className="mt-6 font-semibold text-ink">Your app sends the error</h3>
+            <h3 className="mt-6 font-semibold text-ink">Send the error</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              Use our official zero-dep SDK (<code className="font-mono text-xs">trazeiq</code> on npm/PyPI) or drop a 1-line fetch snippet into your error handler. TrazeIQ captures the stack trace, redacts secrets, and returns before your app notices.
+              Drop the snippet into your error handler — SDKs for JS/TS and
+              Python, or plain fetch. TrazeIQ redacts secrets and returns
+              before your app notices.
             </p>
+            <pre className="mt-4 overflow-x-auto rounded-lg border border-line bg-bg-panel p-4 font-mono text-[12px] leading-relaxed text-ink/85">
+              <code>{`fetch("https://api.trazeiq.io/api/v1/events/", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-API-Key": "YOUR_API_KEY",
+  },
+  body: JSON.stringify({
+    message: error.message,
+    stacktrace: error.stack,
+  }),
+}).catch(() => {});
+throw error;`}</code>
+            </pre>
           </StaggerItem>
 
           <StaggerItem className="flex flex-col gap-4">
@@ -53,9 +69,11 @@ export function HowItWorks() {
                 </span>
                 <span className="font-mono text-xs text-muted">step 02</span>
               </div>
-              <h3 className="mt-6 font-semibold text-ink">Errors grouped & deduplicated</h3>
+              <h3 className="mt-6 font-semibold text-ink">It becomes one incident</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted">
-                Incoming events are fingerprinted automatically. Thousands of repeat crash occurrences collapse into a single actionable incident.
+                Events are fingerprinted on arrival and grouped by stack
+                trace — thousands of repeats collapse into a single tracked
+                incident with the full stack trace attached.
               </p>
             </div>
             <div className="rounded-2xl border border-accent/30 bg-bg p-5 shadow-[0_0_30px_rgba(79,70,229,0.12)]">
@@ -93,10 +111,10 @@ export function HowItWorks() {
               </span>
               <span className="font-mono text-xs text-muted">step 03</span>
             </div>
-            <h3 className="mt-6 font-semibold text-ink">Team gets notified</h3>
+            <h3 className="mt-6 font-semibold text-ink">Get notified once</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              The incident lands live on the dashboard, and alert rules page
-              the right channel — once, with stack trace details attached.
+              The right people get the right alarm at the right severity —
+              once per incident on Slack or email, not on the 50th repeat.
             </p>
           </StaggerItem>
         </Stagger>

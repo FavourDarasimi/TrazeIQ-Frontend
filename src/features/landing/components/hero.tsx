@@ -1,7 +1,7 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 
-import { Container, GhostButton, PrimaryButton, Window } from "@/components/ui/shared";
+import { Container, PrimaryButton, Window } from "@/components/ui/shared";
 import { Reveal } from "@/components/ui/motion";
 
 const feedLines = [
@@ -51,15 +51,15 @@ export function Hero() {
 
         <Reveal delay={0.12}>
           <h1 className="mt-6 max-w-3xl text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-6xl lg:text-7xl">
-            Detect. Understand. <span className="text-accent">Fix.</span>
+            Turn 10,000 identical errors into one incident,{" "}
+            <span className="text-accent">and get alerted once.</span>
           </h1>
         </Reveal>
 
         <Reveal delay={0.2}>
           <p className="mt-6 max-w-xl text-pretty text-base leading-relaxed text-muted sm:text-lg">
-            TrazeIQ watches your production errors, groups the noise into a
-            single incident, and alerts your team — before the
-            first customer complains.
+            TrazeIQ groups your production errors and pages the team before
+            the first customer complains.
           </p>
         </Reveal>
 
@@ -74,13 +74,12 @@ export function Hero() {
                 strokeWidth={1.5}
               />
             </PrimaryButton>
-            <GhostButton href="#dashboard">View Demo</GhostButton>
           </div>
         </Reveal>
 
         <Reveal delay={0.36}>
           <p className="mt-4 font-mono text-[11px] text-muted">
-            free tier for small teams · zero-dep JS & Python SDKs (npm/PyPI) · set up in 2 minutes
+            Free tier · 2-minute setup · zero-dep JS & Python SDKs
           </p>
         </Reveal>
 
@@ -109,7 +108,7 @@ export function Hero() {
             </div>
           </Window>
           <p className="mt-3 text-center font-mono text-[10px] text-muted">
-            sample data — real feed from the product
+            Illustrative sample
           </p>
         </Reveal>
       </Container>

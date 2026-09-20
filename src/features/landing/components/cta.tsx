@@ -1,7 +1,7 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 
-import { Container, GhostButton, PrimaryButton } from "@/components/ui/shared";
+import { Container, PrimaryButton } from "@/components/ui/shared";
 import { Reveal } from "@/components/ui/motion";
 
 export function Cta() {
@@ -40,7 +40,6 @@ export function Cta() {
               strokeWidth={1.5}
             />
           </PrimaryButton>
-          <GhostButton href="/login">Sign in</GhostButton>
         </div>
         <p className="mt-5 font-mono text-[11px] text-muted">
           free tier for small teams · no credit card · cancel anytime

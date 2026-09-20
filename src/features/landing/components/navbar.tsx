@@ -11,9 +11,6 @@ import { useAuth } from "@/providers/auth-provider";
 const links = [
   { label: "Product", href: "#features" },
   { label: "How it works", href: "#how-it-works" },
-  { label: "Dashboard", href: "#dashboard" },
-  { label: "Security", href: "#security" },
-  { label: "FAQ", href: "#faq" },
   { label: "Docs", href: "/docs" },
 ];
 
@@ -71,7 +68,7 @@ export function Navbar() {
                 href="/register"
                 className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-[#5b52ea]"
               >
-                Start Monitoring
+                Start free
               </a>
             </>
           ) : null}
@@ -120,7 +117,7 @@ export function Navbar() {
                     Sign in
                   </a>
                   <a href="/register" className="rounded-lg bg-accent px-3 py-2.5 text-center text-sm font-medium text-ink">
-                    Start Monitoring
+                    Start free
                   </a>
                 </>
               ) : null}

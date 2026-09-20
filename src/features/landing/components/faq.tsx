@@ -7,11 +7,7 @@ import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 const faqs = [
   {
     q: "Does TrazeIQ replace Datadog or New Relic?",
-    a: "For the core job — error collection, grouping, incident tracking, and alerting — yes, for a fraction of the cost. It's not an enterprise APM: it doesn't do distributed tracing, dashboards for every metric, or per-seat enterprise licensing. It does the part small teams actually use: 'what broke, where, and who needs to know'.",
-  },
-  {
-    q: "How fast is error ingestion?",
-    a: "The ingestion endpoint responds in milliseconds and processes events synchronously up to persistence. Alert dispatching and notification delivery run in non-blocking handlers so client requests never wait.",
+    a: "For the core job — error collection, grouping, incident tracking, and alerting — yes, for a fraction of the cost. It's not an enterprise APM: it doesn't do distributed tracing or per-seat enterprise licensing. It does the part small teams actually use: 'what broke, where, and who needs to know'.",
   },
   {
     q: "Will error reporting slow down my app?",
@@ -20,10 +16,6 @@ const faqs = [
   {
     q: "How do you keep my stack traces safe?",
     a: "Secrets (tokens, API keys, passwords) are automatically redacted before anything is persisted, keys are hashed, integration credentials are encrypted at rest, and every query is strictly scoped to your organization.",
-  },
-  {
-    q: "What SDKs or libraries are available?",
-    a: "TrazeIQ offers official zero-dependency SDKs for JavaScript/TypeScript (`npm install trazeiq`) and Python (`pip install trazeiq`). If you use another stack (Go, Rust, Ruby, etc.), plain HTTP POST requests directly to the ingestion endpoint are fully supported.",
   },
   {
     q: "Do I have to host anything?",

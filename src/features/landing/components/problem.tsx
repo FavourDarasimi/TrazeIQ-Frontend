@@ -1,5 +1,5 @@
 import { HugeiconsIcon } from "@hugeicons/react";
-import { WifiOffIcon, Search01Icon, InvoiceIcon } from "@hugeicons/core-free-icons";
+import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 
 import { Container, Eyebrow, Window } from "@/components/ui/shared";
 import { Reveal } from "@/components/ui/motion";
@@ -9,24 +9,6 @@ const noiseLines = [
   { time: "09:12:08", text: "payments-api  DatabaseError: connection refused" },
   { time: "09:12:09", text: "payments-api  DatabaseError: connection refused" },
   { time: "09:12:09", text: "payments-api  DatabaseError: connection refused" },
-];
-
-const pains = [
-  {
-    Icon: Search01Icon,
-    title: "Root-cause hunts eat afternoons",
-    body: "The one line you need is buried under four hundred identical rows of the same stack trace.",
-  },
-  {
-    Icon: WifiOffIcon,
-    title: "You find out from users",
-    body: "No alert fires. A support ticket, a frustrated reply, a bad review — that's your incident report.",
-  },
-  {
-    Icon: InvoiceIcon,
-    title: "The fix costs more than the bug",
-    body: "Enterprise APM pricing is priced for teams with headcount. Small teams get nothing in between.",
-  },
 ];
 
 export function Problem() {
@@ -39,30 +21,21 @@ export function Problem() {
             Your users are your monitoring tool.
           </h2>
           <p className="text-pretty text-base leading-relaxed text-muted">
-            When a dependency fails at 3am, a crash loop writes the same error
-            thousands of times. Nobody groups it, nobody analyzes it, and
-            nobody tells the right person — until someone complains.
+            When a dependency fails at 3am, a crash loop writes the same
+            error thousands of times — and the first alert is a support
+            ticket. TrazeIQ collapses the noise so the team sees one
+            incident, not four thousand log rows.
           </p>
-          <div className="flex flex-col gap-6">
-            {pains.map(({ title, body, Icon }) => (
-              <div key={title} className="flex gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-line bg-surface">
-                  <HugeiconsIcon
-                    icon={Icon}
-                    size={20}
-                    color="#71717A"
-                    strokeWidth={1.5}
-                  />
-                </div>
-                <div>
-                  <h3 className="font-medium text-ink">{title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-muted">
-                    {body}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <p className="flex flex-wrap items-center gap-3 font-mono text-sm text-muted">
+            <span className="text-2xl text-ink">4,000</span> duplicate errors
+            <HugeiconsIcon
+              icon={ArrowRight02Icon}
+              size={16}
+              color="#71717A"
+              strokeWidth={1.5}
+            />
+            <span className="text-2xl text-ink">1</span> incident
+          </p>
         </Reveal>
 
         <Reveal className="min-w-0 lg:pl-6" delay={0.1}>
@@ -88,33 +61,8 @@ export function Problem() {
             </div>
           </Window>
           <p className="mt-3 text-center font-mono text-[10px] text-muted">
-            the same error, for the 4,000th time
+            Illustrative sample
           </p>
-          <div className="mt-8 rounded-xl border border-line bg-surface p-6">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted">
-              Costs of the status quo
-            </p>
-            <div className="mt-4 grid grid-cols-1 gap-4 text-center sm:grid-cols-3">
-              <div>
-                <p className="font-mono text-2xl text-ink">4,000+</p>
-                <p className="mt-1 text-[11px] text-muted">
-                  duplicate events per crash loop
-                </p>
-              </div>
-              <div>
-                <p className="font-mono text-2xl text-ink">90%</p>
-                <p className="mt-1 text-[11px] text-muted">
-                  of incidents reach users first
-                </p>
-              </div>
-              <div>
-                <p className="font-mono text-2xl text-ink">1/10</p>
-                <p className="mt-1 text-[11px] text-muted">
-                  the cost of enterprise APM
-                </p>
-              </div>
-            </div>
-          </div>
         </Reveal>
       </Container>
     </section>
