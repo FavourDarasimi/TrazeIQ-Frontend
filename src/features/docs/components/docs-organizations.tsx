@@ -10,7 +10,7 @@ export function DocsOrganizations() {
         id="organizations"
         label="Account & Team"
         title="Organizations"
-        sub="Every project lives under an organization. The creator becomes owner via a Membership row — every later query is scoped through that membership, never through Organization.objects.all()."
+        sub="Every project lives under an organization. The creator becomes owner via a Membership row — every later query is scoped through that membership, never unscoped."
       >
         <DocsTable
           head={["Endpoint", "Auth / Role", "Body / Query"]}
@@ -148,7 +148,7 @@ curl -X POST https://api.trazeiq.io/api/v1/invites/<raw_token>/accept/ \\
               code: `const { invite, invite_token } = await api("/organizations/" + orgId + "/invite/", {
   method: "POST", body: { email, role: "developer" },
 });
-const acceptUrl = \`/invite/\${invite_token}\`; // frontend: src/app/invite/[token]/page.tsx
+const acceptUrl = \`/invite/\${invite_token}\`; // shown once — share it with the teammate
 await api(\`/invites/\${invite_token}/accept/\`, { method: "POST" });`,
             },
             {

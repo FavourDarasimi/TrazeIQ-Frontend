@@ -1,10 +1,9 @@
-// Hallmark · genre: modern-minimal · macrostructure: component-playground · design-system: /Design.md · designed-as-app
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Cancel01Icon, Menu01Icon, Search01Icon } from "@hugeicons/core-free-icons";
+import { Cancel01Icon, Menu01Icon } from "@hugeicons/core-free-icons";
 
 import { Footer } from "@/features/landing/components/footer";
 import { Logo } from "@/features/landing/components/navbar";
@@ -347,7 +346,7 @@ export function DocsPage() {
 
         <div ref={mainRef} className="min-w-0 flex-1">
           <Container className="max-w-3xl py-10 sm:py-12">
-            {/* Breadcrumb + search */}
+            {/* Breadcrumb */}
             <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="flex min-w-0 items-center gap-1.5 font-mono text-xs text-muted">
                 <span>Docs</span>
@@ -356,16 +355,6 @@ export function DocsPage() {
                 <span aria-hidden className="text-muted/60">/</span>
                 <span className="truncate text-ink">{activeItem?.label ?? ""}</span>
               </p>
-              <button
-                type="button"
-                onClick={() => setSearchOpen(true)}
-                aria-label="Search docs (Ctrl+K)"
-                className="inline-flex w-full items-center gap-2 rounded-full border border-line bg-bg-panel px-4 py-2 font-mono text-xs text-muted transition-colors hover:border-line-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-accent sm:w-[280px]"
-              >
-                <HugeiconsIcon icon={Search01Icon} size={14} color="currentColor" />
-                <span className="flex-1 text-left">Search Docs…</span>
-                <span className="rounded bg-surface px-1.5 py-0.5 text-[10px]">⌘K</span>
-              </button>
             </div>
 
             {/* Hero */}
@@ -377,23 +366,18 @@ export function DocsPage() {
               <p className="max-w-2xl text-pretty text-base leading-relaxed text-muted sm:text-lg">
                 TrazeIQ helps product and engineering teams capture production errors, group them into trackable incidents, and resolve them before they turn into noisy customer-facing outages.
               </p>
-              <div className="flex flex-wrap gap-2 pt-2">
-                <a href="#quickstart" className="inline-flex items-center rounded-full bg-accent px-4 py-2 text-sm font-medium text-ink hover:bg-[#5b52ea] focus-visible:outline-2 focus-visible:outline-accent">Get started</a>
-                <a href="#why-trazeiq" className="inline-flex items-center rounded-full border border-line bg-bg-panel px-4 py-2 text-sm text-ink hover:border-line-soft focus-visible:outline-2 focus-visible:outline-accent">Why TrazeIQ</a>
-                <button type="button" onClick={() => setSearchOpen(true)} className="inline-flex items-center rounded-full border border-line bg-transparent px-4 py-2 text-sm text-muted hover:border-line-soft hover:text-ink focus-visible:outline-2 focus-visible:outline-accent">Press ⌘K to search</button>
-              </div>
             </div>
 
             <div className="mt-12 flex flex-col gap-12">
+              {/* Getting Started first — the most-needed section */}
+              <DocsQuickstart />
+              <DocsSDKs />
+
               {/* Product overview */}
               <DocsProductOverview />
               <DocsWhyTrazeIQ />
               <DocsOnboardingChecklist />
               <DocsPricing />
-
-              {/* Getting Started */}
-              <DocsQuickstart />
-              <DocsSDKs />
 
               {/* Account & Team */}
               <DocsOrganizations />

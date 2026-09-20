@@ -115,7 +115,7 @@ export function DocsAlerts() {
             [
               <Code key="a">target</Code>,
               "string ≤500",
-              <>Channel-aware: <Code>email</Code> must match <Code>/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/</Code>; <Code>webhook</Code> must be valid <Code>http(s)://</Code> and pass SSRF check below; <Code>slack</Code> channel name (<Code>#alerts</Code>) passes through but <Code>https://</Code> slack webhook URLs are SSRF-checked</>,
+              <>Channel-aware: <Code>email</Code> takes an address; <Code>webhook</Code> takes an <Code>http(s)://</Code> URL passing the SSRF checks below; <Code>slack</Code> takes a channel name (<Code>#alerts</Code>) or webhook URL</>,
             ],
             [<Code key="a">cooldown_minutes</Code>, "int ≥1", "Default 15 — suppresses repeat dispatches for the same (rule, incident)"],
           ]}
@@ -149,7 +149,7 @@ export function DocsAlerts() {
           ]}
         />
         <Callout variant="tip" title="Robustness">
-          A dead webhook or missing Slack workspace does not fail ingestion — the rule&apos;s <Code>AlertLog</Code> is marked <Code>failed</Code> with the error, so the delivery history view surfaces it (verified: <Code>apps/alerts/services.py</Code> catches dispatch exceptions → <Code>status=failed</Code>).
+          A dead webhook or missing Slack workspace does not fail ingestion — the rule&apos;s <Code>AlertLog</Code> is marked <Code>failed</Code> with the error, so the delivery history view surfaces it.
         </Callout>
       </DocsSection>
 

@@ -102,7 +102,15 @@ export function DocsCode({
         </button>
       </div>
       <pre className="overflow-x-auto whitespace-pre p-4 font-mono text-[12.5px] leading-relaxed text-ink">
-        {activeCode}
+        {activeCode.split("\n").map((line, i, lines) => {
+          const isComment = /^\s*#/.test(line);
+          return (
+            <span key={i} className={isComment ? "text-ok/70" : undefined}>
+              {line}
+              {i < lines.length - 1 ? "\n" : null}
+            </span>
+          );
+        })}
       </pre>
     </div>
   );

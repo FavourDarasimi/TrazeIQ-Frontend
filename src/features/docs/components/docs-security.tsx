@@ -16,7 +16,7 @@ const items = [
   },
   {
     title: "Error content is untrusted",
-    body: "Stacktraces are hostile input: secrets are scrubbed before storage, content is escaped before rendering, and nothing in an error payload is ever executed. A monitoring tool must never become the leak vector.",
+    body: "Stacktraces are hostile input: secrets are scrubbed before storage and content is escaped before rendering — nothing in an error payload is ever executed.",
   },
   {
     title: "Realtime uses private channels only",
@@ -34,7 +34,7 @@ export function DocsSecurity() {
       id="security"
       label="Security"
       title="Built to not be the thing that leaks"
-      sub="The monitoring tool sees every stacktrace your app throws — that privilege comes with constraints. Checklist mirrors Security-and-Scalability-Checklist.md."
+      sub="The monitoring tool sees every stacktrace your app throws — that privilege comes with constraints."
     >
       <ul className="flex flex-col gap-5">
         {items.map(({ title, body }) => (

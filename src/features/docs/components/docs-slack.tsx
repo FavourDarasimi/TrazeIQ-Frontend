@@ -77,11 +77,11 @@ const { connected, team_name } = await api("/integrations/slack/connect/", {
 # 404 — foreign org or unknown`}
       />
       <Callout variant="note" title="How the UI wires it">
-        <Code>src/features/settings/components/alert-settings-page.tsx</Code> opens the Slack authorize URL in a popup (from <Code>NEXT_PUBLIC_SLACK_CLIENT_ID</Code>), <Code>src/app/integrations/slack/callback/page.tsx</Code> captures{" "}
-        <Code>code</Code> and postMessages it back, and the parent calls <Code>POST …/slack/connect/</Code>. Connection status comes from <Code>GET …/slack/status/</Code>; a <Code>503 SLACK_NOT_CONFIGURED</Code> is surfaced as “not configured in this environment.”
+        The settings page opens the Slack authorize URL in a popup (from <Code>NEXT_PUBLIC_SLACK_CLIENT_ID</Code>), the OAuth callback page captures{" "}
+        <Code>code</Code> and postMessages it back, and the parent calls <Code>POST …/slack/connect/</Code>. Connection status comes from <Code>GET …/slack/status/</Code>; a <Code>503 SLACK_NOT_CONFIGURED</Code> is surfaced as “not connected.”
       </Callout>
       <p className="text-sm leading-relaxed text-muted">
-        The access token is stored via <Code>apps/integrations/fields.py</Code> Fernet <Code>EncryptedCharField</Code> (ciphertext prefix <Code>trazeiq-enc:</Code>, key derived from <Code>SECRET_KEY</Code>). Only the token hash was ever considered — raw ciphertext is not logged or returned. Slack dispatch via{" "}
+        The access token is stored Fernet-encrypted at rest (never logged or returned in plaintext). Slack dispatch via{" "}
         <Code>chat.postMessage</Code> uses that token; webhook-style rules POST directly to the rule&apos;s <Code>target</Code> URL without needing a stored token.
       </p>
     </DocsSection>

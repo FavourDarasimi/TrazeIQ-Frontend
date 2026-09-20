@@ -56,35 +56,10 @@ export function DocsQuickstart() {
           label="fire the first event"
           tabs={[
             { lang: "curl", label: "curl", code: curlSnippet },
-            {
-              lang: "js",
-              label: "JS SDK",
-              code: `npm install trazeiq
-import { init, captureException } from "trazeiq";
-init({ apiKey: "YOUR_API_KEY", environment: "production", service: "payment-api" });
-try {
-  await processPayment(order)
-} catch (error) {
-  await captureException(error) // never throws
-  throw error
-}`,
-            },
-            {
-              lang: "python",
-              label: "Python SDK",
-              code: `pip install trazeiq
-import trazeiq
-trazeiq.init(api_key="YOUR_API_KEY", environment="production", service="payment-api")
-try:
-    process_payment(order)
-except Exception:
-    trazeiq.capture_exception()  # never raises
-    raise`,
-            },
             { lang: "js", label: "JavaScript", code: jsSnippet },
             {
               lang: "python",
-              label: "Python (raw)",
+              label: "Python",
               code: `import requests, traceback
 try:
     process_payment(order)
@@ -96,11 +71,6 @@ except Exception as e:
         timeout=2,
     )
     raise`,
-            },
-            {
-              lang: "node",
-              label: "Node",
-              code: jsSnippet,
             },
             {
               lang: "go",

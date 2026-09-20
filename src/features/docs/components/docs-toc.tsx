@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowUp01Icon } from "@hugeicons/core-free-icons";
 
-import { allNavItems, docsGroups } from "./docs-nav-data";
+import { allNavItems } from "./docs-nav-data";
 
 function scrollToTop() {
   const prefersReduced =
@@ -14,47 +13,34 @@ function scrollToTop() {
 }
 
 export function DocsToc({ activeId }: { activeId: string }) {
-  // Show context around active item: its group + neighbors
+  // The rail mirrors the reference layout: the current section's own
+  // sub-headings — not a second copy of the sidebar.
   const activeItem = allNavItems.find((i) => i.id === activeId);
-  const activeGroup = activeItem
-    ? docsGroups.find((g) => g.id === activeItem.groupId)
-    : docsGroups[0];
+  const subs = activeItem?.subs ?? [];
 
   return (
     <div className="sticky top-16 hidden h-[calc(100vh-4rem)] w-[200px] shrink-0 xl:flex xl:flex-col">
       <div className="flex flex-col gap-6 overflow-y-auto py-6 pl-4">
         <div className="flex flex-col gap-2">
           <p className="text-sm font-semibold text-ink">On This Page</p>
-          <ul className="flex flex-col gap-0.5">
-            {(activeGroup?.items ?? []).map((it) => {
-              const isActive = it.id === activeId;
-              return (
-                <li key={it.id}>
+          {subs.length > 0 ? (
+            <ul className="flex flex-col gap-0.5">
+              {subs.map((sub) => (
+                <li key={sub.id}>
                   <a
-                    href={`#${it.id}`}
-                    aria-current={isActive ? "true" : undefined}
-                    className={`block rounded-md px-2 py-1 text-sm leading-snug transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-                      isActive
-                        ? "bg-accent/10 font-medium text-ink"
-                        : "text-muted hover:bg-surface hover:text-ink"
-                    }`}
+                    href={`#${sub.id}`}
+                    className="block rounded-md px-2 py-1 text-sm leading-snug text-muted transition-colors hover:bg-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                   >
-                    {it.label}
+                    {sub.label}
                   </a>
                 </li>
-              );
-            })}
-          </ul>
-        </div>
-
-        <div className="flex flex-col gap-2 border-t border-line pt-5">
-          <p className="text-sm font-semibold text-ink">Questions?</p>
-          <Link
-            href="/#faq"
-            className="rounded-md px-2 py-1 text-sm text-muted transition-colors hover:bg-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          >
-            FAQ
-          </Link>
+              ))}
+            </ul>
+          ) : (
+            <p className="px-2 text-sm text-muted">
+              {activeItem?.label ?? "Overview"}
+            </p>
+          )}
         </div>
 
         <button
