@@ -29,6 +29,7 @@ import { BulkResolveModal } from "./bulk-resolve-modal";
 import { BulkSeverityModal } from "./bulk-severity-modal";
 import { BulkStatusModal } from "./bulk-status-modal";
 import { highlightIncidentMatch } from "./incident-highlight";
+import { TokenizedSearchBar } from "./tokenized-search-bar";
 
 const SEVERITY_DOT: Record<IncidentSeverity, string> = {
   critical: "bg-sev-critical",
@@ -254,95 +255,72 @@ export function IncidentListPage() {
         </dl>
       ) : null}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted">
-              <HugeiconsIcon
-                icon={Search01Icon}
-                size={16}
-                color="currentColor"
-                strokeWidth={1.5}
-              />
-            </span>
-            <input
-              type="search"
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 flex-1 basis-80 max-w-2xl">
+            <TokenizedSearchBar
               value={searchInput}
-              onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Search titles, messages, services"
-              aria-label="Search incidents"
-              className="h-9 w-64 rounded-lg border border-line bg-surface pl-9 pr-8 text-sm text-ink outline-none transition-colors placeholder:text-muted focus:border-accent/60 focus:ring-1 focus:ring-accent/40 [&::-webkit-search-cancel-button]:hidden"
+              onChange={setSearchInput}
+              placeholder="Search or filter: is:open severity:critical env:production user:123 metadata.browser:Chrome"
             />
-            {searchInput !== "" ? (
-              <button
-                type="button"
-                onClick={() => setSearchInput("")}
-                aria-label="Clear search"
-                className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-muted transition-colors hover:bg-bg-panel hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-              >
-                <HugeiconsIcon
-                  icon={Cancel01Icon}
-                  size={14}
-                  color="currentColor"
-                  strokeWidth={1.5}
-                />
-              </button>
-            ) : null}
           </div>
-          {hasData ? (
-            <label className="flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-line bg-surface px-3 font-mono text-xs text-muted transition-colors hover:border-line-soft hover:text-ink">
-              <input
-                type="checkbox"
-                checked={allSelected}
-                ref={(el) => {
-                  if (el) el.indeterminate = someSelected;
-                }}
-                onChange={toggleSelectAll}
-                aria-label="Select all incidents"
-                className="h-4 w-4 cursor-pointer rounded-[4px] border border-line bg-surface text-accent accent-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-              />
-              <span className="select-none">
-                {selectedIds.size > 0
-                  ? `${selectedIds.size} selected`
-                  : "Select all"}
-              </span>
-            </label>
-          ) : null}
 
-          <select
-            value={filters.severity}
-            onChange={(event) =>
-              setFilters((current) => ({
-                ...current,
-                severity: event.target.value as IncidentSeverity | "",
-              }))
-            }
-            aria-label="Filter by severity"
-            className="h-9 rounded-lg border border-line bg-surface px-3 text-sm text-ink outline-none transition-colors focus:border-accent/60 focus:ring-1 focus:ring-accent/40"
-          >
-            <option value="">All severities</option>
-            <option value="critical">Critical</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-          <select
-            value={filters.status}
-            onChange={(event) =>
-              setFilters((current) => ({
-                ...current,
-                status: event.target.value as IncidentStatus | "",
-              }))
-            }
-            aria-label="Filter by status"
-            className="h-9 rounded-lg border border-line bg-surface px-3 text-sm text-ink outline-none transition-colors focus:border-accent/60 focus:ring-1 focus:ring-accent/40"
-          >
-            <option value="">All statuses</option>
-            <option value="open">Open</option>
-            <option value="investigating">Investigating</option>
-            <option value="resolved">Resolved</option>
-            <option value="ignored">Ignored</option>
-          </select>
+          <div className="flex flex-wrap items-center gap-2">
+            {hasData ? (
+              <label className="flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-line bg-surface px-3 font-mono text-xs text-muted transition-colors hover:border-line-soft hover:text-ink">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  ref={(el) => {
+                    if (el) el.indeterminate = someSelected;
+                  }}
+                  onChange={toggleSelectAll}
+                  aria-label="Select all incidents"
+                  className="h-4 w-4 cursor-pointer rounded-[4px] border border-line bg-surface text-accent accent-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                />
+                <span className="select-none">
+                  {selectedIds.size > 0
+                    ? `${selectedIds.size} selected`
+                    : "Select all"}
+                </span>
+              </label>
+            ) : null}
+
+            <select
+              value={filters.severity}
+              onChange={(event) =>
+                setFilters((current) => ({
+                  ...current,
+                  severity: event.target.value as IncidentSeverity | "",
+                }))
+              }
+              aria-label="Filter by severity"
+              className="h-9 rounded-lg border border-line bg-surface px-3 text-sm text-ink outline-none transition-colors focus:border-accent/60 focus:ring-1 focus:ring-accent/40"
+            >
+              <option value="">All severities</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+            <select
+              value={filters.status}
+              onChange={(event) =>
+                setFilters((current) => ({
+                  ...current,
+                  status: event.target.value as IncidentStatus | "",
+                }))
+              }
+              aria-label="Filter by status"
+              className="h-9 rounded-lg border border-line bg-surface px-3 text-sm text-ink outline-none transition-colors focus:border-accent/60 focus:ring-1 focus:ring-accent/40"
+            >
+              <option value="">All statuses</option>
+              <option value="open">Open</option>
+              <option value="investigating">Investigating</option>
+              <option value="resolved">Resolved</option>
+              <option value="ignored">Ignored</option>
+            </select>
+          </div>
         </div>
       </div>
 
