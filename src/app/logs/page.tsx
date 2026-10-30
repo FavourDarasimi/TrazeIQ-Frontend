@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import { LogsPage } from "@/features/logs/components/logs-page";
-
-export const metadata: Metadata = {
-  title: "Logs — TrazeIQ",
-};
+import { ROUTES } from "@/constants";
 
 export default function LogsRoute() {
-  return <LogsPage />;
+  redirect(ROUTES.events);
 }

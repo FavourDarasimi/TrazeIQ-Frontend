@@ -8,6 +8,10 @@ export type EventFilters = {
   service?: string;
   date?: string;
   search?: string;
+  userId?: string;
+  release?: string;
+  tag?: string;
+  projectId?: string;
   page?: number;
   pageSize?: number;
 };
@@ -27,6 +31,10 @@ export function listEvents(
   if (filters.service) params.set("service", filters.service);
   if (filters.date) params.set("date", filters.date);
   if (filters.search) params.set("search", filters.search);
+  if (filters.userId) params.set("user_id", filters.userId);
+  if (filters.release) params.set("release", filters.release);
+  if (filters.tag) params.set("tag", filters.tag);
+  if (filters.projectId) params.set("project_id", filters.projectId);
   if (filters.page !== undefined) params.set("page", String(filters.page));
   if (filters.pageSize !== undefined) {
     params.set("page_size", String(filters.pageSize));

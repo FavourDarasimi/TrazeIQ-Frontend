@@ -27,7 +27,7 @@ export type NavItem = {
 export const DASHBOARD_NAV: NavItem[] = [
   { href: ROUTES.dashboard, label: "Overview", icon: Home01Icon },
   { href: ROUTES.incidents, label: "Incidents", icon: Alert02Icon },
-  { href: ROUTES.logs, label: "Logs", icon: FileSearchIcon },
+  { href: ROUTES.events, label: "Event Explorer", icon: FileSearchIcon },
   { href: ROUTES.services, label: "Services", icon: Layers02Icon },
   { href: ROUTES.admin, label: "Platform", icon: Shield01Icon, staffOnly: true },
   { href: ROUTES.settings, label: "Settings", icon: Settings02Icon },
@@ -52,9 +52,9 @@ export const SECTION_STUBS: Record<string, { title: string; body: string }> = {
     title: "Overview",
     body: "Open incident counts, error-rate trends, and top recurring errors land here in Phase 3C.",
   },
-  [ROUTES.logs]: {
-    title: "Logs",
-    body: "Structured, non-error log ingestion is optional scope and not wired up yet.",
+  [ROUTES.events]: {
+    title: "Event Explorer",
+    body: "Inspect individual crash instances, stack traces, breadcrumbs, and runtime context.",
   },
   [ROUTES.settings]: {
     title: "Settings",

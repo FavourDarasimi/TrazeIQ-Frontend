@@ -142,6 +142,7 @@ export type EventLog = {
   user_id: string;
   ip_address: string;
   metadata: Record<string, unknown>;
+  breadcrumbs?: unknown[];
   fingerprint: string;
   created_at: string;
 };
