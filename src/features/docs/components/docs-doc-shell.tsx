@@ -1,76 +1,54 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
 
 import { Footer } from "@/features/landing/components/footer";
-import { Logo } from "@/features/landing/components/navbar";
 import { Container } from "@/components/ui/shared";
-import { ROUTES } from "@/constants";
 import { CodeLangProvider } from "./docs-code-context";
-import { DocsPageSearch } from "./docs-page-search";
+import { DocsBodyView } from "./docs-body-view";
+import { DocsDashboardChip, DocsHeader } from "./docs-header";
 import { DocsPageToc } from "./docs-page-toc";
-import { getDocGroups, getHeadings, getPrevNext, getSearchIndex } from "../lib/docs";
+import {
+  getDocGroups,
+  getDocMeta,
+  getHeadings,
+  getPrevNext,
+  getSearchIndex,
+} from "../lib/docs";
 
 /**
- * Focused per-page docs shell. Sidebar is server-rendered from MDX
- * frontmatter (`getDocGroups`) — no hardcoded nav config. Code blocks get
- * the global tab-sync provider so language choice persists across pages.
+ * Per-page docs shell. Sidebar, page header, and prev/next all come from the
+ * doc registry — no hand-maintained nav config. Code blocks get the global
+ * tab-sync provider so language choice persists across pages.
  */
-export function DocShell({
-  slug,
-  children,
-}: {
-  slug: string;
-  children: ReactNode;
-}) {
+export function DocShell({ slug }: { slug: string }) {
+  const meta = getDocMeta(slug);
   const groups = getDocGroups();
   const { prev, next } = getPrevNext(slug);
   const headings = getHeadings(slug);
   const searchIndex = getSearchIndex();
 
+  if (!meta) return null;
+
   return (
     <CodeLangProvider>
       <main className="bg-bg">
-        <header className="sticky top-0 z-50 border-b border-line bg-bg/80 backdrop-blur-xl">
-          <Container className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Logo href="/" />
-              <Link href="/docs" className="hidden font-mono text-xs text-muted hover:text-ink sm:inline">
-                / docs
-              </Link>
-            </div>
-            <div className="flex items-center gap-3">
-              <DocsPageSearch entries={searchIndex} />
-              <Link
-                href={ROUTES.login}
-                className="hidden rounded-sm text-sm text-muted transition-colors hover:text-ink sm:inline"
-              >
-                Sign in
-              </Link>
-              <Link
-                href={ROUTES.dashboard}
-                className="rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-ink transition-colors hover:bg-[#5b52ea]"
-              >
-                Dashboard
-              </Link>
-            </div>
-          </Container>
-        </header>
+        <DocsHeader entries={searchIndex} />
 
         <div className="mx-auto flex w-full max-w-[1500px] items-start">
           <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-72 shrink-0 overflow-y-auto py-6 pr-4 lg:block">
-            <nav aria-label="Docs sections" className="flex flex-col gap-6">
+            <DocsDashboardChip />
+            <nav aria-label="Docs sections" className="mt-6 flex flex-col gap-6">
               {groups.map((group) => (
                 <div key={group.section} className="flex flex-col gap-2">
                   <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
-                    {group.section}
+                    {group.label}
                   </p>
                   <ul className="flex flex-col gap-0.5 border-l border-line">
                     {group.items.map((item) => {
-                      const isActive = item.slugString === slug;
+                      const isActive = item.slug === slug;
                       return (
-                        <li key={item.slugString}>
+                        <li key={item.slug}>
                           <Link
-                            href={`/docs/${item.slugString}`}
+                            href={`/docs/${item.slug}`}
                             aria-current={isActive ? "true" : undefined}
                             className={`-ml-px block border-l py-1.5 pl-3 pr-2 text-sm transition-colors ${
                               isActive
@@ -100,14 +78,14 @@ export function DocShell({
                   {groups.map((group) => (
                     <div key={group.section} className="flex flex-col gap-1">
                       <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
-                        {group.section}
+                        {group.label}
                       </p>
                       {group.items.map((item) => (
                         <Link
-                          key={item.slugString}
-                          href={`/docs/${item.slugString}`}
+                          key={item.slug}
+                          href={`/docs/${item.slug}`}
                           className={`text-sm ${
-                            item.slugString === slug ? "text-accent" : "text-muted"
+                            item.slug === slug ? "text-accent" : "text-muted"
                           }`}
                         >
                           {item.title}
@@ -118,13 +96,43 @@ export function DocShell({
                 </nav>
               </details>
 
-              {children}
+              {/* Breadcrumb */}
+              <p className="flex min-w-0 items-center gap-1.5 font-mono text-xs text-muted">
+                <Link href="/docs" className="hover:text-ink">
+                  Docs
+                </Link>
+                <span aria-hidden className="text-muted/60">
+                  /
+                </span>
+                <span className="truncate">{meta.sectionLabel}</span>
+                <span aria-hidden className="text-muted/60">
+                  /
+                </span>
+                <span className="truncate text-ink">{meta.title}</span>
+              </p>
 
-              {/* Prev / next from frontmatter order */}
+              {/* Page header */}
+              <div className="mt-6 flex flex-col gap-3">
+                <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
+                  {meta.sectionLabel}
+                </p>
+                <h1 className="text-balance text-3xl font-semibold leading-tight tracking-tight text-ink sm:text-4xl">
+                  {meta.title}
+                </h1>
+                <p className="max-w-2xl text-pretty text-base leading-relaxed text-muted">
+                  {meta.description}
+                </p>
+              </div>
+
+              <div className="mt-10">
+                <DocsBodyView slug={slug} />
+              </div>
+
+              {/* Prev / next from registry order */}
               <nav aria-label="More docs" className="mt-12 grid gap-3 border-t border-line pt-6 sm:grid-cols-2">
                 {prev ? (
                   <Link
-                    href={`/docs/${prev.slugString}`}
+                    href={`/docs/${prev.slug}`}
                     className="rounded-lg border border-line bg-bg-panel p-4 transition-colors hover:border-line-soft"
                   >
                     <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">Previous</p>
@@ -135,7 +143,7 @@ export function DocShell({
                 )}
                 {next ? (
                   <Link
-                    href={`/docs/${next.slugString}`}
+                    href={`/docs/${next.slug}`}
                     className="rounded-lg border border-line bg-bg-panel p-4 text-right transition-colors hover:border-line-soft"
                   >
                     <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">Next</p>
