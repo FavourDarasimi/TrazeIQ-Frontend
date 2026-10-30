@@ -92,7 +92,7 @@ api_key = resp.json()["data"]["api_key"]`,
 
         <SubHeading id="projects-rotate">Rotate API key — POST /api/v1/projects/{"{id}"}/rotate-key/</SubHeading>
         <p className="text-sm leading-relaxed text-muted">
-          Owner/admin only. Generates a fresh 64-hex key, stores its HMAC hash + new prefix, returns the raw key once, and invalidates the previous key immediately. An <Code>AuditLog</Code> row <Code>key_rotated</Code> is written with actor and timestamp.
+          Owner/admin only. Generates a fresh 64-hex key, stores its HMAC hash + new prefix, returns the raw key once. Supports instant revocation or a configurable grace period. An <Code>AuditLog</Code> row <Code>key_rotated</Code> is written with actor and timestamp.
         </p>
         <DocsCode
           label="rotate key"
@@ -101,15 +101,19 @@ api_key = resp.json()["data"]["api_key"]`,
               lang: "curl",
               label: "curl",
               code: `curl -X POST https://api.trazeiq.io/api/v1/projects/<id>/rotate-key/ \\
-  -H "Authorization: Bearer <owner_jwt>"
+  -H "Authorization: Bearer <owner_jwt>" \\
+  -H "Content-Type: application/json" \\
+  -d '{"grace_period_hours": 24}'
 # 200 {data:{project:{id, api_key_prefix:"9f2c41ab"}, api_key:"<new 64-hex key>", integration_snippet:"..."}}
-# Old X-API-Key now 401 NOT_AUTHENTICATED on POST /api/v1/events/`,
+# Previous key stays active during grace period, then expires automatically`,
             },
             {
               lang: "js",
               label: "JavaScript",
-              code: `const { api_key: newKey } = await api(\`/projects/\${projectId}/rotate-key/\`, { method: "POST" });
-// update the host app's TRAZEIQ_API_KEY immediately — the old one is dead`,
+              code: `const { api_key: newKey } = await api(\`/projects/\${projectId}/rotate-key/\`, {
+  method: "POST",
+  body: { grace_period_hours: 24 }
+});`,
             },
             {
               lang: "python",
@@ -117,12 +121,13 @@ api_key = resp.json()["data"]["api_key"]`,
               code: `new = requests.post(
   f"https://api.trazeiq.io/api/v1/projects/{pid}/rotate-key/",
   headers={"Authorization": f"Bearer {owner_token}"},
+  json={"grace_period_hours": 24},
 ).json()["data"]["api_key"]`,
             },
           ]}
         />
-        <Callout variant="warning" title="Old key dies instantly">
-          There is no grace period. Rotate during a maintenance window or prime the new key alongside the old one in your deploy, then switch the env var and redeploy. A lost <Code>api_key</Code> cannot be recovered — rotate again.
+        <Callout variant="note" title="Grace period support">
+          Projects now support multiple scoped API keys (<Code>ingest_only</Code>, <Code>read_only</Code>, <Code>sourcemaps_upload</Code>) via <Code>/api/v1/projects/{"{id}"}/keys/</Code>. When rotating keys, set <Code>grace_period_hours</Code> (e.g. 24h) to avoid dropping events while client applications redeploy.
         </Callout>
         <DocsTable
           head={["Status", "Meaning"]}

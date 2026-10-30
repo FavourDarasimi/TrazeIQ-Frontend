@@ -66,6 +66,36 @@ export type CreatedProject = {
   integration_snippet: string;
 };
 
+export type ApiKeyScope = "ingest_only" | "read_only" | "sourcemaps_upload" | "full_access";
+
+export type ApiKeyStatus = "active" | "grace_period" | "revoked";
+
+export type ProjectApiKey = {
+  id: string;
+  name: string;
+  api_key_prefix: string;
+  scopes: ApiKeyScope[];
+  status: ApiKeyStatus;
+  expires_at: string | null;
+  revoked_at: string | null;
+  last_used_at: string | null;
+  request_count: number;
+  created_at: string;
+};
+
+export type CreatedProjectApiKey = {
+  key: ProjectApiKey;
+  api_key: string;
+  integration_snippet: string;
+};
+
+export type RotatedProjectApiKey = {
+  key: ProjectApiKey;
+  old_key: ProjectApiKey;
+  api_key: string;
+  integration_snippet: string;
+};
+
 export type IncidentSeverity = "critical" | "high" | "medium" | "low";
 
 export type IncidentStatus = "open" | "investigating" | "resolved" | "ignored";
