@@ -35,14 +35,32 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001";
  * don't blacklist each other's refresh cookie (server rotates on every call). */
 let refreshInFlight: Promise<boolean> | null = null;
 
+const PUBLIC_PREFIXES = ["/login", "/register", "/forgot-password", "/reset-password", "/docs"];
+
+function isPublicRoute(pathname: string): boolean {
+  if (pathname === "/") return true;
+  return PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
+}
+
 function rotateSession(): Promise<boolean> {
   if (!refreshInFlight) {
     refreshInFlight = fetch(`${API_URL}${API_BASE}${API_ROUTES.refresh}`, {
       method: "POST",
       credentials: "include",
     })
-      .then((response) => response.ok || response.status === 204)
-      .catch(() => false)
+      .then((response) => {
+        const ok = response.ok || response.status === 204;
+        if (!ok && typeof window !== "undefined") {
+          window.localStorage.removeItem("trazeiq_logged_in");
+        }
+        return ok;
+      })
+      .catch(() => {
+        if (typeof window !== "undefined") {
+          window.localStorage.removeItem("trazeiq_logged_in");
+        }
+        return false;
+      })
       .finally(() => {
         refreshInFlight = null;
       });
@@ -60,8 +78,18 @@ async function request<T>(path: string, options: ApiRequestOptions, allowRetry: 
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 
-  if (response.status === 401 && allowRetry && path !== API_ROUTES.refresh && (await rotateSession())) {
-    return request<T>(path, options, false);
+  if (response.status === 401 && allowRetry && path !== API_ROUTES.refresh) {
+    const isPublic =
+      typeof window !== "undefined" && isPublicRoute(window.location.pathname);
+    // On public routes, an unauthenticated /auth/me/ check should not trigger an
+    // extraneous /auth/refresh/ failure into the console.
+    if (isPublic && path === API_ROUTES.me) {
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem("trazeiq_logged_in");
+      }
+    } else if (await rotateSession()) {
+      return request<T>(path, options, false);
+    }
   }
 
   if (!response.ok) {

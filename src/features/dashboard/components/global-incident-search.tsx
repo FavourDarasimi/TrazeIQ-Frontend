@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Search01Icon } from "@hugeicons/core-free-icons";
 
@@ -21,6 +21,8 @@ const PREVIEW_COUNT = 5;
  * navigates to the full results on `/incidents?search=`.
  */
 export function GlobalIncidentSearch() {
+  const pathname = usePathname();
+  const isIncidentsPage = pathname === ROUTES.incidents;
   const { status: authStatus } = useAuth();
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -31,14 +33,15 @@ export function GlobalIncidentSearch() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (isIncidentsPage) return;
     const timer = window.setTimeout(() => {
       setDebounced(query.trim());
     }, DEBOUNCE_MS);
     return () => window.clearTimeout(timer);
-  }, [query]);
+  }, [query, isIncidentsPage]);
 
   useEffect(() => {
-    if (authStatus !== "authenticated" || debounced === "" || !open) {
+    if (isIncidentsPage || authStatus !== "authenticated" || debounced === "" || !open) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- clearing stale preview results
       setResults(null);
       setSearching(false);
@@ -57,10 +60,11 @@ export function GlobalIncidentSearch() {
         setSearching(false);
       });
     return () => controller.abort();
-  }, [authStatus, debounced, open]);
+  }, [authStatus, debounced, open, isIncidentsPage]);
 
   // Global "/" shortcut focuses the search, like a command center should.
   useEffect(() => {
+    if (isIncidentsPage) return;
     function onKeyDown(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null;
       const typing =
@@ -75,7 +79,11 @@ export function GlobalIncidentSearch() {
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [isIncidentsPage]);
+
+  if (isIncidentsPage) {
+    return null;
+  }
 
   function goToResults() {
     const term = query.trim();

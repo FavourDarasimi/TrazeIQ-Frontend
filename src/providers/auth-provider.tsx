@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { fetchMe, login as loginService, logout as logoutService, refreshSession } from "@/services/auth";
+import { fetchMe, login as loginService, logout as logoutService } from "@/services/auth";
 import type { AuthSession, AuthUser } from "@/types";
 
 export type AuthStatus = "loading" | "authenticated" | "unauthenticated";
@@ -25,6 +25,13 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+const PUBLIC_PREFIXES = ["/login", "/register", "/forgot-password", "/reset-password", "/docs"];
+
+function isPublicRoute(pathname: string): boolean {
+  if (pathname === "/") return true;
+  return PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>("loading");
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -33,25 +40,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     async function bootstrap() {
+      const pathname = typeof window !== "undefined" ? window.location.pathname : "";
+      const hasAuthHint =
+        typeof window !== "undefined" &&
+        window.localStorage.getItem("trazeiq_logged_in") === "true";
+
+      // If on a public landing or auth page and there is no login hint, skip
+      // making auth calls to avoid noisy 401 failures in browser devtools.
+      if (!hasAuthHint && isPublicRoute(pathname)) {
+        if (!cancelled) setStatus("unauthenticated");
+        return;
+      }
+
       try {
         const session = await fetchMe();
         if (!cancelled) {
+          if (typeof window !== "undefined") {
+            window.localStorage.setItem("trazeiq_logged_in", "true");
+          }
           setUser(session.user);
           setStatus("authenticated");
           return;
         }
       } catch {
-        // Access cookie missing or expired — try rotating from the refresh
-        // cookie before giving up.
-        try {
-          const session = await refreshSession();
-          if (!cancelled) {
-            setUser(session.user);
-            setStatus("authenticated");
-            return;
-          }
-        } catch {
-          // Fall through: no usable session.
+        if (typeof window !== "undefined") {
+          window.localStorage.removeItem("trazeiq_logged_in");
         }
       }
       if (!cancelled) setStatus("unauthenticated");
@@ -64,6 +77,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const applySession = useCallback((session: AuthSession) => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("trazeiq_logged_in", "true");
+    }
     setUser(session.user);
     setStatus("authenticated");
   }, []);
@@ -82,6 +98,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await logoutService();
     } catch {
       // Still clear local state even if the server already dropped the session.
+    }
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem("trazeiq_logged_in");
     }
     setUser(null);
     setStatus("unauthenticated");

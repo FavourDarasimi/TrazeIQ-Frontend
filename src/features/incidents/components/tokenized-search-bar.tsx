@@ -238,6 +238,24 @@ export function TokenizedSearchBar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Keyboard shortcut: pressing "/" focuses the filter bar unless already typing
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      const typing =
+        target !== null &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable);
+      if (event.key === "/" && !typing) {
+        event.preventDefault();
+        inputRef.current?.focus();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   const selectSuggestion = useCallback(
     (suggestion: Suggestion) => {
       const { start, end } = currentWord;
@@ -372,7 +390,11 @@ export function TokenizedSearchBar({
               strokeWidth={1.5}
             />
           </button>
-        ) : null}
+        ) : (
+          <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-block rounded border border-line bg-bg-panel px-1.5 py-0.5 font-mono text-[10px] text-muted">
+            /
+          </kbd>
+        )}
       </div>
 
       {/* Interactive Token Pills */}

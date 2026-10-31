@@ -202,7 +202,7 @@ export function EventExplorerPage() {
         <div className="flex flex-col gap-3 p-4">
           {/* Main search and quick filters */}
           <div className="flex flex-wrap items-center gap-3">
-            <div className="relative min-w-0 flex-1 basis-64">
+            <div className="relative min-w-0 w-full basis-full sm:w-auto sm:basis-64 sm:flex-1">
               <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted">
                 <HugeiconsIcon
                   icon={Search01Icon}
@@ -224,101 +224,105 @@ export function EventExplorerPage() {
               />
             </div>
 
-            <select
-              value={filters.level}
-              onChange={(event) => {
-                setFilters((current) => ({
-                  ...current,
-                  level: event.target.value as EventLevel | "",
-                }));
-                resetPage();
-              }}
-              aria-label="Filter by level"
-              className={`${INPUT_CLASS} basis-32`}
-            >
-              <option value="">All levels</option>
-              {LEVELS.map((level) => (
-                <option key={level} value={level}>
-                  {level}
-                </option>
-              ))}
-            </select>
+            <div className="flex w-full items-center gap-2 sm:w-auto">
+              <select
+                value={filters.level}
+                onChange={(event) => {
+                  setFilters((current) => ({
+                    ...current,
+                    level: event.target.value as EventLevel | "",
+                  }));
+                  resetPage();
+                }}
+                aria-label="Filter by level"
+                className={`${INPUT_CLASS} flex-1 sm:flex-initial sm:basis-32`}
+              >
+                <option value="">All levels</option>
+                {LEVELS.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
 
-            <select
-              value={filters.environment}
-              onChange={(event) => {
-                setFilters((current) => ({
-                  ...current,
-                  environment: event.target.value,
-                }));
-                resetPage();
-              }}
-              aria-label="Filter by environment"
-              className={`${INPUT_CLASS} basis-36`}
-            >
-              <option value="">All environments</option>
-              {environments.map((environment) => (
-                <option key={environment} value={environment}>
-                  {environment}
-                </option>
-              ))}
-            </select>
+              <select
+                value={filters.environment}
+                onChange={(event) => {
+                  setFilters((current) => ({
+                    ...current,
+                    environment: event.target.value,
+                  }));
+                  resetPage();
+                }}
+                aria-label="Filter by environment"
+                className={`${INPUT_CLASS} flex-1 sm:flex-initial sm:basis-36`}
+              >
+                <option value="">All environments</option>
+                {environments.map((environment) => (
+                  <option key={environment} value={environment}>
+                    {environment}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <button
-              type="button"
-              onClick={() => setShowAdvancedFilters((prev) => !prev)}
-              aria-expanded={showAdvancedFilters}
-              className={`flex h-9 items-center gap-2 rounded-lg border px-3 text-sm transition-colors ${
-                showAdvancedFilters ||
-                filters.userId ||
-                filters.release ||
-                filters.tag ||
-                filters.service ||
-                filters.date
-                  ? "border-accent/40 bg-accent/10 text-accent font-medium"
-                  : "border-line bg-surface text-ink hover:border-line-soft hover:bg-bg-panel"
-              }`}
-            >
-              <HugeiconsIcon
-                icon={FilterHorizontalIcon}
-                size={16}
-                color="currentColor"
-                strokeWidth={1.5}
-              />
-              Filters
-              {(filters.userId ? 1 : 0) +
-                (filters.release ? 1 : 0) +
-                (filters.tag ? 1 : 0) +
-                (filters.service ? 1 : 0) +
-                (filters.date ? 1 : 0) > 0 ? (
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-bg">
-                  {(filters.userId ? 1 : 0) +
-                    (filters.release ? 1 : 0) +
-                    (filters.tag ? 1 : 0) +
-                    (filters.service ? 1 : 0) +
-                    (filters.date ? 1 : 0)}
-                </span>
-              ) : null}
-            </button>
+            <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-start">
+              <button
+                type="button"
+                onClick={() => setShowAdvancedFilters((prev) => !prev)}
+                aria-expanded={showAdvancedFilters}
+                className={`flex h-9 items-center gap-2 rounded-lg border px-3 text-sm transition-colors ${
+                  showAdvancedFilters ||
+                  filters.userId ||
+                  filters.release ||
+                  filters.tag ||
+                  filters.service ||
+                  filters.date
+                    ? "border-accent/40 bg-accent/10 text-accent font-medium"
+                    : "border-line bg-surface text-ink hover:border-line-soft hover:bg-bg-panel"
+                }`}
+              >
+                <HugeiconsIcon
+                  icon={FilterHorizontalIcon}
+                  size={16}
+                  color="currentColor"
+                  strokeWidth={1.5}
+                />
+                Filters
+                {(filters.userId ? 1 : 0) +
+                  (filters.release ? 1 : 0) +
+                  (filters.tag ? 1 : 0) +
+                  (filters.service ? 1 : 0) +
+                  (filters.date ? 1 : 0) > 0 ? (
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-bg">
+                    {(filters.userId ? 1 : 0) +
+                      (filters.release ? 1 : 0) +
+                      (filters.tag ? 1 : 0) +
+                      (filters.service ? 1 : 0) +
+                      (filters.date ? 1 : 0)}
+                  </span>
+                ) : null}
+              </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                setError(null);
-                setAttempt((value) => value + 1);
-              }}
-              title="Refresh event stream"
-              aria-label="Refresh event stream"
-              className="flex h-9 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-sm text-ink transition-colors hover:border-line-soft hover:bg-bg-panel focus-visible:border-accent/60 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/40 active:translate-y-px"
-            >
-              <HugeiconsIcon
-                icon={RefreshIcon}
-                size={16}
-                color="currentColor"
-                strokeWidth={1.5}
-              />
-              Refresh
-            </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setError(null);
+                  setAttempt((value) => value + 1);
+                }}
+                title="Refresh event stream"
+                aria-label="Refresh event stream"
+                className="flex h-9 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-sm text-ink transition-colors hover:border-line-soft hover:bg-bg-panel focus-visible:border-accent/60 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/40 active:translate-y-px"
+              >
+                <HugeiconsIcon
+                  icon={RefreshIcon}
+                  size={16}
+                  color="currentColor"
+                  strokeWidth={1.5}
+                />
+                Refresh
+              </button>
+            </div>
           </div>
 
           {/* Targeted filter row (User, Release, Tags, Service, Date) */}
@@ -679,14 +683,14 @@ export function EventExplorerPage() {
                     onClick={() => setExpandedId(expanded ? null : event.id)}
                     aria-expanded={expanded}
                     aria-controls={`event-detail-${event.id}`}
-                    className="flex w-full items-start gap-3 px-5 py-3 text-left transition-colors duration-150 hover:bg-bg-panel focus-visible:bg-bg-panel focus-visible:outline-none"
+                    className="flex w-full min-w-0 items-start gap-2.5 sm:gap-3 px-3 py-3 sm:px-5 sm:py-3 text-left transition-colors duration-150 hover:bg-bg-panel focus-visible:bg-bg-panel focus-visible:outline-none"
                   >
                     <span
                       aria-hidden
                       className={`mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full ${style.dot}`}
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs">
+                      <span className="flex flex-wrap items-center gap-x-2 sm:gap-x-3 gap-y-1 font-mono text-xs">
                         <time
                           dateTime={event.created_at}
                           className="shrink-0 tabular-nums text-muted"
@@ -698,18 +702,18 @@ export function EventExplorerPage() {
                         >
                           {event.level}
                         </span>
-                        <span className="truncate text-muted">
+                        <span className="hidden sm:inline-block truncate text-muted">
                           {[event.service, event.environment]
                             .filter(Boolean)
                             .join(" · ") || "—"}
                         </span>
                         {event.user_id ? (
-                          <span className="rounded bg-surface px-1.5 py-0.5 text-[10px] font-mono text-ink/70 border border-line">
+                          <span className="hidden md:inline-block rounded bg-surface px-1.5 py-0.5 text-[10px] font-mono text-ink/70 border border-line">
                             user: {event.user_id}
                           </span>
                         ) : null}
                         {releaseVal ? (
-                          <span className="rounded bg-surface px-1.5 py-0.5 text-[10px] font-mono text-accent/80 border border-accent/20">
+                          <span className="hidden md:inline-block rounded bg-surface px-1.5 py-0.5 text-[10px] font-mono text-accent/80 border border-accent/20">
                             rel: {releaseVal}
                           </span>
                         ) : null}
@@ -736,7 +740,7 @@ export function EventExplorerPage() {
                   {expanded ? (
                     <div
                       id={`event-detail-${event.id}`}
-                      className="border-t border-line-soft bg-bg/30 px-5 py-4 flex flex-col gap-4"
+                      className="border-t border-line-soft bg-bg/30 px-3 py-4 sm:px-5 flex flex-col gap-4 overflow-hidden"
                     >
                       {/* Context metadata summary */}
                       <div className="flex flex-wrap gap-x-5 gap-y-2 font-mono text-[11px] text-muted">
@@ -745,6 +749,38 @@ export function EventExplorerPage() {
                             project{" "}
                             <span className="text-ink/80 font-medium">
                               {projectNames.get(event.project) ?? event.project}
+                            </span>
+                          </span>
+                        ) : null}
+                        {event.environment ? (
+                          <span>
+                            environment{" "}
+                            <span className="text-ink/80 font-medium">
+                              {event.environment}
+                            </span>
+                          </span>
+                        ) : null}
+                        {event.service ? (
+                          <span>
+                            service{" "}
+                            <span className="text-ink/80 font-medium">
+                              {event.service}
+                            </span>
+                          </span>
+                        ) : null}
+                        {releaseVal ? (
+                          <span>
+                            release{" "}
+                            <span className="text-ink/80 font-medium">
+                              {releaseVal}
+                            </span>
+                          </span>
+                        ) : null}
+                        {event.user_id ? (
+                          <span>
+                            user_id{" "}
+                            <span className="text-ink/80 font-medium">
+                              {event.user_id}
                             </span>
                           </span>
                         ) : null}
