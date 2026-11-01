@@ -31,6 +31,12 @@ const STATUS_OPTIONS: Array<{
     description: "Actively being looked into by an engineer.",
   },
   {
+    value: "fix_verified",
+    label: "Fix verified",
+    dot: "bg-[#8b5cf6]",
+    description: "Fix has landed in a release and is undergoing verification.",
+  },
+  {
     value: "resolved",
     label: "Resolved",
     dot: "bg-ok",

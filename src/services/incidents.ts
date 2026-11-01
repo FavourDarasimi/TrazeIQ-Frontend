@@ -135,3 +135,21 @@ export function bulkAssignIncidents(
     { method: "POST", body: { incident_ids: incidentIds, assigned_to: assignedTo } },
   );
 }
+
+export type VerifyFixPayload = {
+  release: string;
+  commit_sha?: string;
+  notes?: string;
+  auto_resolve?: boolean;
+};
+
+export function verifyIncidentFix(
+  incidentId: string,
+  payload: VerifyFixPayload,
+): Promise<{ incident: Incident }> {
+  return api<{ incident: Incident }>(
+    `${API_ROUTES.incidents}${incidentId}/verify-fix/`,
+    { method: "POST", body: payload },
+  );
+}
+

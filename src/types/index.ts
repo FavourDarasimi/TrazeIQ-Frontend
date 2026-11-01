@@ -98,7 +98,38 @@ export type RotatedProjectApiKey = {
 
 export type IncidentSeverity = "critical" | "high" | "medium" | "low";
 
-export type IncidentStatus = "open" | "investigating" | "resolved" | "ignored";
+export type IncidentStatus =
+  | "open"
+  | "investigating"
+  | "fix_verified"
+  | "resolved"
+  | "ignored";
+
+export type SuspectRelease = {
+  id: string;
+  version: string;
+  commit_sha: string;
+  commit_message: string;
+  commit_author: string;
+  commit_url: string;
+  pull_request_url: string;
+  pull_request_title: string;
+  deployed_at: string;
+  environment: string;
+};
+
+export type DeployIntelligence = {
+  has_regression: boolean;
+  likely_release: SuspectRelease | null;
+  first_seen: string | null;
+  affected_endpoints: string[];
+  error_rate_before: number;
+  error_rate_after: number;
+  events_count_before: number;
+  events_count_after: number;
+  rate_change_percent: number;
+  confidence: "high" | "medium" | "low";
+};
 
 export type ProjectSummary = {
   id: string;
@@ -167,6 +198,7 @@ export type Incident = {
   created_at: string;
   resolved_at: string | null;
   latest_event: EventSummary | null;
+  deploy_intelligence?: DeployIntelligence | null;
 };
 
 export type IncidentTimelineKind =

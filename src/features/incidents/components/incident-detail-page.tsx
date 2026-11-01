@@ -29,7 +29,9 @@ import { BulkIgnoreModal } from "@/features/incidents/components/bulk-ignore-mod
 import { BulkResolveModal } from "@/features/incidents/components/bulk-resolve-modal";
 import { BulkSeverityModal } from "@/features/incidents/components/bulk-severity-modal";
 import { BulkStatusModal } from "@/features/incidents/components/bulk-status-modal";
+import { DeployIntelligenceCard } from "@/features/incidents/components/deploy-intelligence-card";
 import { IncidentTimeline } from "@/features/incidents/components/incident-timeline";
+import { VerifyFixModal } from "@/features/incidents/components/verify-fix-modal";
 import { useRealtimeEvents } from "@/providers/realtime-provider";
 import { getIncident, updateIncident, type BulkUpdateResult } from "@/services/incidents";
 import type { Incident } from "@/types";
@@ -60,7 +62,7 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
 
   // Modal triggers matching the list page modals
   const [modal, setModal] = useState<
-    "resolve" | "status" | "severity" | "ignore" | "assign" | null
+    "resolve" | "status" | "severity" | "ignore" | "assign" | "verify_fix" | null
   >(null);
 
   useEffect(() => {
@@ -233,6 +235,25 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
             </button>
           )}
 
+          {/* Verify Fix Action */}
+          {!isResolved ? (
+            <button
+              type="button"
+              onClick={() => setModal("verify_fix")}
+              disabled={mutating}
+              title="Verify fix against a deployment"
+              className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#8b5cf6]/40 bg-[#8b5cf6]/10 px-3 font-mono text-xs font-medium text-[#a78bfa] transition-colors hover:bg-[#8b5cf6]/20 disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8b5cf6]"
+            >
+              <HugeiconsIcon
+                icon={CheckmarkCircleIcon}
+                size={14}
+                color="currentColor"
+                strokeWidth={1.5}
+              />
+              Verify Fix
+            </button>
+          ) : null}
+
           {/* Status Modal Trigger */}
           <button
             type="button"
@@ -336,6 +357,7 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
       </div>
 
       <div className="flex flex-col gap-6">
+        <DeployIntelligenceCard intelligence={incident.deploy_intelligence} />
         {latest ? (
           <StacktraceBlock
             title="stacktrace"
@@ -384,6 +406,16 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
         onClose={() => setModal(null)}
         selectedIds={[incident.id]}
         onComplete={handleModalComplete}
+      />
+
+      <VerifyFixModal
+        open={modal === "verify_fix"}
+        onClose={() => setModal(null)}
+        incidentId={incident.id}
+        onComplete={(updated) => {
+          setIncident(updated);
+          setModal(null);
+        }}
       />
     </div>
   );

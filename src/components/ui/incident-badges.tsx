@@ -17,6 +17,7 @@ const SEVERITY_DOTS: Record<IncidentSeverity, string> = {
 const STATUS_STYLES: Record<IncidentStatus, string> = {
   open: "border-sev-critical/30 bg-sev-critical/10 text-sev-critical",
   investigating: "border-sev-warning/30 bg-sev-warning/10 text-sev-warning",
+  fix_verified: "border-[#8b5cf6]/40 bg-[#8b5cf6]/10 text-[#a78bfa]",
   resolved: "border-ok/30 bg-ok/10 text-ok",
   ignored: "border-line bg-surface text-muted",
 };
@@ -24,6 +25,7 @@ const STATUS_STYLES: Record<IncidentStatus, string> = {
 const STATUS_DOTS: Record<IncidentStatus, string> = {
   open: "bg-sev-critical",
   investigating: "bg-sev-warning",
+  fix_verified: "bg-[#8b5cf6]",
   resolved: "bg-ok",
   ignored: "bg-muted",
 };
@@ -63,12 +65,13 @@ export function SeverityBadge({ severity }: { severity: IncidentSeverity }) {
 }
 
 export function StatusBadge({ status }: { status: IncidentStatus }) {
+  const label = status === "fix_verified" ? "Fix verified" : status;
   return (
     <Badge
-      label={status}
+      label={label}
       styles={STATUS_STYLES[status]}
       dot={STATUS_DOTS[status]}
-      ariaLabel={`Status: ${status}`}
+      ariaLabel={`Status: ${label}`}
     />
   );
 }
